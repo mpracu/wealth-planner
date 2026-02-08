@@ -1,87 +1,109 @@
-# Wealth Planner
+# 💰 Wealth Planner
 
-A modern financial calculator to project when you'll reach $1 million based on your current situation.
+An interactive wealth planning calculator that helps you visualize your path to financial independence. See exactly when you'll reach your $1 million goal based on your current situation and investment strategy.
 
-## Features
+![Wealth Planner Demo](https://img.shields.io/badge/React-19.0-blue) ![Vite](https://img.shields.io/badge/Vite-6.0-purple) ![License](https://img.shields.io/badge/license-MIT-green)
 
-- Interactive sliders for all parameters
-- Real-time chart updates
-- Inflation-adjusted calculations
-- Clean, modern UI
-- Fully responsive
+## ✨ Features
 
-## Local Development
+- **Real-time Projections**: Instantly see how your wealth grows over time
+- **Inflation-Adjusted**: View both nominal and real (inflation-adjusted) values
+- **Interactive Controls**: Adjust all parameters with intuitive sliders
+- **Visual Charts**: Beautiful, responsive charts powered by Recharts
+- **Milestone Tracking**: Know exactly when you'll reach $1M in today's dollars
+- **Mobile Responsive**: Works seamlessly on all devices
+
+## 🎯 What You Can Calculate
+
+- Current age and starting capital
+- Monthly investment contributions
+- Expected annual returns (0-15%)
+- Inflation rate adjustments (0-10%)
+- Projected wealth up to 50 years into the future
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 16+ installed
+- npm or yarn package manager
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/mpracu/wealth-planner.git
+
+# Navigate to project directory
+cd wealth-planner
+
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
 ```
 
-## AWS Deployment (S3 + CloudFront)
+Visit `http://localhost:5173` to see the app in action!
 
-### 1. Create S3 Bucket
-
-```bash
-# Replace with your unique bucket name
-BUCKET_NAME="wealth-planner-app"
-REGION="us-east-1"
-
-# Create bucket
-aws s3 mb s3://$BUCKET_NAME --region $REGION
-
-# Enable static website hosting
-aws s3 website s3://$BUCKET_NAME --index-document index.html --error-document index.html
-
-# Set bucket policy for public read
-cat > bucket-policy.json << EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [{
-    "Sid": "PublicReadGetObject",
-    "Effect": "Allow",
-    "Principal": "*",
-    "Action": "s3:GetObject",
-    "Resource": "arn:aws:s3:::$BUCKET_NAME/*"
-  }]
-}
-EOF
-
-aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file://bucket-policy.json
-```
-
-### 2. Create CloudFront Distribution
+## 📦 Build for Production
 
 ```bash
-# Create distribution
-aws cloudfront create-distribution \
-  --origin-domain-name $BUCKET_NAME.s3-website-$REGION.amazonaws.com \
-  --default-root-object index.html
-
-# Note the distribution ID from the output
-```
-
-### 3. Deploy
-
-```bash
-# Build the app
+# Create optimized production build
 npm run build
 
-# Upload to S3
-aws s3 sync dist/ s3://$BUCKET_NAME --delete
-
-# Invalidate CloudFront cache (replace DISTRIBUTION_ID)
-aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
+# Preview production build locally
+npm run preview
 ```
 
-### Cost Estimate
+The build output will be in the `dist/` directory, ready to deploy to any static hosting service.
 
-- S3: ~$0.50/month (1GB storage + 10k requests)
-- CloudFront: Free tier covers 1TB transfer/month, then $0.085/GB
-- **Total: ~$0.50-2/month for typical usage**
+## 🛠️ Technology Stack
 
-## Tech Stack
+- **React 19** - Modern UI library
+- **Vite** - Lightning-fast build tool
+- **Recharts** - Powerful charting library
+- **CSS3** - Custom styling with modern features
 
-- React 19
-- Vite
-- Recharts
-- AWS S3 + CloudFront
+## 📊 How It Works
+
+The calculator uses compound interest formulas to project your wealth:
+
+1. **Monthly Compounding**: Returns are calculated monthly for accuracy
+2. **Inflation Adjustment**: Real values show purchasing power in today's dollars
+3. **Visual Comparison**: See both nominal and inflation-adjusted projections side-by-side
+
+## 🎨 Customization
+
+The app uses a clean, dark theme that's easy on the eyes. You can customize colors and styling in:
+
+- `src/App.css` - Main application styles
+- `src/index.css` - Global styles and theme variables
+
+## 📝 Use Cases
+
+- **Retirement Planning**: Calculate when you can retire comfortably
+- **Financial Goal Setting**: Visualize your path to specific wealth targets
+- **Investment Strategy**: Compare different contribution and return scenarios
+- **Education**: Learn about compound interest and inflation impact
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to:
+
+- Report bugs
+- Suggest new features
+- Submit pull requests
+- Improve documentation
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 🙏 Acknowledgments
+
+Built with modern web technologies to help people make informed financial decisions.
+
+---
+
+**Disclaimer**: This calculator provides estimates based on the inputs you provide. Past performance doesn't guarantee future results. Consult with a financial advisor for personalized advice.
