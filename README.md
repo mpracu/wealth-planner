@@ -16,6 +16,7 @@ An interactive wealth planning calculator that helps you visualize your path to 
 - **Visual Charts**: Beautiful, responsive charts powered by Recharts
 - **Milestone Tracking**: Know exactly when you'll reach $1M in today's dollars
 - **Mobile Responsive**: Works seamlessly on all devices
+- **Analytics Tracking**: Built-in Google Analytics 4 for user behavior insights
 
 ## 🎯 What You Can Calculate
 
@@ -192,6 +193,37 @@ The app uses a clean, dark theme that's easy on the eyes. You can customize colo
 - **Financial Goal Setting**: Visualize your path to specific wealth targets
 - **Investment Strategy**: Compare different contribution and return scenarios
 - **Education**: Learn about compound interest and inflation impact
+
+## 🚀 Deployment
+
+This app is deployed on AWS using S3 for static hosting and CloudFront for global CDN distribution.
+
+### Deployment Process
+
+```bash
+# 1. Build the production app
+npm run build
+
+# 2. Sync to S3 bucket
+aws s3 sync dist/ s3://YOUR_BUCKET_NAME --delete
+
+# 3. Invalidate CloudFront cache
+aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
+```
+
+### Environment Variables
+
+For production deployment, set your Google Analytics Measurement ID:
+
+```bash
+# Create .env file
+echo "VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX" > .env
+
+# Then build
+npm run build
+```
+
+The app will automatically use the GA4 ID from the environment variable during build.
 
 ## 🤝 Contributing
 
