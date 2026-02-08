@@ -4,6 +4,10 @@ An interactive wealth planning calculator that helps you visualize your path to 
 
 ![Wealth Planner Demo](https://img.shields.io/badge/React-19.0-blue) ![Vite](https://img.shields.io/badge/Vite-6.0-purple) ![License](https://img.shields.io/badge/license-MIT-green)
 
+## 🌐 Live Demo
+
+**[Try it now →](https://d2787qonhlkw2.cloudfront.net/)**
+
 ## ✨ Features
 
 - **Real-time Projections**: Instantly see how your wealth grows over time
@@ -57,6 +61,64 @@ npm run preview
 ```
 
 The build output will be in the `dist/` directory, ready to deploy to any static hosting service.
+
+## ☁️ Deploy to AWS
+
+This app is currently hosted on AWS using S3 + CloudFront. Here's how to deploy your own instance:
+
+### Prerequisites
+
+- AWS CLI installed and configured (`aws configure`)
+- An AWS account with appropriate permissions
+
+### Step 1: Create S3 Bucket
+
+```bash
+# Create bucket (replace with your unique bucket name)
+aws s3 mb s3://your-wealth-planner-bucket
+
+# Enable static website hosting
+aws s3 website s3://your-wealth-planner-bucket --index-document index.html
+```
+
+### Step 2: Create CloudFront Distribution
+
+1. Go to AWS CloudFront Console
+2. Create a new distribution
+3. Set origin to your S3 bucket
+4. Configure default root object as `index.html`
+5. Note your CloudFront distribution ID and domain
+
+### Step 3: Add Deployment Script
+
+Add this to your `package.json` scripts:
+
+```json
+"deploy": "npm run build && aws s3 sync dist/ s3://your-wealth-planner-bucket --delete && aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths '/*'"
+```
+
+Replace:
+- `your-wealth-planner-bucket` with your S3 bucket name
+- `YOUR_DISTRIBUTION_ID` with your CloudFront distribution ID
+
+### Step 4: Deploy
+
+```bash
+npm run deploy
+```
+
+Your app will be live at your CloudFront URL (e.g., `https://d2787qonhlkw2.cloudfront.net/`)
+
+### Alternative: One-Command Setup
+
+You can also use AWS Amplify for simpler deployment:
+
+```bash
+npm install -g @aws-amplify/cli
+amplify init
+amplify add hosting
+amplify publish
+```
 
 ## 🛠️ Technology Stack
 
