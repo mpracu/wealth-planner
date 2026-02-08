@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
+import ReactGA from 'react-ga4'
 import './App.css'
 
 function App() {
@@ -8,6 +9,11 @@ function App() {
   const [monthlyInvestment, setMonthlyInvestment] = useState(1000)
   const [annualReturn, setAnnualReturn] = useState(7)
   const [inflation, setInflation] = useState(2.5)
+
+  // Track page view on mount
+  useEffect(() => {
+    ReactGA.send({ hitType: 'pageview', page: window.location.pathname })
+  }, [])
 
   const data = useMemo(() => {
     const years = []
@@ -39,6 +45,27 @@ function App() {
     return target ? target.age : null
   }, [data, inflation])
 
+  // Track when user reaches $1M milestone
+  useEffect(() => {
+    if (millionAge) {
+      ReactGA.event({
+        category: 'Calculation',
+        action: 'Million Dollar Goal',
+        label: `Age ${millionAge}`,
+        value: millionAge - age
+      })
+    }
+  }, [millionAge, age])
+
+  // Track slider interactions
+  const trackSliderChange = (sliderName, value) => {
+    ReactGA.event({
+      category: 'User Input',
+      action: `Adjusted ${sliderName}`,
+      value: Math.round(value)
+    })
+  }
+
   return (
     <div className="app">
       <div className="container">
@@ -59,27 +86,81 @@ function App() {
         <div className="controls">
           <div className="control">
             <label>Current Age: <strong>{age}</strong></label>
-            <input type="range" min="18" max="65" value={age} onChange={e => setAge(+e.target.value)} />
+            <input 
+              type="range" 
+              min="18" 
+              max="65" 
+              value={age} 
+              onChange={e => {
+                const newValue = +e.target.value
+                setAge(newValue)
+                trackSliderChange('Age', newValue)
+              }} 
+            />
           </div>
           
           <div className="control">
             <label>Current Capital: <strong>${currentCapital.toLocaleString()}</strong></label>
-            <input type="range" min="0" max="500000" step="5000" value={currentCapital} onChange={e => setCurrentCapital(+e.target.value)} />
+            <input 
+              type="range" 
+              min="0" 
+              max="500000" 
+              step="5000" 
+              value={currentCapital} 
+              onChange={e => {
+                const newValue = +e.target.value
+                setCurrentCapital(newValue)
+                trackSliderChange('Capital', newValue)
+              }} 
+            />
           </div>
           
           <div className="control">
             <label>Monthly Investment: <strong>${monthlyInvestment.toLocaleString()}</strong></label>
-            <input type="range" min="0" max="10000" step="100" value={monthlyInvestment} onChange={e => setMonthlyInvestment(+e.target.value)} />
+            <input 
+              type="range" 
+              min="0" 
+              max="10000" 
+              step="100" 
+              value={monthlyInvestment} 
+              onChange={e => {
+                const newValue = +e.target.value
+                setMonthlyInvestment(newValue)
+                trackSliderChange('Monthly Investment', newValue)
+              }} 
+            />
           </div>
           
           <div className="control">
             <label>Annual Return: <strong>{annualReturn}%</strong></label>
-            <input type="range" min="0" max="15" step="0.5" value={annualReturn} onChange={e => setAnnualReturn(+e.target.value)} />
+            <input 
+              type="range" 
+              min="0" 
+              max="15" 
+              step="0.5" 
+              value={annualReturn} 
+              onChange={e => {
+                const newValue = +e.target.value
+                setAnnualReturn(newValue)
+                trackSliderChange('Annual Return', newValue)
+              }} 
+            />
           </div>
           
           <div className="control">
             <label>Inflation Rate: <strong>{inflation}%</strong></label>
-            <input type="range" min="0" max="10" step="0.5" value={inflation} onChange={e => setInflation(+e.target.value)} />
+            <input 
+              type="range" 
+              min="0" 
+              max="10" 
+              step="0.5" 
+              value={inflation} 
+              onChange={e => {
+                const newValue = +e.target.value
+                setInflation(newValue)
+                trackSliderChange('Inflation', newValue)
+              }} 
+            />
           </div>
         </div>
 

@@ -44,6 +44,11 @@ cd wealth-planner
 # Install dependencies
 npm install
 
+# (Optional) Set up Google Analytics
+# Copy .env.example to .env and add your GA4 Measurement ID
+cp .env.example .env
+# Edit .env and replace G-XXXXXXXXXX with your actual ID
+
 # Start development server
 npm run dev
 ```
@@ -125,9 +130,48 @@ amplify publish
 - **React 19** - Modern UI library
 - **Vite** - Lightning-fast build tool
 - **Recharts** - Powerful charting library
+- **Google Analytics 4** - User behavior tracking
 - **CSS3** - Custom styling with modern features
 
-## 📊 How It Works
+## 📊 Analytics Setup
+
+The app includes Google Analytics 4 integration to track user behavior.
+
+### Get Your GA4 Measurement ID
+
+1. Go to [Google Analytics](https://analytics.google.com/)
+2. Create a new property (or use existing)
+3. Set up a Web data stream
+4. Copy your Measurement ID (format: `G-XXXXXXXXXX`)
+
+### Configure Analytics
+
+Create a `.env` file in the project root:
+
+```bash
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
+Replace `G-XXXXXXXXXX` with your actual Measurement ID.
+
+### What Gets Tracked
+
+- **Page Views**: Every time someone visits
+- **User Interactions**: Slider adjustments (age, capital, investments, returns, inflation)
+- **Milestone Events**: When users reach the $1M goal
+- **Session Duration**: How long users engage with the calculator
+- **Demographics**: Location, device type, browser
+
+### View Your Analytics
+
+Visit your [Google Analytics Dashboard](https://analytics.google.com/) to see:
+- Real-time active users
+- Most adjusted parameters
+- Average user age/investment inputs
+- Geographic distribution
+- User retention and engagement
+
+## 📈 How It Works
 
 The calculator uses compound interest formulas to project your wealth:
 
