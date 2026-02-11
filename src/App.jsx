@@ -12,6 +12,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState('simulator');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     checkUser();
@@ -34,6 +35,11 @@ function App() {
     setView('simulator');
   };
 
+  const navigate = (newView) => {
+    setView(newView);
+    setMenuOpen(false);
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -42,10 +48,13 @@ function App() {
     <div className="app">
       <nav className="navbar">
         <h1>💰 Wealth Planner</h1>
-        <div className="nav-links">
+        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? '✕' : '☰'}
+        </button>
+        <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
           <button 
             className={view === 'simulator' ? 'active' : ''} 
-            onClick={() => setView('simulator')}
+            onClick={() => navigate('simulator')}
           >
             📊 Simulator
           </button>
@@ -53,27 +62,27 @@ function App() {
             <>
               <button 
                 className={view === 'networth' ? 'active' : ''} 
-                onClick={() => setView('networth')}
+                onClick={() => navigate('networth')}
               >
                 💼 Net Worth
               </button>
               <button 
                 className={view === 'blog' ? 'active' : ''} 
-                onClick={() => setView('blog')}
+                onClick={() => navigate('blog')}
               >
                 📝 Blog
               </button>
-              <button onClick={handleSignOut}>🚪 Sign Out</button>
+              <button onClick={() => { handleSignOut(); setMenuOpen(false); }}>🚪 Sign Out</button>
             </>
           ) : (
             <>
               <button 
                 className={view === 'blog' ? 'active' : ''} 
-                onClick={() => setView('blog')}
+                onClick={() => navigate('blog')}
               >
                 📝 Blog
               </button>
-              <button onClick={() => setView('login')}>🔐 Login</button>
+              <button onClick={() => navigate('login')}>🔐 Login</button>
             </>
           )}
         </div>

@@ -38,7 +38,6 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   gap: 0.5rem;
   position: sticky;
   top: 0;
@@ -54,49 +53,87 @@ body {
   background-clip: text;
 }
 
+.hamburger {
+  display: block;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
 .nav-links {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #1a1a2e;
+  flex-direction: column;
+  gap: 0;
+  border-bottom: 2px solid #2a2a3e;
+}
+
+.nav-links.open {
   display: flex;
-  gap: 0.25rem;
-  flex-wrap: wrap;
 }
 
 .nav-links button {
-  padding: 0.4rem 0.75rem;
+  padding: 1rem;
   background: transparent;
   color: white;
-  border: 1px solid #2a2a3e;
-  border-radius: 6px;
+  border: none;
+  border-bottom: 1px solid #2a2a3e;
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  text-align: left;
 }
 
 .nav-links button:hover {
   background: #2a2a3e;
-  border-color: #3b82f6;
 }
 
 .nav-links button.active {
   background: #3b82f6;
-  border-color: #3b82f6;
 }
 
 @media (min-width: 768px) {
   .navbar {
     padding: 1rem 2rem;
+    flex-wrap: wrap;
   }
   
   .navbar h1 {
     font-size: 1.5rem;
   }
   
+  .hamburger {
+    display: none;
+  }
+  
   .nav-links {
+    display: flex;
+    position: static;
+    flex-direction: row;
     gap: 0.5rem;
+    border: none;
   }
   
   .nav-links button {
     padding: 0.5rem 1rem;
-    font-size: 1rem;
+    border: 1px solid #2a2a3e;
+    border-radius: 6px;
+    text-align: center;
+  }
+  
+  .nav-links button:hover {
+    border-color: #3b82f6;
+  }
+  
+  .nav-links button.active {
+    border-color: #3b82f6;
   }
 }
 
