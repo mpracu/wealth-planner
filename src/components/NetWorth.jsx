@@ -319,15 +319,15 @@ export default function NetWorth() {
             {allocationData.length > 0 && (
               <div className="chart">
                 <h3>Asset Allocation</h3>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={350}>
                   <PieChart>
                     <Pie
                       data={allocationData}
                       cx="50%"
                       cy="50%"
-                      labelLine={false}
-                      label={entry => `${entry.percentage}%`}
-                      outerRadius={100}
+                      labelLine={true}
+                      label={({ name, percentage }) => `${name}: ${percentage}%`}
+                      outerRadius={90}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -341,7 +341,6 @@ export default function NetWorth() {
                       itemStyle={{ color: '#fff' }}
                       formatter={(value) => `${currency}${value.toLocaleString('es-ES', {minimumFractionDigits: 2})}`}
                     />
-                    <Legend />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
