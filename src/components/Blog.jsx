@@ -14,17 +14,28 @@ function Blog() {
     try {
       const response = await fetch('https://rkjlzbsc84.execute-api.us-east-1.amazonaws.com/prod/blog-posts');
       const data = await response.json();
-      setPosts(data.map(post => ({
-        id: post.postId,
-        title: post.title,
-        date: new Date(post.publishedDate).toISOString().split('T')[0],
-        author: 'Wealth Planner Team',
-        readTime: '8 min read',
-        tags: ['Investing', 'Wealth Building', 'Financial Independence'],
-        image: post.image,
-        excerpt: post.content.substring(0, 200) + '...',
-        content: post.content
-      })));
+      setPosts(data.map(post => {
+        // Remove all markdown syntax for clean excerpt
+        const cleanContent = post.content
+          .replace(/!\[.*?\]\(.*?\)/g, '') // Remove images
+          .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+          .replace(/\*(.*?)\*/g, '$1') // Remove italic
+          .replace(/#[A-Za-z]+/g, '') // Remove hashtags
+          .replace(/\n\n+/g, ' ') // Replace multiple newlines with space
+          .trim();
+        
+        return {
+          id: post.postId,
+          title: post.title,
+          date: new Date(post.publishedDate).toISOString().split('T')[0],
+          author: 'Wealth Planner Team',
+          readTime: '8 min read',
+          tags: ['Investing', 'Wealth Building', 'Financial Independence'],
+          image: post.image,
+          excerpt: cleanContent.substring(0, 180) + '...',
+          content: post.content
+        };
+      }));
     } catch (error) {
       console.error('Error loading blog posts:', error);
     } finally {
