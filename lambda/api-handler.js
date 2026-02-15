@@ -1,5 +1,5 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, PutCommand, QueryCommand, DeleteCommand, GetCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, PutCommand, QueryCommand, DeleteCommand, GetCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
@@ -15,11 +15,27 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers, body: '' };
   }
 
-  const userId = event.requestContext.authorizer.jwt.claims.sub;
-
   const rawPath = event.requestContext.http.path;
-  const path = rawPath.replace(/^\/prod/, ''); // Remove /prod prefix
+  const path = rawPath.replace(/^\/prod/, '');
   const method = event.requestContext.http.method;
+
+  // Public blog posts endpoint (no auth required)
+  if (path === '/blog-posts' && method === 'GET') {
+    try {
+      const result = await docClient.send(new ScanCommand({
+        TableName: 'wealth-planner-blog-posts'
+      }));
+      const posts = (result.Items || []).sort((a, b) => 
+        new Date(b.publishedDate) - new Date(a.publishedDate)
+      );
+      return { statusCode: 200, headers, body: JSON.stringify(posts) };
+    } catch (error) {
+      console.error(error);
+      return { statusCode: 500, headers, body: JSON.stringify({ error: error.message }) };
+    }
+  }
+
+  const userId = event.requestContext.authorizer.jwt.claims.sub;
 
   try {
     // Scenarios endpoints
