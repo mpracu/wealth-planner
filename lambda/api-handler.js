@@ -25,9 +25,9 @@ exports.handler = async (event) => {
       const result = await docClient.send(new ScanCommand({
         TableName: 'wealth-planner-blog-posts'
       }));
-      const posts = (result.Items || []).sort((a, b) => 
-        new Date(b.publishedDate) - new Date(a.publishedDate)
-      );
+      const posts = (result.Items || [])
+        .filter(item => item.postId !== 'COUNTER')
+        .sort((a, b) => new Date(b.publishedDate) - new Date(a.publishedDate));
       return { statusCode: 200, headers, body: JSON.stringify(posts) };
     } catch (error) {
       console.error(error);
