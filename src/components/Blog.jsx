@@ -33,7 +33,10 @@ function Blog() {
   };
 
   const renderContent = (content) => {
-    return content.split('\n\n').map((paragraph, idx) => {
+    // Remove first image from content since we show it as hero
+    const contentWithoutFirstImage = content.replace(/^!\[.*?\]\(.*?\)\n\n/, '');
+    
+    return contentWithoutFirstImage.split('\n\n').map((paragraph, idx) => {
       if (paragraph.startsWith('![')) {
         const match = paragraph.match(/!\[(.*?)\]\((.*?)\)/);
         if (match) {
@@ -63,6 +66,29 @@ function Blog() {
   if (selectedPost) {
     return (
       <div className="blog">
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": selectedPost.title,
+            "image": selectedPost.image,
+            "datePublished": selectedPost.date,
+            "author": {
+              "@type": "Organization",
+              "name": "Wealth Planner Team"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "Wealth Planner",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://wealth-planner-app.s3.us-east-1.amazonaws.com/vite.svg"
+              }
+            },
+            "description": selectedPost.excerpt,
+            "keywords": selectedPost.tags.join(", ")
+          })}
+        </script>
         <button className="back-button" onClick={() => setSelectedPost(null)}>
           ← Back to all posts
         </button>

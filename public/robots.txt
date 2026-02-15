@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wealth-planner-app.s3.us-east-1.amazonaws.com/sitemap.xml
