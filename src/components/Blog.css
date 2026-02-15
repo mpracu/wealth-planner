@@ -192,10 +192,28 @@
   line-height: 1.6;
 }
 
-.post-content .hashtags {
-  color: #3b82f6;
-  font-size: 0.9rem;
+.hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #2a2a3e;
+}
+
+.hashtag {
+  background: linear-gradient(135deg, #3b82f6 0%, #22c55e 100%);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: transform 0.2s;
+  cursor: default;
+}
+
+.hashtag:hover {
+  transform: scale(1.05);
 }
 
 .post-content hr {

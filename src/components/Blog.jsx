@@ -44,6 +44,18 @@ function Blog() {
         }
       }
       
+      // Check if paragraph contains hashtags
+      if (paragraph.startsWith('#') && paragraph.includes(' #')) {
+        const hashtags = paragraph.split(' ').filter(tag => tag.startsWith('#'));
+        return (
+          <div key={idx} className="hashtags">
+            {hashtags.map((tag, i) => (
+              <span key={i} className="hashtag">{tag}</span>
+            ))}
+          </div>
+        );
+      }
+      
       let processedText = paragraph
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>');
