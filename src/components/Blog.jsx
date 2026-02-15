@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { get } from 'aws-amplify/api';
 import './Blog.css';
 
 function Blog() {
@@ -13,11 +12,8 @@ function Blog() {
 
   const loadPosts = async () => {
     try {
-      const response = await get({
-        apiName: 'WealthPlannerAPI',
-        path: '/blog-posts'
-      }).response;
-      const data = await response.body.json();
+      const response = await fetch('https://rkjlzbsc84.execute-api.us-east-1.amazonaws.com/prod/blog-posts');
+      const data = await response.json();
       setPosts(data.map(post => ({
         id: post.postId,
         title: post.title,
