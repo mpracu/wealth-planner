@@ -166,6 +166,40 @@ exports.handler = async (event) => {
       return { statusCode: 204, headers, body: '' };
     }
 
+    // Portfolio endpoints
+    if (path === '/portfolio' && method === 'GET') {
+      const result = await docClient.send(new QueryCommand({
+        TableName: 'wealth-planner-portfolio',
+        KeyConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: { ':userId': userId }
+      }));
+      return { statusCode: 200, headers, body: JSON.stringify(result.Items || []) };
+    }
+
+    if (path === '/portfolio' && method === 'POST') {
+      const body = JSON.parse(event.body);
+      const holdingId = `holding-${Date.now()}`;
+      await docClient.send(new PutCommand({
+        TableName: 'wealth-planner-portfolio',
+        Item: {
+          userId,
+          holdingId,
+          ...body,
+          createdAt: new Date().toISOString()
+        }
+      }));
+      return { statusCode: 201, headers, body: JSON.stringify({ holdingId }) };
+    }
+
+    if (path.startsWith('/portfolio/') && method === 'DELETE') {
+      const holdingId = path.split('/')[2];
+      await docClient.send(new DeleteCommand({
+        TableName: 'wealth-planner-portfolio',
+        Key: { userId, holdingId }
+      }));
+      return { statusCode: 204, headers, body: '' };
+    }
+
     return { statusCode: 404, headers, body: JSON.stringify({ error: 'Not found' }) };
   } catch (error) {
     console.error(error);
