@@ -389,7 +389,7 @@ export default function NetWorth() {
           <form onSubmit={saveItem}>
             <label>
               <span>Name</span>
-              <input placeholder="e.g., Savings Account" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+              <input placeholder="e.g., Savings Account, Vanguard Global Stock" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
             </label>
             
             <label>
@@ -407,8 +407,44 @@ export default function NetWorth() {
             
             <label>
               <span>Tags (optional)</span>
-              <input placeholder="e.g., Stocks, Real Estate" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+              <input placeholder="e.g., Stocks, Real Estate, Index Fund" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
             </label>
+
+            {formData.tags?.toLowerCase().includes('fund') || formData.tags?.toLowerCase().includes('stock') || formData.tags?.toLowerCase().includes('investment') ? (
+              <>
+                <label>
+                  <span>ISIN (optional)</span>
+                  <input 
+                    placeholder="e.g., IE00B3RBWM25" 
+                    value={formData.isin || ''} 
+                    onChange={e => setFormData({...formData, isin: e.target.value.toUpperCase()})}
+                    pattern="[A-Z]{2}[A-Z0-9]{10}"
+                  />
+                </label>
+                
+                <label>
+                  <span>Shares/Units (optional)</span>
+                  <input 
+                    type="number" 
+                    step="0.001" 
+                    placeholder="e.g., 10.5" 
+                    value={formData.shares || ''} 
+                    onChange={e => setFormData({...formData, shares: e.target.value})}
+                  />
+                </label>
+
+                <label>
+                  <span>Price per Share (optional)</span>
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    placeholder="e.g., 85.50" 
+                    value={formData.pricePerShare || ''} 
+                    onChange={e => setFormData({...formData, pricePerShare: e.target.value})}
+                  />
+                </label>
+              </>
+            ) : null}
             
             <div className="form-actions">
               <button type="submit">💾 Save</button>
@@ -453,6 +489,16 @@ export default function NetWorth() {
             </div>
             <p className="item-value">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
             {item.tags && <p className="item-tags">{item.tags}</p>}
+            {item.isin && (
+              <div className="investment-details">
+                <p className="isin">ISIN: {item.isin}</p>
+                {item.shares && item.pricePerShare && (
+                  <p className="shares-info">
+                    {parseFloat(item.shares).toFixed(3)} shares @ {currency}{parseFloat(item.pricePerShare).toFixed(2)}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         ))}
 

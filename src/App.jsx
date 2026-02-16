@@ -4,7 +4,6 @@ import ReactGA from 'react-ga4';
 import Auth from './components/Auth';
 import Simulator from './components/Simulator';
 import NetWorth from './components/NetWorth';
-import Portfolio from './components/Portfolio';
 import Blog from './components/Blog';
 import './aws-config';
 import './App.css';
@@ -68,12 +67,6 @@ function App() {
                 💼 Net Worth
               </button>
               <button 
-                className={view === 'portfolio' ? 'active' : ''} 
-                onClick={() => navigate('portfolio')}
-              >
-                📈 Portfolio
-              </button>
-              <button 
                 className={view === 'blog' ? 'active' : ''} 
                 onClick={() => navigate('blog')}
               >
@@ -104,8 +97,6 @@ function App() {
           <Blog />
         ) : view === 'networth' && user ? (
           <NetWorth />
-        ) : view === 'portfolio' && user ? (
-          <Portfolio />
         ) : (
           <div className="auth-required">
             <h2>Login Required</h2>
