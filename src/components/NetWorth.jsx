@@ -25,6 +25,9 @@ export default function NetWorth() {
   });
   const [currency, setCurrency] = useState('€');
   const [activeTab, setActiveTab] = useState('overview');
+  const [forecastYears, setForecastYears] = useState(10);
+  const [forecastReturn, setForecastReturn] = useState(7);
+  const [forecastInflation, setForecastInflation] = useState(2);
 
   useEffect(() => {
     loadItems();
@@ -224,6 +227,26 @@ export default function NetWorth() {
     }));
   }, [history]);
 
+  const forecastData = useMemo(() => {
+    const monthlyRecurring = recurringItems.reduce((sum, r) => sum + r.amount, 0);
+    const annualRecurring = monthlyRecurring * 12;
+    
+    let currentValue = netWorth;
+    const data = [{ year: 0, nominal: currentValue, real: currentValue }];
+    
+    for (let year = 1; year <= forecastYears; year++) {
+      currentValue = (currentValue + annualRecurring) * (1 + forecastReturn / 100);
+      const realValue = currentValue / Math.pow(1 + forecastInflation / 100, year);
+      data.push({
+        year,
+        nominal: Math.round(currentValue),
+        real: Math.round(realValue)
+      });
+    }
+    
+    return data;
+  }, [netWorth, recurringItems, forecastYears, forecastReturn, forecastInflation]);
+
   const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
   const allocationData = useMemo(() => {
@@ -345,6 +368,73 @@ export default function NetWorth() {
                 </ResponsiveContainer>
               </div>
             )}
+          </div>
+
+          <div className="forecast-section">
+            <h3>📈 Net Worth Forecast</h3>
+            <div className="forecast-controls">
+              <label>
+                <span>Years</span>
+                <input 
+                  type="number" 
+                  min="1" 
+                  max="50" 
+                  value={forecastYears} 
+                  onChange={e => setForecastYears(+e.target.value)}
+                />
+              </label>
+              <label>
+                <span>Annual Return (%)</span>
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  value={forecastReturn} 
+                  onChange={e => setForecastReturn(+e.target.value)}
+                />
+              </label>
+              <label>
+                <span>Inflation (%)</span>
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  value={forecastInflation} 
+                  onChange={e => setForecastInflation(+e.target.value)}
+                />
+              </label>
+            </div>
+            
+            <div className="forecast-summary">
+              <div className="forecast-card">
+                <h4>Current Net Worth</h4>
+                <p>{currency}{netWorth.toLocaleString('es-ES', {minimumFractionDigits: 2})}</p>
+              </div>
+              <div className="forecast-card">
+                <h4>Monthly Recurring</h4>
+                <p>{currency}{recurringItems.reduce((sum, r) => sum + r.amount, 0).toLocaleString('es-ES', {minimumFractionDigits: 2})}</p>
+              </div>
+              <div className="forecast-card highlight">
+                <h4>Projected ({forecastYears} years)</h4>
+                <p>{currency}{forecastData[forecastYears]?.nominal.toLocaleString('es-ES')}</p>
+                <small>Real: {currency}{forecastData[forecastYears]?.real.toLocaleString('es-ES')}</small>
+              </div>
+            </div>
+
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={forecastData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="year" stroke="#888" label={{ value: 'Years', position: 'insideBottom', offset: -5 }} />
+                <YAxis stroke="#888" tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} />
+                <Tooltip 
+                  contentStyle={{ background: '#1a1a1a', border: '1px solid #333', color: '#fff' }}
+                  labelStyle={{ color: '#fff' }}
+                  itemStyle={{ color: '#fff' }}
+                  formatter={v => `${currency}${v.toLocaleString('es-ES')}`}
+                />
+                <Line type="monotone" dataKey="nominal" stroke="#3b82f6" strokeWidth={2} name="Nominal Value" />
+                <Line type="monotone" dataKey="real" stroke="#22c55e" strokeWidth={2} name="Real Value (Inflation-Adjusted)" />
+                <Legend />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
 
           <div className="allocation-table">

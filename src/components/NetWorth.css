@@ -255,6 +255,92 @@
   margin-bottom: 1rem;
 }
 
+.forecast-section {
+  background: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #333;
+  margin-bottom: 2rem;
+}
+
+.forecast-section h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.forecast-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.forecast-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.forecast-controls label span {
+  font-weight: 600;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.forecast-controls input {
+  padding: 0.5rem;
+  background: #0a0a0a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: white;
+  font-size: 1rem;
+}
+
+.forecast-controls input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.forecast-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.forecast-card {
+  background: #0a0a0a;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.forecast-card.highlight {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.forecast-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #888;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+}
+
+.forecast-card p {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+}
+
+.forecast-card small {
+  display: block;
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr;
