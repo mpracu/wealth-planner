@@ -92,30 +92,39 @@ const IMAGE_POOL = [
 ];
 
 const generateBlogPost = (topic, postNumber) => {
-  // Use postNumber to select unique images (3 images per post, cycling through pool)
-  const imageIndex = ((postNumber - 1) * 3) % IMAGE_POOL.length;
+  // Use postNumber to select unique images (2 images per post, cycling through pool)
+  const imageIndex = ((postNumber - 1) * 2) % IMAGE_POOL.length;
   const heroImage = IMAGE_POOL[imageIndex];
   const image2 = IMAGE_POOL[(imageIndex + 1) % IMAGE_POOL.length];
-  const image3 = IMAGE_POOL[(imageIndex + 2) % IMAGE_POOL.length];
   
-  // Generic content that works for any topic
+  // Longer, more detailed content
   const content = `![${topic}](${heroImage})
 
-Understanding ${topic.toLowerCase()} is crucial for long-term financial success. Many investors overlook this important aspect of wealth building, but mastering these concepts can significantly impact your financial journey.
+Understanding ${topic.toLowerCase()} is crucial for long-term financial success. Many investors overlook this important aspect of wealth building, but mastering these concepts can significantly impact your financial journey and help you achieve your goals faster than you might think.
 
-The key to success in this area lies in consistent application of proven principles. Whether you're just starting out or have years of experience, there's always room to deepen your understanding and refine your approach.
+The foundation of success in this area lies in consistent application of proven principles combined with patience and discipline. Whether you're just starting out or have years of experience, there's always room to deepen your understanding and refine your approach. The most successful investors are those who never stop learning and adapting.
+
+One of the most important factors is taking action based on knowledge. Information without implementation is worthless in the world of finance. Start small if needed, but start today. The compound effect of small, consistent actions over time can lead to remarkable results that seem almost magical in retrospect.
+
+Many people make the mistake of waiting for the "perfect" time to begin. They wait for more money, more knowledge, or better market conditions. But the truth is, the best time to start was yesterday, and the second-best time is now. Every day you delay is a day of potential compound growth lost forever.
 
 ![Financial Strategy](${image2})
 
-One of the most important factors is taking action. Knowledge without implementation is worthless. Start small if needed, but start today. The compound effect of small, consistent actions over time can lead to remarkable results.
+Another critical aspect is staying informed and adapting to changing circumstances. The financial landscape evolves constantly, and what worked yesterday might need adjustment tomorrow. Stay curious, keep learning, and be willing to adjust your strategy as new information becomes available. Flexibility combined with core principles is the winning formula.
 
-Another critical aspect is staying informed and adapting to changing circumstances. The financial landscape evolves, and what worked yesterday might need adjustment tomorrow. Stay curious, keep learning, and be willing to adjust your strategy as needed.
+Risk management is often overlooked but absolutely essential. Understanding your risk tolerance and building a strategy that lets you sleep at night is more important than chasing maximum returns. The best investment strategy is one you can stick with through market ups and downs, not the one that looks best on paper.
 
-![Long-term Success](${image3})
+Diversification remains one of the few free lunches in investing. By spreading your investments across different asset classes, sectors, and geographies, you reduce the impact of any single investment's poor performance. This doesn't eliminate risk, but it manages it intelligently.
 
-Remember that building wealth is a marathon, not a sprint. The most successful investors are those who can maintain discipline through market cycles, continuing to execute their strategy regardless of short-term noise.
+The psychological aspect cannot be understated. Your emotions will be your biggest enemy in wealth building. Fear during market downturns and greed during bull markets have destroyed more wealth than any market crash. Developing emotional discipline is as important as understanding financial concepts.
 
-Focus on what you can control: your savings rate, your investment choices, your learning, and your patience. These factors, more than market timing or luck, determine long-term success.
+Time in the market beats timing the market. This old adage has been proven true repeatedly throughout history. Trying to predict short-term market movements is a fool's errand that even professionals struggle with. Instead, focus on consistent investing over long periods, letting compound growth work its magic.
+
+Remember that building wealth is a marathon, not a sprint. The most successful investors are those who can maintain discipline through market cycles, continuing to execute their strategy regardless of short-term noise and media hysteria. Block out the noise and focus on your long-term plan.
+
+Focus on what you can control: your savings rate, your investment choices, your learning, your patience, and your emotional responses. These factors, more than market timing or luck, determine long-term success. External factors will always exist, but your response to them is entirely within your control.
+
+Finally, remember that wealth building is not just about accumulating money—it's about creating freedom, security, and options for yourself and your loved ones. Keep your ultimate goals in mind, and let them motivate you through the inevitable challenges along the way.
 
 #WealthBuilding #FinancialPlanning #InvestmentStrategy #FinancialFreedom #LongTermInvesting #SmartMoney #FinancialIndependence #WealthCreation`;
 
