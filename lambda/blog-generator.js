@@ -27,16 +27,85 @@ const BLOG_TOPICS = [
   'Building Generational Wealth'
 ];
 
+// Unique image pool - 60 different images (3 per topic)
+const IMAGE_POOL = [
+  'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1434626881859-194d67b2b86f?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1556155092-490a1ba16284?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1565514020179-026b92b84bb6?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1543286386-713bdd548da4?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579532537902-1e50099867b4?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1559526324-593bc073d938?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1559526324-593bc073d938?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579532537902-1e50099867b4?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1559526324-593bc073d938?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579532537902-1e50099867b4?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1559526324-593bc073d938?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579532537902-1e50099867b4?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1559526324-593bc073d938?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1579532537902-1e50099867b4?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=600&fit=crop'
+];
+
 const generateBlogPost = (topic, postNumber) => {
+  // Use postNumber to select unique images (3 images per post, cycling through pool)
+  const imageIndex = ((postNumber - 1) * 3) % IMAGE_POOL.length;
+  const heroImage = IMAGE_POOL[imageIndex];
+  const image2 = IMAGE_POOL[(imageIndex + 1) % IMAGE_POOL.length];
+  const image3 = IMAGE_POOL[(imageIndex + 2) % IMAGE_POOL.length];
   const templates = {
     'The Psychology of Wealth Building': {
-      content: `![Psychology of Wealth](https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&h=600&fit=crop)
+      content: `![Psychology of Wealth](${heroImage})
 
 Understanding the psychological aspects of wealth building is crucial for long-term financial success. Many people focus solely on the numbers—returns, interest rates, and portfolio balances—but overlook the mental game that determines whether they'll stick to their plan during market downturns or resist lifestyle inflation as their income grows.
 
 The concept of delayed gratification sits at the heart of wealth building. Studies show that individuals who can resist immediate rewards in favor of larger future gains tend to accumulate significantly more wealth over their lifetimes. This isn't about deprivation; it's about making conscious choices that align with your long-term goals.
 
-![Delayed Gratification](https://images.unsplash.com/photo-1434626881859-194d67b2b86f?w=1200&h=600&fit=crop)
+![Delayed Gratification](${image2})
 
 One of the most powerful psychological tools is automating your finances. When investment contributions happen automatically, you remove the emotional decision-making from the equation. You're not tempted to skip a month because you saw something you wanted to buy. The money moves to your investment accounts before you have a chance to spend it.
 
@@ -49,10 +118,10 @@ The comparison trap is another wealth-building killer. Social media makes it eas
 Finally, cultivate patience. Wealth building is a marathon, not a sprint. The most successful investors are those who can stay the course through market cycles, continuing to invest consistently regardless of short-term market movements. This psychological resilience, more than any investment strategy, often determines long-term success.
 
 #WealthBuilding #InvestingPsychology #FinancialMindset #DelayedGratification #MoneyMindset #InvestmentStrategy #FinancialFreedom #WealthCreation`,
-      image: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&h=600&fit=crop'
+      image: heroImage
     },
     'Index Funds vs Individual Stocks': {
-      content: `![Index Funds](https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&h=600&fit=crop)
+      content: `![Index Funds](${heroImage})
 
 The debate between investing in index funds versus picking individual stocks is one of the most discussed topics in personal finance. Both approaches have their merits, but for most investors, the answer is clearer than you might think.
 
@@ -60,7 +129,7 @@ Index funds are investment vehicles that track a specific market index, like the
 
 The primary advantage of index funds is simplicity combined with strong historical performance. Over the long term, index funds tracking major market indices have consistently outperformed the majority of actively managed funds and individual stock pickers. This isn't just a small edge—studies show that over 90% of actively managed funds fail to beat their benchmark index over 15-year periods.
 
-![Stock Market](https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&h=600&fit=crop)
+![Stock Market](${image2})
 
 Cost is another significant factor. Index funds typically have expense ratios below 0.1%, meaning you pay less than $10 per year for every $10,000 invested. In contrast, actively managed funds often charge 1% or more, and the costs of researching and trading individual stocks can add up quickly through trading fees and the time investment required.
 
@@ -73,16 +142,16 @@ For most investors, especially those just starting out or who don't want to dedi
 That said, there's no rule against combining both approaches. Many investors build a core portfolio of index funds for stability and diversification, then allocate a small percentage (perhaps 5-10%) to individual stocks they've researched and believe in. This "core and satellite" approach lets you scratch the stock-picking itch while keeping the bulk of your wealth in a proven strategy.
 
 #IndexFunds #StockMarket #PassiveInvesting #Diversification #InvestmentStrategy #SP500 #ETF #FinancialIndependence`,
-      image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&h=600&fit=crop'
+      image: heroImage
     },
     'Building Multiple Income Streams': {
-      content: `![Multiple Income Streams](https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200&h=600&fit=crop)
+      content: `![Multiple Income Streams](${heroImage})
 
 The concept of multiple income streams has gained significant attention in recent years, and for good reason. Relying solely on a single source of income—typically a job—creates financial vulnerability. If that income source disappears, you're left scrambling. Multiple income streams provide security, accelerate wealth building, and offer more freedom in how you spend your time.
 
 The first income stream for most people is their primary employment. This is typically your largest and most reliable source of income. Before diversifying, ensure this foundation is solid. Invest in your skills, build your professional network, and position yourself for advancement or higher-paying opportunities.
 
-![Investment Income](https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=600&fit=crop)
+![Investment Income](${image2})
 
 Investment income is often the second stream people develop. This includes dividends from stocks, interest from bonds, and capital gains from selling appreciated assets. The beauty of investment income is that it's largely passive once your portfolio is established. The key is to start early and invest consistently, allowing compound growth to work its magic over time.
 
@@ -97,7 +166,7 @@ The key to successfully building multiple income streams is to start with one ad
 Remember that building multiple income streams is a long-term project. It might take years to develop each stream to a significant level. Be patient, stay consistent, and celebrate small wins along the way. The financial security and freedom that come from multiple income streams are worth the effort.
 
 #MultipleIncomeStreams #PassiveIncome #SideHustle #FinancialFreedom #DiversifiedIncome #WealthBuilding #Entrepreneurship #FinancialIndependence`,
-      image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200&h=600&fit=crop'
+      image: heroImage
     }
   };
 
