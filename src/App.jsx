@@ -14,6 +14,12 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState('landing');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     checkUser();
@@ -73,6 +79,13 @@ function App() {
               >
                 📝 Blog
               </button>
+              <button 
+                className="theme-toggle"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              >
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
               <button onClick={() => { handleSignOut(); setMenuOpen(false); }}>🚪 Sign Out</button>
             </>
           ) : (
@@ -82,6 +95,13 @@ function App() {
                 onClick={() => navigate('blog')}
               >
                 📝 Blog
+              </button>
+              <button 
+                className="theme-toggle"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              >
+                {theme === 'dark' ? '☀️' : '🌙'}
               </button>
               <button onClick={() => navigate('login')}>🔐 Login</button>
             </>

@@ -35,7 +35,7 @@
 
 .btn-primary {
   background: #3b82f6;
-  color: white;
+  color: var(--text-primary);
   border: none;
   padding: 1rem 2rem;
   font-size: 1.1rem;
@@ -52,7 +52,7 @@
 
 .btn-secondary {
   background: transparent;
-  color: white;
+  color: var(--text-primary);
   border: 2px solid #3b82f6;
   padding: 1rem 2rem;
   font-size: 1.1rem;
@@ -77,10 +77,10 @@
 }
 
 .feature {
-  background: #1a1a1a;
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 12px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   text-align: center;
   transition: all 0.3s;
 }
@@ -97,7 +97,7 @@
 
 .feature h3 {
   margin: 0 0 0.5rem 0;
-  color: white;
+  color: var(--text-primary);
 }
 
 .feature p {
@@ -109,7 +109,7 @@
 .cta {
   text-align: center;
   padding: 4rem 2rem;
-  background: #1a1a1a;
+  background: var(--card-bg);
   border-top: 1px solid #333;
 }
 

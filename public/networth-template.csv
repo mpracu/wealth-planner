@@ -1,0 +1,6 @@
+Type,Name,Value,Tags,ISIN,Shares,PricePerShare
+asset,"Vanguard S&P 500 ETF",45000,"fund, stocks",IE00B3XXRP09,150,300
+asset,"Emergency Fund",15000,"cash, savings",,,
+asset,"Real Estate",250000,"property",,,
+liability,"Mortgage",180000,"debt, property",,,
+liability,"Car Loan",8000,"debt, auto",,,

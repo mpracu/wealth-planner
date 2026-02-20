@@ -23,10 +23,10 @@
 
 .currency-select {
   padding: 0.5rem;
-  background: #0a0a0a;
-  border: 1px solid #333;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  color: white;
+  color: var(--text-primary);
   font-size: 0.9rem;
   cursor: pointer;
 }
@@ -38,10 +38,10 @@
 
 .demo-toggle {
   padding: 0.5rem 1rem;
-  background: #1a1a1a;
-  border: 1px solid #333;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  color: white;
+  color: var(--text-primary);
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -55,6 +55,21 @@
   background: #f59e0b;
   border-color: #f59e0b;
   font-weight: 600;
+}
+
+.export-btn, .import-btn {
+  padding: 0.5rem 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.export-btn:hover, .import-btn:hover {
+  border-color: #3b82f6;
 }
 
 .demo-notice {
@@ -72,6 +87,31 @@
   font-weight: 600;
 }
 
+.import-help {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.import-help p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.import-help a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.import-help a:hover {
+  text-decoration: underline;
+}
+
 .networth-summary {
   display: grid;
   grid-template-columns: 1fr;
@@ -79,10 +119,10 @@
 }
 
 .summary-card {
-  background: #1a1a1a;
+  background: var(--card-bg);
   padding: 1rem;
   border-radius: 8px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
 }
 
 @media (min-width: 768px) {
@@ -131,10 +171,10 @@
 .negative { color: #ef4444; }
 
 .item-form {
-  background: #1a1a1a;
+  background: var(--card-bg);
   padding: 1rem;
   border-radius: 8px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   margin-bottom: 1rem;
 }
 
@@ -163,7 +203,7 @@
 
 .item-form label span {
   font-weight: 600;
-  color: white;
+  color: var(--text-primary);
   font-size: 0.9rem;
 }
 
@@ -172,10 +212,10 @@
   width: 100%;
   padding: 0.75rem;
   margin-bottom: 1rem;
-  background: #0a0a0a;
-  border: 1px solid #333;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  color: white;
+  color: var(--text-primary);
   font-size: 1rem;
 }
 
@@ -208,10 +248,10 @@
 }
 
 .item-card {
-  background: #1a1a1a;
+  background: var(--card-bg);
   padding: 1rem;
   border-radius: 8px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   margin-bottom: 0.75rem;
 }
 
@@ -236,7 +276,7 @@
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
   background: transparent;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
 }
 
 .item-value {
@@ -279,10 +319,10 @@
 }
 
 .chart {
-  background: #1a1a1a;
+  background: var(--card-bg);
   padding: 1.5rem;
   border-radius: 8px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   margin-bottom: 2rem;
 }
 
@@ -292,10 +332,10 @@
 }
 
 .forecast-section {
-  background: #1a1a1a;
+  background: var(--card-bg);
   padding: 1.5rem;
   border-radius: 8px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   margin-bottom: 2rem;
 }
 
@@ -319,16 +359,16 @@
 
 .forecast-controls label span {
   font-weight: 600;
-  color: white;
+  color: var(--text-primary);
   font-size: 0.9rem;
 }
 
 .forecast-controls input {
   padding: 0.5rem;
-  background: #0a0a0a;
-  border: 1px solid #333;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  color: white;
+  color: var(--text-primary);
   font-size: 1rem;
 }
 
@@ -345,10 +385,10 @@
 }
 
 .forecast-card {
-  background: #0a0a0a;
+  background: var(--bg-primary);
   padding: 1rem;
   border-radius: 8px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
 }
 
 .forecast-card.highlight {
@@ -367,7 +407,7 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: bold;
-  color: white;
+  color: var(--text-primary);
 }
 
 .forecast-card small {
@@ -391,10 +431,10 @@
 }
 
 .allocation-table {
-  background: #1a1a1a;
+  background: var(--card-bg);
   padding: 1.5rem;
   border-radius: 8px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   margin-bottom: 2rem;
   overflow-x: auto;
 }
@@ -423,7 +463,7 @@
 }
 
 .allocation-table tr:hover {
-  background: #0a0a0a;
+  background: var(--bg-primary);
 }
 
 .allocation-table .total-row {
@@ -436,10 +476,10 @@
 }
 
 .recurring-section {
-  background: #1a1a1a;
+  background: var(--card-bg);
   padding: 1.5rem;
   border-radius: 8px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   margin-bottom: 2rem;
 }
 
@@ -459,8 +499,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: #0a0a0a;
-  border: 1px solid #333;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
 }
 
@@ -511,12 +551,12 @@
 }
 
 .tab:hover {
-  color: white;
-  background: #0a0a0a;
+  color: var(--text-primary);
+  background: var(--bg-primary);
 }
 
 .tab.active {
-  color: white;
+  color: var(--text-primary);
   border-bottom-color: #3b82f6;
   background: transparent;
 }
@@ -548,7 +588,7 @@
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  background: #1a1a1a;
+  background: var(--card-bg);
   border-radius: 12px;
   border: 1px solid #2a2a3e;
 }
@@ -559,9 +599,9 @@
 }
 
 .chart-large {
-  background: #1a1a1a;
+  background: var(--card-bg);
   padding: 2rem;
   border-radius: 12px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   margin-top: 1rem;
 }

@@ -223,6 +223,80 @@ export default function NetWorth() {
     }
   };
 
+  const exportToCSV = () => {
+    const csvRows = [];
+    csvRows.push('Type,Name,Value,Tags,ISIN,Shares,PricePerShare');
+    
+    items.forEach(item => {
+      csvRows.push([
+        item.type,
+        `"${item.name}"`,
+        item.value,
+        `"${item.tags || ''}"`,
+        item.isin || '',
+        item.shares || '',
+        item.pricePerShare || ''
+      ].join(','));
+    });
+    
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `networth-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importFromCSV = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const text = await file.text();
+    const lines = text.split('\n').slice(1); // Skip header
+    
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        
+        const match = line.match(/^([^,]+),"([^"]+)",([^,]+),"([^"]*)",([^,]*),([^,]*),([^,]*)$/);
+        if (!match) continue;
+        
+        const [, type, name, value, tags, isin, shares, pricePerShare] = match;
+        
+        const itemData = {
+          name: name.trim(),
+          type: type.trim(),
+          value: parseFloat(value),
+          tags: tags.trim(),
+          ...(isin && { isin: isin.trim() }),
+          ...(shares && { shares: parseFloat(shares) }),
+          ...(pricePerShare && { pricePerShare: parseFloat(pricePerShare) })
+        };
+        
+        await apiPost({
+          apiName: 'WealthPlannerAPI',
+          path: '/networth',
+          options: {
+            headers: { Authorization: `Bearer ${token}` },
+            body: itemData
+          }
+        }).response;
+      }
+      
+      loadItems();
+      alert('Import successful!');
+    } catch (err) {
+      console.error('Error importing:', err);
+      alert('Import failed. Check console for details.');
+    }
+    
+    e.target.value = '';
+  };
+
   const editItem = (item) => {
     setFormData({
       name: item.name,
@@ -319,6 +393,22 @@ export default function NetWorth() {
           >
             {demoMode ? '👁️ Demo' : '🔒 Real'}
           </button>
+          <button 
+            className="export-btn"
+            onClick={exportToCSV}
+            title="Export data to CSV"
+          >
+            📥 Export
+          </button>
+          <label className="import-btn" title="Import data from CSV">
+            📤 Import
+            <input 
+              type="file" 
+              accept=".csv" 
+              onChange={importFromCSV} 
+              style={{ display: 'none' }}
+            />
+          </label>
           <select value={currency} onChange={e => setCurrency(e.target.value)} className="currency-select">
             <option value="€">€ EUR</option>
             <option value="$">$ USD</option>
@@ -518,6 +608,10 @@ export default function NetWorth() {
           <p>🔒 Demo Mode Active - Editing disabled. Switch to Real Data to make changes.</p>
         </div>
       )}
+
+      <div className="import-help">
+        <p>💡 <a href="/networth-template.csv" download>Download CSV Template</a> for bulk import</p>
+      </div>
 
       {showForm && !demoMode && (
         <div className="item-form">
