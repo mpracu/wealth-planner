@@ -5,21 +5,19 @@
 .hero {
   text-align: center;
   padding: 6rem 2rem 4rem;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
 }
 
 .hero h1 {
   font-size: 3.5rem;
   margin: 0 0 1rem 0;
-  background: linear-gradient(135deg, #3b82f6 0%, #22c55e 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .hero p {
   font-size: 1.25rem;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.9);
   margin: 0 0 2rem 0;
   max-width: 600px;
   margin-left: auto;

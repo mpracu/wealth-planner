@@ -393,7 +393,8 @@
 
 .forecast-card.highlight {
   border-color: #3b82f6;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: var(--card-bg);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
 .forecast-card h4 {
