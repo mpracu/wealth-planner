@@ -91,7 +91,7 @@ function App() {
 
       <div className="container">
         {view === 'landing' ? (
-          <Landing onNavigate={navigate} />
+          <Landing onNavigate={navigate} isAuthenticated={!!user} />
         ) : view === 'login' && !user ? (
           <Auth onAuthSuccess={() => { checkUser(); setView('networth'); }} />
         ) : view === 'simulator' ? (

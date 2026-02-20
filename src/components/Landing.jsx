@@ -1,6 +1,6 @@
 import './Landing.css';
 
-function Landing({ onNavigate }) {
+function Landing({ onNavigate, isAuthenticated }) {
   return (
     <div className="landing">
       <section className="hero">
@@ -8,7 +8,9 @@ function Landing({ onNavigate }) {
         <p>Track your net worth, simulate wealth growth, and plan your investments with confidence</p>
         <div className="hero-buttons">
           <button className="btn-primary" onClick={() => onNavigate('simulator')}>Try Simulator</button>
-          <button className="btn-secondary" onClick={() => onNavigate('login')}>Sign In</button>
+          <button className="btn-secondary" onClick={() => onNavigate(isAuthenticated ? 'networth' : 'login')}>
+            {isAuthenticated ? 'Go to Net Worth' : 'Sign In'}
+          </button>
         </div>
       </section>
 
@@ -47,7 +49,9 @@ function Landing({ onNavigate }) {
 
       <section className="cta">
         <h2>Start Planning Your Wealth Today</h2>
-        <button className="btn-primary" onClick={() => onNavigate('login')}>Get Started Free</button>
+        <button className="btn-primary" onClick={() => onNavigate(isAuthenticated ? 'networth' : 'login')}>
+          {isAuthenticated ? 'Go to Dashboard' : 'Get Started Free'}
+        </button>
       </section>
     </div>
   );
