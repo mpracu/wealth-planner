@@ -4,7 +4,24 @@ import { post as apiPost, get as apiGet, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
 import ReactGA from 'react-ga4';
 
+const getThemeColors = () => {
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  return theme === 'dark' 
+    ? { bg: '#1a1a1a', border: '#333', text: '#fff', grid: '#333', axis: '#888' }
+    : { bg: '#ffffff', border: '#ddd', text: '#1a1a1a', grid: '#ddd', axis: '#666' };
+};
+
 export default function Simulator() {
+  const [themeColors, setThemeColors] = useState(getThemeColors());
+  
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setThemeColors(getThemeColors());
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+  
   const [age, setAge] = useState(30);
   const [currentCapital, setCurrentCapital] = useState(50000);
   const [monthlyInvestment, setMonthlyInvestment] = useState(1000);
@@ -193,10 +210,15 @@ export default function Simulator() {
       <div className="chart">
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-            <XAxis dataKey="age" stroke="#888" />
-            <YAxis stroke="#888" tickFormatter={v => v >= 1000000 ? `$${Math.round(v/1000000)}M` : v >= 1000 ? `$${Math.round(v/1000)}k` : `$${v}`} />
-            <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid #333' }} formatter={v => `$${v.toLocaleString()}`} />
+            <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
+            <XAxis dataKey="age" stroke={themeColors.axis} />
+            <YAxis stroke={themeColors.axis} tickFormatter={v => v >= 1000000 ? `$${Math.round(v/1000000)}M` : v >= 1000 ? `$${Math.round(v/1000)}k` : `$${v}`} />
+            <Tooltip 
+              contentStyle={{ background: themeColors.bg, border: `1px solid ${themeColors.border}`, color: themeColors.text }} 
+              labelStyle={{ color: themeColors.text }}
+              itemStyle={{ color: themeColors.text }}
+              formatter={v => `$${v.toLocaleString()}`} 
+            />
             <Legend />
             <ReferenceLine y={1000000} stroke="#22c55e" strokeDasharray="3 3" label="$1M" />
             <Line type="monotone" dataKey="nominal" stroke="#3b82f6" name="Nominal Value" strokeWidth={2} dot={false} />
