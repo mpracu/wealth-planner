@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signIn, signUp, confirmSignUp, signInWithRedirect } from 'aws-amplify/auth';
+import { signIn, signUp, confirmSignUp, signInWithRedirect, resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 import './Auth.css';
 
 export default function Auth({ onAuthSuccess }) {
@@ -9,6 +9,7 @@ export default function Auth({ onAuthSuccess }) {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleGoogleSignIn = async () => {
     try {
@@ -58,6 +59,37 @@ export default function Auth({ onAuthSuccess }) {
     setLoading(false);
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setMessage('');
+    try {
+      await resetPassword({ username: email });
+      setMessage('Reset code sent to your email!');
+      setMode('resetconfirm');
+    } catch (err) {
+      setError(err.message);
+    }
+    setLoading(false);
+  };
+
+  const handleResetConfirm = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await confirmResetPassword({ username: email, confirmationCode: code, newPassword: password });
+      setMessage('Password reset successful! Please sign in.');
+      setMode('signin');
+      setCode('');
+      setPassword('');
+    } catch (err) {
+      setError(err.message);
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-box">
@@ -72,11 +104,45 @@ export default function Auth({ onAuthSuccess }) {
             <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
             <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
             {error && <div className="error">{error}</div>}
+            {message && <div className="success">{message}</div>}
             <button type="submit" disabled={loading} className="primary-btn">
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
             <p className="switch-mode">
+              <a onClick={() => setMode('forgot')}>Forgot Password?</a>
+            </p>
+            <p className="switch-mode">
               Don't have an account? <a onClick={() => setMode('signup')}>Sign Up</a>
+            </p>
+          </form>
+        )}
+
+        {mode === 'forgot' && (
+          <form onSubmit={handleForgotPassword}>
+            <h2>Reset Password</h2>
+            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
+            {error && <div className="error">{error}</div>}
+            {message && <div className="success">{message}</div>}
+            <button type="submit" disabled={loading} className="primary-btn">
+              {loading ? 'Sending...' : 'Send Reset Code'}
+            </button>
+            <p className="switch-mode">
+              <a onClick={() => setMode('signin')}>Back to Sign In</a>
+            </p>
+          </form>
+        )}
+
+        {mode === 'resetconfirm' && (
+          <form onSubmit={handleResetConfirm}>
+            <h2>Enter Reset Code</h2>
+            <input type="text" placeholder="Reset Code" value={code} onChange={e => setCode(e.target.value)} required />
+            <input type="password" placeholder="New Password" value={password} onChange={e => setPassword(e.target.value)} required />
+            {error && <div className="error">{error}</div>}
+            <button type="submit" disabled={loading} className="primary-btn">
+              {loading ? 'Resetting...' : 'Reset Password'}
+            </button>
+            <p className="switch-mode">
+              <a onClick={() => setMode('signin')}>Back to Sign In</a>
             </p>
           </form>
         )}
