@@ -11,32 +11,7 @@ const getThemeColors = () => {
     : { bg: '#ffffff', border: '#ddd', text: '#1a1a1a', grid: '#ddd', axis: '#666' };
 };
 
-const DEMO_DATA = {
-  items: [
-    { itemId: 'd1', name: 'Vanguard S&P 500 ETF', type: 'asset', value: 45000, tags: 'fund, stocks', isin: 'IE00B3XXRP09', shares: 150, pricePerShare: 300 },
-    { itemId: 'd2', name: 'iShares MSCI World', type: 'asset', value: 32000, tags: 'fund, global', isin: 'IE00B4L5Y983', shares: 400, pricePerShare: 80 },
-    { itemId: 'd3', name: 'Emergency Fund', type: 'asset', value: 15000, tags: 'cash, savings' },
-    { itemId: 'd4', name: 'Real Estate', type: 'asset', value: 250000, tags: 'property' },
-    { itemId: 'd5', name: 'Mortgage', type: 'liability', value: 180000, tags: 'debt, property' },
-    { itemId: 'd6', name: 'Car Loan', type: 'liability', value: 8000, tags: 'debt, auto' }
-  ],
-  recurring: [
-    { itemId: 'r1', assetName: 'Vanguard S&P 500 ETF', amount: 500, dayOfMonth: 1, tags: 'fund, stocks' },
-    { itemId: 'r2', assetName: 'iShares MSCI World', amount: 300, dayOfMonth: 1, tags: 'fund, global' }
-  ],
-  history: [
-    { date: '2025-08-01', netWorth: 140000 },
-    { date: '2025-09-01', netWorth: 142500 },
-    { date: '2025-10-01', netWorth: 145800 },
-    { date: '2025-11-01', netWorth: 148200 },
-    { date: '2025-12-01', netWorth: 151000 },
-    { date: '2026-01-01', netWorth: 153500 },
-    { date: '2026-02-01', netWorth: 154000 }
-  ]
-};
-
 export default function NetWorth() {
-  const [demoMode, setDemoMode] = useState(false);
   const [items, setItems] = useState([]);
   const [recurringItems, setRecurringItems] = useState([]);
   const [history, setHistory] = useState([]);
@@ -71,16 +46,10 @@ export default function NetWorth() {
   }, []);
 
   useEffect(() => {
-    if (demoMode) {
-      setItems(DEMO_DATA.items);
-      setRecurringItems(DEMO_DATA.recurring);
-      setHistory(DEMO_DATA.history);
-    } else {
-      loadItems();
-      loadRecurringItems();
-      loadHistory();
-    }
-  }, [demoMode]);
+    loadItems();
+    loadRecurringItems();
+    loadHistory();
+  }, []);
 
   const loadItems = async () => {
     try {
@@ -403,13 +372,6 @@ export default function NetWorth() {
         </div>
         <div className="header-actions">
           <button 
-            className={`demo-toggle ${demoMode ? 'active' : ''}`}
-            onClick={() => setDemoMode(!demoMode)}
-            title={demoMode ? 'Switch to Real Data' : 'Switch to Demo Data'}
-          >
-            {demoMode ? '👁️ Demo' : '🔒 Real'}
-          </button>
-          <button 
             className="export-btn"
             onClick={exportToCSV}
             title="Export data to CSV"
@@ -614,22 +576,16 @@ export default function NetWorth() {
         <>
           <div className="tab-header">
             <h2>Manage Assets & Liabilities</h2>
-            <button onClick={() => { console.log('Add Item clicked'); setShowForm(!showForm); }} disabled={demoMode}>
+            <button onClick={() => { console.log('Add Item clicked'); setShowForm(!showForm); }}>
               ➕ Add Item
             </button>
           </div>
-
-      {demoMode && (
-        <div className="demo-notice">
-          <p>🔒 Demo Mode Active - Editing disabled. Switch to Real Data to make changes.</p>
-        </div>
-      )}
 
       <div className="import-help">
         <p>💡 <a href="/networth-template.csv" download>Download CSV Template</a> for bulk import</p>
       </div>
 
-      {showForm && !demoMode && (
+      {showForm && (
         <div className="item-form">
           <h3>{editingId ? 'Edit Item' : 'New Item'}</h3>
           <form onSubmit={saveItem}>
@@ -729,8 +685,8 @@ export default function NetWorth() {
             <div className="item-header">
               <h4>{item.name}</h4>
               <div className="item-actions">
-                <button onClick={() => editItem(item)} disabled={demoMode}>✏️</button>
-                <button onClick={() => deleteItem(item.itemId)} disabled={demoMode}>🗑️</button>
+                <button onClick={() => editItem(item)}>✏️</button>
+                <button onClick={() => deleteItem(item.itemId)}>🗑️</button>
               </div>
             </div>
             <p className="item-value">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
@@ -754,8 +710,8 @@ export default function NetWorth() {
             <div className="item-header">
               <h4>{item.name}</h4>
               <div className="item-actions">
-                <button onClick={() => editItem(item)} disabled={demoMode}>✏️</button>
-                <button onClick={() => deleteItem(item.itemId)} disabled={demoMode}>🗑️</button>
+                <button onClick={() => editItem(item)}>✏️</button>
+                <button onClick={() => deleteItem(item.itemId)}>🗑️</button>
               </div>
             </div>
             <p className="item-value negative">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
@@ -770,18 +726,15 @@ export default function NetWorth() {
         <>
           <div className="tab-header">
             <h2>Recurring Investments</h2>
-            <button onClick={() => setShowRecurringForm(!showRecurringForm)} disabled={demoMode}>
+            <button onClick={() => setShowRecurringForm(!showRecurringForm)}>
               ➕ Add Recurring
             </button>
           </div>
 
-          {demoMode && (
-            <div className="demo-notice">
-              <p>🔒 Demo Mode Active - Editing disabled. Switch to Real Data to make changes.</p>
-            </div>
+          
           )}
 
-          {showRecurringForm && !demoMode && (
+          {showRecurringForm && (
             <div className="item-form">
               <h3>New Recurring Investment</h3>
               <form onSubmit={saveRecurringItem}>
@@ -819,7 +772,7 @@ export default function NetWorth() {
               <div key={item.recurringId} className="item-card">
                 <div className="item-header">
                   <h4>{item.assetName}</h4>
-                  <button onClick={() => deleteRecurringItem(item.recurringId)} disabled={demoMode}>🗑️</button>
+                  <button onClick={() => deleteRecurringItem(item.recurringId)}>🗑️</button>
                 </div>
                 <p className="item-value">{currency}{item.amount.toLocaleString('es-ES', {minimumFractionDigits: 2})} monthly on day {item.dayOfMonth}</p>
                 {item.tags && <p className="item-tags">{item.tags}</p>}
