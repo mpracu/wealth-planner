@@ -15,7 +15,7 @@
 }
 
 .blog-header p {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 1.1rem;
 }
 
@@ -93,7 +93,7 @@
   display: flex;
   gap: 0.75rem;
   font-size: 0.85rem;
-  color: #888;
+  color: var(--text-secondary);
   align-items: center;
   padding-top: 1rem;
   border-top: 1px solid #2a2a3e;
@@ -130,7 +130,7 @@
 .post-meta {
   display: flex;
   gap: 2rem;
-  color: #888;
+  color: var(--text-secondary);
   margin-bottom: 1.5rem;
   font-size: 0.95rem;
 }

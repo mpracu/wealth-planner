@@ -19,7 +19,7 @@
 
 .hero p {
   font-size: 1.25rem;
-  color: #888;
+  color: var(--text-secondary);
   margin: 0 0 2rem 0;
   max-width: 600px;
   margin-left: auto;
@@ -101,7 +101,7 @@
 }
 
 .feature p {
-  color: #888;
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.6;
 }

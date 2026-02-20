@@ -156,7 +156,7 @@
 
 .summary-card h3 {
   margin: 0 0 0.5rem 0;
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   text-transform: uppercase;
 }
@@ -243,7 +243,7 @@
 
 .item-group h3 {
   text-transform: capitalize;
-  color: #888;
+  color: var(--text-secondary);
   margin-bottom: 1rem;
 }
 
@@ -287,13 +287,13 @@
 }
 
 .item-details {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   margin: 0.25rem 0;
 }
 
 .item-tags {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.75rem;
   margin-top: 0.5rem;
   font-style: italic;
@@ -313,7 +313,7 @@
 }
 
 .investment-details .shares-info {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   margin: 0;
 }
@@ -398,7 +398,7 @@
 
 .forecast-card h4 {
   margin: 0 0 0.5rem 0;
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   text-transform: uppercase;
 }
@@ -412,7 +412,7 @@
 
 .forecast-card small {
   display: block;
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   margin-top: 0.25rem;
 }
@@ -453,7 +453,7 @@
   text-align: left;
   padding: 0.75rem;
   border-bottom: 2px solid #333;
-  color: #888;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
@@ -511,7 +511,7 @@
 
 .recurring-item p {
   margin: 0;
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.875rem;
 }
 
@@ -523,7 +523,7 @@
 
 .items-list h3 {
   margin-top: 1rem;
-  color: #888;
+  color: var(--text-secondary);
 }
 
 .tabs {
@@ -542,7 +542,7 @@
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
-  color: #888;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s;
   font-size: 0.85rem;
@@ -594,7 +594,7 @@
 }
 
 .empty-state p {
-  color: #888;
+  color: var(--text-secondary);
   margin: 0.5rem 0;
 }
 

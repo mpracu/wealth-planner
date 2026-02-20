@@ -4,6 +4,13 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import './NetWorth.css';
 
+const getThemeColors = () => {
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  return theme === 'dark' 
+    ? { bg: '#1a1a1a', border: '#333', text: '#fff', grid: '#333', axis: '#888' }
+    : { bg: '#ffffff', border: '#ddd', text: '#1a1a1a', grid: '#ddd', axis: '#666' };
+};
+
 const DEMO_DATA = {
   items: [
     { itemId: 'd1', name: 'Vanguard S&P 500 ETF', type: 'asset', value: 45000, tags: 'fund, stocks', isin: 'IE00B3XXRP09', shares: 150, pricePerShare: 300 },
@@ -53,6 +60,15 @@ export default function NetWorth() {
   const [forecastYears, setForecastYears] = useState(10);
   const [forecastReturn, setForecastReturn] = useState(7);
   const [forecastInflation, setForecastInflation] = useState(2);
+  const [themeColors, setThemeColors] = useState(getThemeColors());
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setThemeColors(getThemeColors());
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (demoMode) {
@@ -452,13 +468,13 @@ export default function NetWorth() {
                 <h3>Net Worth History</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                    <XAxis dataKey="date" stroke="#888" />
-                    <YAxis stroke="#888" tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
+                    <XAxis dataKey="date" stroke={themeColors.axis} />
+                    <YAxis stroke={themeColors.axis} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} />
                     <Tooltip 
-                      contentStyle={{ background: '#1a1a1a', border: '1px solid #333', color: '#fff' }} 
-                      labelStyle={{ color: '#fff' }}
-                      itemStyle={{ color: '#fff' }}
+                      contentStyle={{ background: themeColors.bg, border: `1px solid ${themeColors.border}`, color: themeColors.text }} 
+                      labelStyle={{ color: themeColors.text }}
+                      itemStyle={{ color: themeColors.text }}
                       formatter={v => `${currency}${v.toLocaleString('es-ES', {minimumFractionDigits: 2})}`} 
                     />
                     <Line type="monotone" dataKey="netWorth" stroke="#22c55e" strokeWidth={3} dot={{ fill: '#22c55e', r: 4 }} />
@@ -487,9 +503,9 @@ export default function NetWorth() {
                       ))}
                     </Pie>
                     <Tooltip 
-                      contentStyle={{ background: '#1a1a1a', border: '1px solid #333', color: '#fff' }}
-                      labelStyle={{ color: '#fff' }}
-                      itemStyle={{ color: '#fff' }}
+                      contentStyle={{ background: themeColors.bg, border: `1px solid ${themeColors.border}`, color: themeColors.text }}
+                      labelStyle={{ color: themeColors.text }}
+                      itemStyle={{ color: themeColors.text }}
                       formatter={(value) => `${currency}${value.toLocaleString('es-ES', {minimumFractionDigits: 2})}`}
                     />
                   </PieChart>
@@ -549,13 +565,13 @@ export default function NetWorth() {
 
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={forecastData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="year" stroke="#888" label={{ value: 'Years', position: 'insideBottom', offset: -5 }} />
-                <YAxis stroke="#888" tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
+                <XAxis dataKey="year" stroke={themeColors.axis} label={{ value: 'Years', position: 'insideBottom', offset: -5 }} />
+                <YAxis stroke={themeColors.axis} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} />
                 <Tooltip 
-                  contentStyle={{ background: '#1a1a1a', border: '1px solid #333', color: '#fff' }}
-                  labelStyle={{ color: '#fff' }}
-                  itemStyle={{ color: '#fff' }}
+                  contentStyle={{ background: themeColors.bg, border: `1px solid ${themeColors.border}`, color: themeColors.text }}
+                  labelStyle={{ color: themeColors.text }}
+                  itemStyle={{ color: themeColors.text }}
                   formatter={v => `${currency}${v.toLocaleString('es-ES')}`}
                 />
                 <Line type="monotone" dataKey="nominal" stroke="#3b82f6" strokeWidth={2} name="Nominal Value" />
@@ -819,9 +835,9 @@ export default function NetWorth() {
           <div className="chart-large">
             <ResponsiveContainer width="100%" height={500}>
               <LineChart data={history}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="date" stroke="#888" />
-                <YAxis stroke="#888" />
+                <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
+                <XAxis dataKey="date" stroke={themeColors.axis} />
+                <YAxis stroke={themeColors.axis} />
                 <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }} />
                 <Line type="monotone" dataKey="netWorth" stroke="#3b82f6" strokeWidth={2} />
               </LineChart>
