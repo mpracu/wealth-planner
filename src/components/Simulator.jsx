@@ -182,27 +182,27 @@ export default function Simulator() {
 
       <div className="controls">
         <div className="control">
-          <label>Current Age: <strong>{age}</strong></label>
+          <label style={{ color: 'var(--text-primary)' }}>Current Age: <strong>{age}</strong></label>
           <input type="range" min="18" max="65" value={age} onChange={e => { setAge(+e.target.value); trackSliderChange('Age', +e.target.value); }} />
         </div>
         
         <div className="control">
-          <label>Current Capital: <strong>${currentCapital.toLocaleString()}</strong></label>
+          <label style={{ color: 'var(--text-primary)' }}>Current Capital: <strong>${currentCapital.toLocaleString()}</strong></label>
           <input type="range" min="0" max="500000" step="5000" value={currentCapital} onChange={e => { setCurrentCapital(+e.target.value); trackSliderChange('Capital', +e.target.value); }} />
         </div>
         
         <div className="control">
-          <label>Monthly Investment: <strong>${monthlyInvestment.toLocaleString()}</strong></label>
+          <label style={{ color: 'var(--text-primary)' }}>Monthly Investment: <strong>${monthlyInvestment.toLocaleString()}</strong></label>
           <input type="range" min="0" max="10000" step="100" value={monthlyInvestment} onChange={e => { setMonthlyInvestment(+e.target.value); trackSliderChange('Monthly Investment', +e.target.value); }} />
         </div>
         
         <div className="control">
-          <label>Annual Return: <strong>{annualReturn}%</strong></label>
+          <label style={{ color: 'var(--text-primary)' }}>Annual Return: <strong>{annualReturn}%</strong></label>
           <input type="range" min="0" max="15" step="0.5" value={annualReturn} onChange={e => { setAnnualReturn(+e.target.value); trackSliderChange('Annual Return', +e.target.value); }} />
         </div>
         
         <div className="control">
-          <label>Inflation Rate: <strong>{inflation}%</strong></label>
+          <label style={{ color: 'var(--text-primary)' }}>Inflation Rate: <strong>{inflation}%</strong></label>
           <input type="range" min="0" max="10" step="0.5" value={inflation} onChange={e => { setInflation(+e.target.value); trackSliderChange('Inflation', +e.target.value); }} />
         </div>
       </div>
