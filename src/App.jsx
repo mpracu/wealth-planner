@@ -5,13 +5,14 @@ import Auth from './components/Auth';
 import Simulator from './components/Simulator';
 import NetWorth from './components/NetWorth';
 import Blog from './components/Blog';
+import Landing from './components/Landing';
 import './aws-config';
 import './App.css';
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState('simulator');
+  const [view, setView] = useState('landing');
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -32,7 +33,7 @@ function App() {
   const handleSignOut = async () => {
     await signOut();
     setUser(null);
-    setView('simulator');
+    setView('landing');
   };
 
   const navigate = (newView) => {
@@ -47,7 +48,7 @@ function App() {
   return (
     <div className="app">
       <nav className="navbar">
-        <h1>💰 Wealth Planner</h1>
+        <h1 onClick={() => navigate('landing')} style={{ cursor: 'pointer' }}>💰 Wealth Planner</h1>
         <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? '✕' : '☰'}
         </button>
@@ -89,7 +90,9 @@ function App() {
       </nav>
 
       <div className="container">
-        {view === 'login' && !user ? (
+        {view === 'landing' ? (
+          <Landing onNavigate={navigate} />
+        ) : view === 'login' && !user ? (
           <Auth onAuthSuccess={() => { checkUser(); setView('networth'); }} />
         ) : view === 'simulator' ? (
           <Simulator />
