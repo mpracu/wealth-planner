@@ -221,8 +221,8 @@ export default function Simulator() {
             />
             <Legend />
             <ReferenceLine y={1000000} stroke="#22c55e" strokeDasharray="3 3" label="$1M" />
-            <Line type="monotone" dataKey="nominal" stroke="#3b82f6" name="Nominal Value" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="real" stroke="#22c55e" name="Real Value" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="nominal" stroke="#3b82f6" name="Nominal Value" strokeWidth={3} dot={false} />
+            <Line type="monotone" dataKey="real" stroke="#22c55e" name="Real Value" strokeWidth={3} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
