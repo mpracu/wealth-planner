@@ -35,7 +35,7 @@
 
 .btn-primary {
   background: #3b82f6;
-  color: var(--text-primary);
+  color: white;
   border: none;
   padding: 1rem 2rem;
   font-size: 1.1rem;
@@ -64,6 +64,7 @@
 
 .btn-secondary:hover {
   background: #3b82f6;
+  color: white;
   transform: translateY(-2px);
 }
 
@@ -110,12 +111,13 @@
   text-align: center;
   padding: 4rem 2rem;
   background: var(--card-bg);
-  border-top: 1px solid #333;
+  border-top: 1px solid var(--border-color);
 }
 
 .cta h2 {
   margin: 0 0 2rem 0;
   font-size: 2rem;
+  color: var(--text-primary);
 }
 
 @media (max-width: 768px) {

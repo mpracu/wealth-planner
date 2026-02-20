@@ -26,13 +26,13 @@
 }
 
 .blog-card {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: var(--card-bg);
   border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 1px solid #2a2a3e;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .blog-card:hover {
@@ -65,7 +65,7 @@
 
 .tag {
   background: linear-gradient(135deg, #3b82f6 0%, #22c55e 100%);
-  color: var(--text-primary);
+  color: white;
   padding: 0.3rem 0.75rem;
   border-radius: 16px;
   font-size: 0.75rem;
