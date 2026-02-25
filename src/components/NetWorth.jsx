@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { post as apiPost, get as apiGet, put as apiPut, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
@@ -292,9 +292,6 @@ export default function NetWorth() {
     });
     setEditingId(item.itemId);
     setShowForm(true);
-    setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
   };
 
   const resetForm = () => {
@@ -589,9 +586,9 @@ export default function NetWorth() {
         <p>💡 <a href="/networth-template.csv" download>Download CSV Template</a> for bulk import</p>
       </div>
 
-      {showForm && (
+      {showForm && !editingId && (
         <div className="item-form" ref={formRef}>
-          <h3>{editingId ? 'Edit Item' : 'New Item'}</h3>
+          <h3>New Item</h3>
           <form onSubmit={saveItem}>
             <label>
               <span>Name</span>
@@ -685,27 +682,78 @@ export default function NetWorth() {
       <div className="items-list">
         <h3>Assets</h3>
         {items.filter(i => i.type === 'asset').map(item => (
-          <div key={item.itemId} className="item-card">
-            <div className="item-header">
-              <h4>{item.name}</h4>
-              <div className="item-actions">
-                <button onClick={() => editItem(item)}>✏️</button>
-                <button onClick={() => deleteItem(item.itemId)}>🗑️</button>
+          <React.Fragment key={item.itemId}>
+            <div className="item-card">
+              <div className="item-header">
+                <h4>{item.name}</h4>
+                <div className="item-actions">
+                  <button onClick={() => editItem(item)}>✏️</button>
+                  <button onClick={() => deleteItem(item.itemId)}>🗑️</button>
+                </div>
               </div>
+              <p className="item-value">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+              {item.tags && <p className="item-tags">{item.tags}</p>}
+              {item.isin && (
+                <div className="investment-details">
+                  <p className="isin">ISIN: {item.isin}</p>
+                  {item.shares && item.pricePerShare && (
+                    <p className="shares-info">
+                      {parseFloat(item.shares).toFixed(3)} shares @ {currency}{parseFloat(item.pricePerShare).toFixed(2)}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
-            <p className="item-value">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-            {item.tags && <p className="item-tags">{item.tags}</p>}
-            {item.isin && (
-              <div className="investment-details">
-                <p className="isin">ISIN: {item.isin}</p>
-                {item.shares && item.pricePerShare && (
-                  <p className="shares-info">
-                    {parseFloat(item.shares).toFixed(3)} shares @ {currency}{parseFloat(item.pricePerShare).toFixed(2)}
-                  </p>
-                )}
+            
+            {showForm && editingId === item.itemId && (
+              <div className="item-form" ref={formRef}>
+                <h3>Edit Item</h3>
+                <form onSubmit={saveItem}>
+                  <label>
+                    <span>Name</span>
+                    <input placeholder="e.g., Savings Account, Vanguard Global Stock" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                  </label>
+                  <label>
+                    <span>Type</span>
+                    <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+                      <option value="asset">Asset</option>
+                      <option value="liability">Liability</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Value</span>
+                    <input type="number" step="0.01" placeholder="Value" value={formData.value} onChange={e => setFormData({...formData, value: +e.target.value})} required />
+                  </label>
+                  <label>
+                    <span>Tags (comma separated)</span>
+                    <input placeholder="e.g., fund, stocks, investment" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+                  </label>
+                  
+                  {(formData.tags?.toLowerCase().includes('fund') || formData.tags?.toLowerCase().includes('stock') || formData.tags?.toLowerCase().includes('investment')) && (
+                    <>
+                      <label>
+                        <span>ISIN Code (optional)</span>
+                        <input placeholder="e.g., IE00B3RBWM25" value={formData.isin || ''} onChange={e => setFormData({...formData, isin: e.target.value})} />
+                      </label>
+                      <label>
+                        <span>Shares/Units (optional)</span>
+                        <input type="number" step="0.001" placeholder="e.g., 10.5" value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} />
+                      </label>
+                      <label>
+                        <span>Price per Share (optional)</span>
+                        <input type="number" step="0.01" placeholder="e.g., 85.50" value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
+                      </label>
+                    </>
+                  )}
+                  
+                  <div className="form-actions">
+                    <button type="submit">💾 Save</button>
+                    <button type="button" onClick={resetForm}>Cancel</button>
+                  </div>
+                </form>
               </div>
             )}
-          </div>
+          </React.Fragment>
         ))}
 
         <h3>Liabilities</h3>
@@ -734,9 +782,6 @@ export default function NetWorth() {
               ➕ Add Recurring
             </button>
           </div>
-
-          
-          )}
 
           {showRecurringForm && (
             <div className="item-form">
