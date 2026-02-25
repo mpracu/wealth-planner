@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { post as apiPost, get as apiGet, put as apiPut, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
@@ -12,6 +12,7 @@ const getThemeColors = () => {
 };
 
 export default function NetWorth() {
+  const formRef = useRef(null);
   const [items, setItems] = useState([]);
   const [recurringItems, setRecurringItems] = useState([]);
   const [history, setHistory] = useState([]);
@@ -291,6 +292,9 @@ export default function NetWorth() {
     });
     setEditingId(item.itemId);
     setShowForm(true);
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const resetForm = () => {
@@ -586,7 +590,7 @@ export default function NetWorth() {
       </div>
 
       {showForm && (
-        <div className="item-form">
+        <div className="item-form" ref={formRef}>
           <h3>{editingId ? 'Edit Item' : 'New Item'}</h3>
           <form onSubmit={saveItem}>
             <label>
@@ -769,10 +773,10 @@ export default function NetWorth() {
 
           <div className="items-list">
             {recurringItems.map(item => (
-              <div key={item.recurringId} className="item-card">
+              <div key={item.itemId} className="item-card">
                 <div className="item-header">
                   <h4>{item.assetName}</h4>
-                  <button onClick={() => deleteRecurringItem(item.recurringId)}>🗑️</button>
+                  <button onClick={() => deleteRecurringItem(item.itemId)}>🗑️</button>
                 </div>
                 <p className="item-value">{currency}{item.amount.toLocaleString('es-ES', {minimumFractionDigits: 2})} monthly on day {item.dayOfMonth}</p>
                 {item.tags && <p className="item-tags">{item.tags}</p>}
