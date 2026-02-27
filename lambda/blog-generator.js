@@ -1,15 +1,37 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient, PutCommand, GetCommand } = require('@aws-sdk/lib-dynamodb');
+const { BedrockRuntimeClient, InvokeModelCommand } = require('@aws-sdk/client-bedrock-runtime');
 
 const client = new DynamoDBClient({ region: 'us-east-1' });
 const docClient = DynamoDBDocumentClient.from(client);
+const bedrock = new BedrockRuntimeClient({ region: 'us-east-1' });
 
 const BLOG_TOPICS = [
   'The Psychology of Wealth Building',
   'Index Funds vs Individual Stocks',
   'Building Multiple Income Streams',
   'The 4% Rule for Retirement',
-  'Tax-Advantaged Investment Accounts'
+  'Tax-Advantaged Investment Accounts',
+  'Real Estate Investment Basics',
+  'Emergency Fund Strategies',
+  'Debt Payoff vs Investing',
+  'Dollar Cost Averaging Explained',
+  'Understanding Market Volatility',
+  'Dividend Growth Investing',
+  'The FIRE Movement',
+  'Rebalancing Your Portfolio',
+  'Inflation and Your Investments',
+  'Building Wealth in Your 20s',
+  'Building Wealth in Your 30s',
+  'Building Wealth in Your 40s',
+  'Estate Planning Basics',
+  'Understanding Risk Tolerance',
+  'The Power of Patience in Investing',
+  'Avoiding Common Investment Mistakes',
+  'Building Generational Wealth',
+  'Health Savings Accounts (HSAs)',
+  'Backdoor Roth IRA Strategies',
+  'International Investing'
 ];
 
 const IMAGE_POOL = [
@@ -117,21 +139,54 @@ The order matters: 401(k) to match, then max Roth IRA, then max 401(k), then HSA
 #TaxStrategy #401k #RothIRA #HSA #RetirementAccounts #TaxPlanning`
 };
 
-const generateBlogPost = (topic, postNumber) => {
+const generateBlogContent = async (topic) => {
+  const prompt = `Write a 600-word blog post about "${topic}" for a wealth planning app. 
+Make it practical, actionable, and engaging. Include specific examples and numbers.
+Structure: 6-8 short paragraphs (2-3 sentences each).
+End with 3-5 relevant hashtags.
+Do not include a title or image placeholders - just the content.`;
+
+  const payload = {
+    anthropic_version: "bedrock-2023-05-31",
+    max_tokens: 1500,
+    messages: [{
+      role: "user",
+      content: prompt
+    }]
+  };
+
+  const command = new InvokeModelCommand({
+    modelId: "anthropic.claude-3-haiku-20240307-v1:0",
+    body: JSON.stringify(payload)
+  });
+
+  const response = await bedrock.send(command);
+  const result = JSON.parse(new TextDecoder().decode(response.body));
+  return result.content[0].text;
+};
+
+const generateBlogPost = async (topic, postNumber) => {
   const imageIndex = ((postNumber - 1) * 2) % IMAGE_POOL.length;
   const heroImage = IMAGE_POOL[imageIndex];
   const image2 = IMAGE_POOL[(imageIndex + 1) % IMAGE_POOL.length];
   
-  const contentGenerator = CONTENT_MAP[topic];
-  const content = contentGenerator ? contentGenerator(heroImage, image2) : `![${topic}](${heroImage})
-
-This is a placeholder for ${topic}. Content coming soon!
-
-#WealthBuilding #FinancialPlanning`;
+  const aiContent = await generateBlogContent(topic);
+  const paragraphs = aiContent.split('\n\n');
+  const midPoint = Math.floor(paragraphs.length / 2);
+  
+  const contentWithImages = [
+    `![${topic}](${heroImage})`,
+    '',
+    ...paragraphs.slice(0, midPoint),
+    '',
+    `![${topic}](${image2})`,
+    '',
+    ...paragraphs.slice(midPoint)
+  ].join('\n\n');
 
   return {
     title: topic,
-    content: content,
+    content: contentWithImages,
     image: heroImage,
     publishedDate: new Date().toISOString(),
     postNumber
@@ -155,7 +210,7 @@ exports.handler = async (event) => {
     const topicIndex = counter % BLOG_TOPICS.length;
     const topic = BLOG_TOPICS[topicIndex];
     
-    const post = generateBlogPost(topic, postNumber);
+    const post = await generateBlogPost(topic, postNumber);
     
     await docClient.send(new PutCommand({
       TableName: 'wealth-planner-blog-posts',
