@@ -1,5 +1,5 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, PutCommand, ScanCommand, GetCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, PutCommand, GetCommand } = require('@aws-sdk/lib-dynamodb');
 
 const client = new DynamoDBClient({ region: 'us-east-1' });
 const docClient = DynamoDBDocumentClient.from(client);
@@ -9,25 +9,9 @@ const BLOG_TOPICS = [
   'Index Funds vs Individual Stocks',
   'Building Multiple Income Streams',
   'The 4% Rule for Retirement',
-  'Tax-Advantaged Investment Accounts',
-  'Real Estate Investment Basics',
-  'Emergency Fund Strategies',
-  'Debt Payoff vs Investing',
-  'Dollar Cost Averaging Explained',
-  'Understanding Market Volatility',
-  'Dividend Growth Investing',
-  'The FIRE Movement',
-  'Rebalancing Your Portfolio',
-  'Inflation and Your Investments',
-  'Building Wealth in Your 20s/30s/40s',
-  'Estate Planning Basics',
-  'Understanding Risk Tolerance',
-  'The Power of Patience in Investing',
-  'Avoiding Common Investment Mistakes',
-  'Building Generational Wealth'
+  'Tax-Advantaged Investment Accounts'
 ];
 
-// Unique image pool - 60 different images (3 per topic)
 const IMAGE_POOL = [
   'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&h=600&fit=crop',
   'https://images.unsplash.com/photo-1434626881859-194d67b2b86f?w=1200&h=600&fit=crop',
@@ -38,95 +22,112 @@ const IMAGE_POOL = [
   'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200&h=600&fit=crop',
   'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=1200&h=600&fit=crop',
   'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1556155092-490a1ba16284?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1565514020179-026b92b84bb6?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1543286386-713bdd548da4?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537902-1e50099867b4?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1559526324-593bc073d938?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1559526324-593bc073d938?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537902-1e50099867b4?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1559526324-593bc073d938?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537902-1e50099867b4?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1559526324-593bc073d938?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537902-1e50099867b4?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1559526324-593bc073d938?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537902-1e50099867b4?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&h=600&fit=crop'
+  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop'
 ];
 
+const CONTENT_MAP = {
+  'The Psychology of Wealth Building': (img1, img2) => `![The Psychology of Wealth Building](${img1})
+
+Your mindset shapes every financial decision you make. Understanding the psychology behind wealth building is crucial for long-term success.
+
+The scarcity versus abundance mindset plays a huge role. People with scarcity thinking focus on what they lack, leading to fear-based decisions. Those with abundance thinking see opportunities and take calculated risks.
+
+Delayed gratification is perhaps the most important psychological trait. The famous marshmallow experiment showed that children who could wait for a bigger reward later achieved more success in life. The same applies to wealth.
+
+![Mindset Matters](${img2})
+
+Your relationship with money often stems from childhood. Did your parents fight about money? Were you taught that "money is the root of all evil"? These beliefs, often unconscious, sabotage your wealth-building efforts.
+
+The comparison trap destroys wealth. Social media makes it worse - everyone's highlight reel makes you feel behind. But wealth building is personal. Focus on your own journey, not others' appearances.
+
+Emotional spending is wealth's enemy. Retail therapy, stress eating out, impulse purchases - these are psychological coping mechanisms that drain your resources. Developing healthier coping strategies protects your wealth.
+
+#WealthMindset #FinancialPsychology #MoneyMindset #WealthBuilding`,
+
+  'Index Funds vs Individual Stocks': (img1, img2) => `![Index Funds vs Individual Stocks](${img1})
+
+The debate between index funds and individual stocks has raged for decades. Understanding both approaches helps you make informed decisions.
+
+Index funds offer instant diversification. When you buy an S&P 500 index fund, you own pieces of 500 companies. If one fails, it barely affects you.
+
+The data strongly favors index funds. Studies show that over 90% of active fund managers fail to beat the market over 15-year periods. If professionals can't consistently pick winning stocks, what chance do individual investors have?
+
+![Market Performance](${img2})
+
+Individual stocks offer higher potential returns - but also higher risk. If you pick the next Amazon early, you could multiply your money many times. But for every Amazon, there are dozens of failed companies.
+
+Costs matter enormously. Index funds charge 0.03-0.20% annually. Active trading costs much more in time and fees. Over decades, these cost differences compound into hundreds of thousands of dollars.
+
+The best approach for most? Core index funds with perhaps 5-10% in individual stocks if you enjoy it. This gives you diversification's safety while allowing some active participation.
+
+#IndexFunds #StockMarket #PassiveInvesting #InvestmentStrategy #ETFs`,
+
+  'Building Multiple Income Streams': (img1, img2) => `![Building Multiple Income Streams](${img1})
+
+Relying on a single income source is risky in today's economy. Building multiple income streams creates financial security and accelerates wealth building.
+
+Start with your primary job, but don't stop there. Side hustles, freelancing, consulting - these add income without requiring you to quit your day job. Even an extra $500 monthly compounds to significant wealth over time.
+
+Investment income is the ultimate passive stream. Dividends, interest, rental income - money working for you while you sleep. This is how the wealthy stay wealthy.
+
+![Multiple Streams](${img2})
+
+Digital products offer scalability. Create once, sell forever. Ebooks, courses, templates, software - these require upfront work but can generate income for years.
+
+Rental properties provide monthly cash flow plus appreciation. Yes, they require work and capital, but they're a proven wealth builder. Start with house hacking - rent out rooms in your home.
+
+Don't spread yourself too thin. Three solid income streams beat ten mediocre attempts. Focus on streams that align with your skills and interests.
+
+#MultipleIncomeStreams #PassiveIncome #SideHustle #FinancialFreedom`,
+
+  'The 4% Rule for Retirement': (img1, img2) => `![The 4% Rule for Retirement](${img1})
+
+The 4% rule is retirement planning's most famous guideline. Understanding it helps you determine how much you need to retire comfortably.
+
+The rule states: withdraw 4% of your portfolio in year one of retirement, then adjust for inflation annually. Historically, this approach has sustained portfolios for 30+ years.
+
+The math is simple. Need $40,000 annually? You need $1 million saved ($1M × 4% = $40K). Want $80,000? Save $2 million. This clarity helps you set concrete savings goals.
+
+![Retirement Planning](${img2})
+
+But the 4% rule has critics. It's based on historical data, and past performance doesn't guarantee future results. Lower expected returns might require a 3% or 3.5% withdrawal rate.
+
+Your retirement age matters. Retiring at 50 means your money must last longer than retiring at 65. Earlier retirement might require a 3% rule.
+
+Flexibility is key. The 4% rule assumes fixed spending, but real life is flexible. Spend less in down markets, more in good years. This dynamic approach significantly improves success rates.
+
+#RetirementPlanning #4PercentRule #FinancialIndependence #FIRE`,
+
+  'Tax-Advantaged Investment Accounts': (img1, img2) => `![Tax-Advantaged Investment Accounts](${img1})
+
+Tax-advantaged accounts are wealth building's secret weapons. Using them properly can save hundreds of thousands in taxes over your lifetime.
+
+401(k)s offer immediate tax deductions and tax-deferred growth. Contributing $20,000 annually saves $5,000+ in taxes if you're in the 25% bracket. That's free money.
+
+Roth IRAs provide tax-free growth and withdrawals. Pay taxes now, never again. For young investors, this is incredibly powerful. Decades of compound growth, all tax-free.
+
+![Tax Strategy](${img2})
+
+HSAs are the ultimate tax-advantaged account. Tax-deductible contributions, tax-free growth, tax-free withdrawals for medical expenses. It's a triple tax advantage.
+
+529 plans make college savings tax-efficient. State tax deductions on contributions, tax-free growth, tax-free withdrawals for education.
+
+The order matters: 401(k) to match, then max Roth IRA, then max 401(k), then HSA, then taxable accounts. This sequence optimizes your tax benefits.
+
+#TaxStrategy #401k #RothIRA #HSA #RetirementAccounts #TaxPlanning`
+};
+
 const generateBlogPost = (topic, postNumber) => {
-  // Use postNumber to select unique images (2 images per post, cycling through pool)
   const imageIndex = ((postNumber - 1) * 2) % IMAGE_POOL.length;
   const heroImage = IMAGE_POOL[imageIndex];
   const image2 = IMAGE_POOL[(imageIndex + 1) % IMAGE_POOL.length];
   
-  // Longer, more detailed content
-  const content = `![${topic}](${heroImage})
+  const contentGenerator = CONTENT_MAP[topic];
+  const content = contentGenerator ? contentGenerator(heroImage, image2) : `![${topic}](${heroImage})
 
-Understanding ${topic.toLowerCase()} is crucial for long-term financial success. Many investors overlook this important aspect of wealth building, but mastering these concepts can significantly impact your financial journey and help you achieve your goals faster than you might think.
+This is a placeholder for ${topic}. Content coming soon!
 
-The foundation of success in this area lies in consistent application of proven principles combined with patience and discipline. Whether you're just starting out or have years of experience, there's always room to deepen your understanding and refine your approach. The most successful investors are those who never stop learning and adapting.
-
-One of the most important factors is taking action based on knowledge. Information without implementation is worthless in the world of finance. Start small if needed, but start today. The compound effect of small, consistent actions over time can lead to remarkable results that seem almost magical in retrospect.
-
-Many people make the mistake of waiting for the "perfect" time to begin. They wait for more money, more knowledge, or better market conditions. But the truth is, the best time to start was yesterday, and the second-best time is now. Every day you delay is a day of potential compound growth lost forever.
-
-![Financial Strategy](${image2})
-
-Another critical aspect is staying informed and adapting to changing circumstances. The financial landscape evolves constantly, and what worked yesterday might need adjustment tomorrow. Stay curious, keep learning, and be willing to adjust your strategy as new information becomes available. Flexibility combined with core principles is the winning formula.
-
-Risk management is often overlooked but absolutely essential. Understanding your risk tolerance and building a strategy that lets you sleep at night is more important than chasing maximum returns. The best investment strategy is one you can stick with through market ups and downs, not the one that looks best on paper.
-
-Diversification remains one of the few free lunches in investing. By spreading your investments across different asset classes, sectors, and geographies, you reduce the impact of any single investment's poor performance. This doesn't eliminate risk, but it manages it intelligently.
-
-The psychological aspect cannot be understated. Your emotions will be your biggest enemy in wealth building. Fear during market downturns and greed during bull markets have destroyed more wealth than any market crash. Developing emotional discipline is as important as understanding financial concepts.
-
-Time in the market beats timing the market. This old adage has been proven true repeatedly throughout history. Trying to predict short-term market movements is a fool's errand that even professionals struggle with. Instead, focus on consistent investing over long periods, letting compound growth work its magic.
-
-Remember that building wealth is a marathon, not a sprint. The most successful investors are those who can maintain discipline through market cycles, continuing to execute their strategy regardless of short-term noise and media hysteria. Block out the noise and focus on your long-term plan.
-
-Focus on what you can control: your savings rate, your investment choices, your learning, your patience, and your emotional responses. These factors, more than market timing or luck, determine long-term success. External factors will always exist, but your response to them is entirely within your control.
-
-Finally, remember that wealth building is not just about accumulating money—it's about creating freedom, security, and options for yourself and your loved ones. Keep your ultimate goals in mind, and let them motivate you through the inevitable challenges along the way.
-
-#WealthBuilding #FinancialPlanning #InvestmentStrategy #FinancialFreedom #LongTermInvesting #SmartMoney #FinancialIndependence #WealthCreation`;
+#WealthBuilding #FinancialPlanning`;
 
   return {
     title: topic,
@@ -139,7 +140,6 @@ Finally, remember that wealth building is not just about accumulating money—it
 
 exports.handler = async (event) => {
   try {
-    // Get or create counter
     let counter = 0;
     try {
       const counterResult = await docClient.send(new GetCommand({
@@ -157,7 +157,6 @@ exports.handler = async (event) => {
     
     const post = generateBlogPost(topic, postNumber);
     
-    // Save post
     await docClient.send(new PutCommand({
       TableName: 'wealth-planner-blog-posts',
       Item: {
@@ -166,7 +165,6 @@ exports.handler = async (event) => {
       }
     }));
     
-    // Update counter
     await docClient.send(new PutCommand({
       TableName: 'wealth-planner-blog-posts',
       Item: {
@@ -175,10 +173,15 @@ exports.handler = async (event) => {
       }
     }));
     
-    console.log(`Published blog post #${postNumber}: ${topic}`);
-    return { statusCode: 200, body: JSON.stringify({ message: 'Blog post published', topic, postNumber }) };
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: 'Blog post created', post })
+    };
   } catch (error) {
-    console.error('Error generating blog post:', error);
-    throw error;
+    console.error('Error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message })
+    };
   }
 };
