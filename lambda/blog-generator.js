@@ -49,13 +49,22 @@ const getUniqueImages = async (postNumber) => {
     console.log('No used images found, starting fresh');
   }
   
-  // Generate unique images
+  // Generate unique images using Unsplash photo IDs
+  const photoIds = [
+    'photo-1554224155-8d04cb21cd6c', 'photo-1579621970563-ebec7560ff3e', 
+    'photo-1590283603385-17ffb3a7f29f', 'photo-1553729459-efe14ef6055d',
+    'photo-1559526324-4b87b5e36e44', 'photo-1434626881859-194d67b2b86f',
+    'photo-1579532537598-459ecdaf39cc', 'photo-1563986768609-322da13575f3',
+    'photo-1611974789855-9c2a0a7236a3', 'photo-1460925895917-afdab827c52f',
+    'photo-1518186285589-2f7649de83e0', 'photo-1507679799987-c73779587ccf',
+    'photo-1551836022-deb4988cc6c0', 'photo-1450101499163-c8848c66ca85'
+  ];
+  
   const images = [];
   let attempts = 0;
   while (images.length < 2 && attempts < 20) {
-    const topic = topics[Math.floor(Math.random() * topics.length)];
-    const seed = `${topic}-${Date.now()}-${Math.random()}`;
-    const img = `https://source.unsplash.com/1200x600/?${topic}&sig=${seed}`;
+    const photoId = photoIds[Math.floor(Math.random() * photoIds.length)];
+    const img = `https://images.unsplash.com/${photoId}?w=1200&h=600&fit=crop`;
     
     if (!usedImages.includes(img) && !images.includes(img)) {
       images.push(img);
