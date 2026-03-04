@@ -36,6 +36,10 @@ aws iam attach-role-policy \
   --role-name ${APP_NAME}-lambda-role \
   --policy-arn arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
 
+aws iam attach-role-policy \
+  --role-name ${APP_NAME}-lambda-role \
+  --policy-arn arn:aws:iam::aws:policy/AmazonBedrockFullAccess
+
 echo "Waiting for role to propagate..."
 sleep 10
 
@@ -73,6 +77,22 @@ aws lambda create-function \
 aws lambda update-function-code \
   --function-name ${APP_NAME}-stock-updater \
   --zip-file fileb://stock-updater.zip \
+  --region $REGION
+
+# Deploy blog generator
+zip -r blog-generator.zip blog-generator.js node_modules
+
+aws lambda create-function \
+  --function-name ${APP_NAME}-blog-generator \
+  --runtime nodejs20.x \
+  --role $LAMBDA_ROLE_ARN \
+  --handler blog-generator.handler \
+  --zip-file fileb://blog-generator.zip \
+  --timeout 60 \
+  --region $REGION 2>/dev/null || \
+aws lambda update-function-code \
+  --function-name ${APP_NAME}-blog-generator \
+  --zip-file fileb://blog-generator.zip \
   --region $REGION
 
 cd ..
@@ -137,6 +157,25 @@ aws lambda add-permission \
   --action lambda:InvokeFunction \
   --principal events.amazonaws.com \
   --source-arn "arn:aws:events:${REGION}:$(aws sts get-caller-identity --query Account --output text):rule/${APP_NAME}-daily-stock-update" \
+  --region $REGION 2>/dev/null || echo "Permission already exists"
+
+# Create EventBridge rule for blog posts every 2 days
+aws events put-rule \
+  --name ${APP_NAME}-blog-generator \
+  --schedule-expression "rate(2 days)" \
+  --region $REGION
+
+aws events put-targets \
+  --rule ${APP_NAME}-blog-generator \
+  --targets "Id=1,Arn=arn:aws:lambda:${REGION}:$(aws sts get-caller-identity --query Account --output text):function:${APP_NAME}-blog-generator" \
+  --region $REGION
+
+aws lambda add-permission \
+  --function-name ${APP_NAME}-blog-generator \
+  --statement-id eventbridge-blog \
+  --action lambda:InvokeFunction \
+  --principal events.amazonaws.com \
+  --source-arn "arn:aws:events:${REGION}:$(aws sts get-caller-identity --query Account --output text):rule/${APP_NAME}-blog-generator" \
   --region $REGION 2>/dev/null || echo "Permission already exists"
 
 API_ENDPOINT="https://${API_ID}.execute-api.${REGION}.amazonaws.com/prod"
