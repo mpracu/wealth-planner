@@ -34,18 +34,51 @@ const BLOG_TOPICS = [
   'International Investing'
 ];
 
-const IMAGE_POOL = [
-  'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1434626881859-194d67b2b86f?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=1200&h=600&fit=crop'
-];
+const getUniqueImages = async (postNumber) => {
+  const topics = ['finance', 'business', 'money', 'investment', 'wealth', 'banking', 'economy', 'stock-market'];
+  
+  // Get used images from DynamoDB
+  let usedImages = [];
+  try {
+    const result = await docClient.send(new GetCommand({
+      TableName: 'wealth-planner-blog-posts',
+      Key: { postId: 'USED_IMAGES' }
+    }));
+    usedImages = result.Item?.images || [];
+  } catch (err) {
+    console.log('No used images found, starting fresh');
+  }
+  
+  // Generate unique images
+  const images = [];
+  let attempts = 0;
+  while (images.length < 2 && attempts < 20) {
+    const topic = topics[Math.floor(Math.random() * topics.length)];
+    const seed = `${topic}-${Date.now()}-${Math.random()}`;
+    const img = `https://source.unsplash.com/1200x600/?${topic}&sig=${seed}`;
+    
+    if (!usedImages.includes(img) && !images.includes(img)) {
+      images.push(img);
+    }
+    attempts++;
+  }
+  
+  // Store used images (keep last 100)
+  usedImages.push(...images);
+  if (usedImages.length > 100) {
+    usedImages = usedImages.slice(-100);
+  }
+  
+  await docClient.send(new PutCommand({
+    TableName: 'wealth-planner-blog-posts',
+    Item: {
+      postId: 'USED_IMAGES',
+      images: usedImages
+    }
+  }));
+  
+  return images;
+};
 
 const CONTENT_MAP = {
   'The Psychology of Wealth Building': (img1, img2) => `![The Psychology of Wealth Building](${img1})
@@ -166,9 +199,7 @@ Do not include a title or image placeholders - just the content.`;
 };
 
 const generateBlogPost = async (topic, postNumber) => {
-  const imageIndex = ((postNumber - 1) * 2) % IMAGE_POOL.length;
-  const heroImage = IMAGE_POOL[imageIndex];
-  const image2 = IMAGE_POOL[(imageIndex + 1) % IMAGE_POOL.length];
+  const [heroImage, image2] = await getUniqueImages(postNumber);
   
   const aiContent = await generateBlogContent(topic);
   const paragraphs = aiContent.split('\n\n');
