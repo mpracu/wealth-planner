@@ -185,9 +185,9 @@ export default function Simulator() {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Real Value at 50y</div>
+          <div className="stat-label">Projected in 50 Years</div>
           <div className="stat-value">{fmt(projected50?.real ?? 0)}</div>
-          <div className="stat-sub">inflation-adjusted</div>
+          <div className="stat-sub">inflation-adjusted · age {age + 50}</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Monthly Contribution</div>
