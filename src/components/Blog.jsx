@@ -37,6 +37,14 @@ function Blog() {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       setPosts(data.map((post, index) => {
+        // Extract tags from hashtag line in content (e.g. "#IndexFunds #StockMarket")
+        const hashtagLine = post.content.split('\n\n').find(p =>
+          p.trim().startsWith('#') && p.includes(' #')
+        );
+        const tags = hashtagLine
+          ? hashtagLine.trim().split(/\s+/).filter(t => t.startsWith('#')).map(t => t.replace('#', ''))
+          : ['Investing', 'Wealth Building', 'Financial Independence'];
+
         const cleanContent = post.content
           .replace(/!\[.*?\]\(.*?\)/g, '')
           .replace(/\*\*(.*?)\*\*/g, '$1')
@@ -54,11 +62,10 @@ function Blog() {
           date: new Date(post.publishedDate).toISOString().split('T')[0],
           author: 'Wealth Planner Team',
           readTime: '8 min read',
-          tags: ['Investing', 'Wealth Building', 'Financial Independence'],
+          tags,
           image,
           excerpt: cleanContent.substring(0, 180) + '...',
           content: post.content,
-          fallbackImage: getFallbackImage(post.postId, index + 1),
         };
       }));
     } catch (error) {
@@ -68,20 +75,12 @@ function Blog() {
     }
   };
 
-  const renderContent = (content, fallbackImage) => {
-    const contentWithoutFirstImage = content.replace(/^!\[.*?\]\(.*?\)\n\n/, '');
-    let inlineImageCount = 0;
+  const renderContent = (content) => {
+    // Strip all images from content — hero image is shown separately above
+    const contentWithoutImages = content.replace(/!\[.*?\]\(.*?\)\n?\n?/g, '');
 
-    return contentWithoutFirstImage.split('\n\n').map((paragraph, idx) => {
-      // Images
-      if (paragraph.startsWith('![')) {
-        const match = paragraph.match(/!\[(.*?)\]\((.*?)\)/);
-        if (match) {
-          inlineImageCount++;
-          const src = match[2] || fallbackImage;
-          return <img key={idx} src={src} alt={match[1]} className="blog-image" />;
-        }
-      }
+    return contentWithoutImages.split('\n\n').map((paragraph, idx) => {
+      if (!paragraph.trim()) return null;
 
       // Headings
       const headingMatch = paragraph.match(/^(#{1,3})\s+(.+)/);
@@ -146,7 +145,7 @@ function Blog() {
             </div>
           </div>
           <div className="post-content">
-            {renderContent(selectedPost.content, selectedPost.fallbackImage)}
+            {renderContent(selectedPost.content)}
           </div>
         </article>
       </div>

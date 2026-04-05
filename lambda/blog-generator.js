@@ -224,25 +224,13 @@ Do not include a title or image placeholders - just the content.`;
 };
 
 const generateBlogPost = async (topic, postNumber) => {
-  const [heroImage, image2] = await getUniqueHeroImage();
-  
+  const [heroImage] = await getUniqueHeroImage();
+
   const aiContent = await generateBlogContent(topic);
-  const paragraphs = aiContent.split('\n\n');
-  const midPoint = Math.floor(paragraphs.length / 2);
-  
-  const contentWithImages = [
-    `![${topic}](${heroImage})`,
-    '',
-    ...paragraphs.slice(0, midPoint),
-    '',
-    `![${topic}](${image2})`,
-    '',
-    ...paragraphs.slice(midPoint)
-  ].join('\n\n');
 
   return {
     title: topic,
-    content: contentWithImages,
+    content: aiContent,
     image: heroImage,
     publishedDate: new Date().toISOString(),
     postNumber
