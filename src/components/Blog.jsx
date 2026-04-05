@@ -13,6 +13,7 @@ function Blog() {
   const loadPosts = async () => {
     try {
       const response = await fetch('https://rkjlzbsc84.execute-api.us-east-1.amazonaws.com/prod/blog-posts');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       setPosts(data.map(post => {
         // Remove all markdown syntax for clean excerpt
