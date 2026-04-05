@@ -34,10 +34,32 @@ const BLOG_TOPICS = [
   'International Investing'
 ];
 
-const getUniqueImages = async (postNumber) => {
-  const topics = ['finance', 'business', 'money', 'investment', 'wealth', 'banking', 'economy', 'stock-market'];
-  
-  // Get used images from DynamoDB
+const PHOTO_POOL = [
+  'photo-1554224155-8d04cb21cd6c', 'photo-1579621970563-ebec7560ff3e',
+  'photo-1590283603385-17ffb3a7f29f', 'photo-1553729459-efe14ef6055d',
+  'photo-1559526324-4b87b5e36e44', 'photo-1434626881859-194d67b2b86f',
+  'photo-1579532537598-459ecdaf39cc', 'photo-1563986768609-322da13575f3',
+  'photo-1611974789855-9c2a0a7236a3', 'photo-1460925895917-afdab827c52f',
+  'photo-1518186285589-2f7649de83e0', 'photo-1507679799987-c73779587ccf',
+  'photo-1551836022-deb4988cc6c0', 'photo-1450101499163-c8848c66ca85',
+  'photo-1526304640581-d334cdbbf45e', 'photo-1543286386-713bdd548da4',
+  'photo-1454165804606-c3d57bc86b40', 'photo-1488190211105-8b0e65b80b4e',
+  'photo-1499750310107-5fef28a66643', 'photo-1521791136064-7986c2920216',
+  'photo-1486312338219-ce68d2c6f44d', 'photo-1600880292203-757bb62b4baf',
+  'photo-1565372195458-9de0b320ef04', 'photo-1444653614773-995cb1ef9efa',
+  'photo-1520607162513-77705c0f0d4a', 'photo-1434030216411-0b793f4b4173',
+  'photo-1559526323-cb2f2fe2591b', 'photo-1638913662252-70efce1e60a7',
+  'photo-1535320903710-d993d3d77d29', 'photo-1591696331111-ef9586a5b17a',
+  'photo-1468254095679-bbcba94a7066', 'photo-1504711434969-e33886168f5c',
+  'photo-1516383740770-fbcc5ccbece0', 'photo-1572021335469-31706a17aaef',
+  'photo-1611532736597-de2d4265fba3', 'photo-1559523161-0fc0d8b38a7a',
+  'photo-1567427017947-545c5f8d16ad', 'photo-1504868584819-f8e8b4b6d7e3',
+  'photo-1560472354-b33ff0c44a43', 'photo-1553484771-371a605b060b',
+  'photo-1515378791036-0648a814c963', 'photo-1536494126589-29fadf0d7e3b',
+];
+
+const getUniqueHeroImage = async () => {
+  // Load all previously used hero images
   let usedImages = [];
   try {
     const result = await docClient.send(new GetCommand({
@@ -48,63 +70,39 @@ const getUniqueImages = async (postNumber) => {
   } catch (err) {
     console.log('No used images found, starting fresh');
   }
-  
-  // Generate unique images using Unsplash photo IDs
-  const photoIds = [
-    'photo-1554224155-8d04cb21cd6c', 'photo-1579621970563-ebec7560ff3e',
-    'photo-1590283603385-17ffb3a7f29f', 'photo-1553729459-efe14ef6055d',
-    'photo-1559526324-4b87b5e36e44', 'photo-1434626881859-194d67b2b86f',
-    'photo-1579532537598-459ecdaf39cc', 'photo-1563986768609-322da13575f3',
-    'photo-1611974789855-9c2a0a7236a3', 'photo-1460925895917-afdab827c52f',
-    'photo-1518186285589-2f7649de83e0', 'photo-1507679799987-c73779587ccf',
-    'photo-1551836022-deb4988cc6c0', 'photo-1450101499163-c8848c66ca85',
-    'photo-1526304640581-d334cdbbf45e', 'photo-1543286386-713bdd548da4',
-    'photo-1454165804606-c3d57bc86b40', 'photo-1488190211105-8b0e65b80b4e',
-    'photo-1499750310107-5fef28a66643', 'photo-1521791136064-7986c2920216',
-    'photo-1486312338219-ce68d2c6f44d', 'photo-1600880292203-757bb62b4baf',
-    'photo-1565372195458-9de0b320ef04', 'photo-1444653614773-995cb1ef9efa',
-    'photo-1520607162513-77705c0f0d4a', 'photo-1434030216411-0b793f4b4173',
-    'photo-1559526323-cb2f2fe2591b', 'photo-1638913662252-70efce1e60a7',
-    'photo-1535320903710-d993d3d77d29', 'photo-1591696331111-ef9586a5b17a',
-    'photo-1468254095679-bbcba94a7066', 'photo-1504711434969-e33886168f5c',
-    'photo-1516383740770-fbcc5ccbece0', 'photo-1633158829585-23ba8f7c8caf',
-    'photo-1572021335469-31706a17aaef', 'photo-1611532736597-de2d4265fba3',
-    'photo-1642543348745-03b1219733d9', 'photo-1559523161-0fc0d8b38a7a',
-    'photo-1567427017947-545c5f8d16ad', 'photo-1617791160505-6f00504e3519',
-    'photo-1504868584819-f8e8b4b6d7e3', 'photo-1560472354-b33ff0c44a43',
-    'photo-1553484771-371a605b060b', 'photo-1614028674026-a65e31bfd27c',
-    'photo-1623227866882-c8c41f5b6e44', 'photo-1559523161-0fc0d8b38a7a',
-    'photo-1450101499163-c8848c66ca85', 'photo-1515378791036-0648a814c963',
-    'photo-1507003211169-0a1dd7228f2d', 'photo-1536494126589-29fadf0d7e3b'
-  ];
-  
-  const images = [];
-  let attempts = 0;
-  while (images.length < 2 && attempts < 20) {
-    const photoId = photoIds[Math.floor(Math.random() * photoIds.length)];
-    const img = `https://images.unsplash.com/${photoId}?w=1200&h=600&fit=crop`;
-    
-    if (!usedImages.includes(img) && !images.includes(img)) {
-      images.push(img);
+
+  const usedSet = new Set(usedImages);
+
+  // Pick first unused image from pool
+  let heroImage = null;
+  for (const photoId of PHOTO_POOL) {
+    const url = `https://images.unsplash.com/${photoId}?w=1200&h=600&fit=crop`;
+    if (!usedSet.has(url)) {
+      heroImage = url;
+      break;
     }
-    attempts++;
   }
-  
-  // Store used images (keep last 100)
-  usedImages.push(...images);
-  if (usedImages.length > 100) {
-    usedImages = usedImages.slice(-100);
+
+  // If pool is exhausted, reuse least-recently used
+  if (!heroImage) {
+    const photoId = PHOTO_POOL[usedImages.length % PHOTO_POOL.length];
+    heroImage = `https://images.unsplash.com/${photoId}?w=1200&h=600&fit=crop`;
+    console.log('Photo pool exhausted, reusing older images');
   }
-  
+
+  // Pick a different inline image (not the hero)
+  const inlineImage = PHOTO_POOL
+    .map(id => `https://images.unsplash.com/${id}?w=1200&h=600&fit=crop`)
+    .find(url => url !== heroImage) || heroImage;
+
+  // Persist hero image to USED_IMAGES permanently (no cap)
+  usedImages.push(heroImage);
   await docClient.send(new PutCommand({
     TableName: 'wealth-planner-blog-posts',
-    Item: {
-      postId: 'USED_IMAGES',
-      images: usedImages
-    }
+    Item: { postId: 'USED_IMAGES', images: usedImages }
   }));
-  
-  return images;
+
+  return [heroImage, inlineImage];
 };
 
 const CONTENT_MAP = {
@@ -216,7 +214,7 @@ Do not include a title or image placeholders - just the content.`;
   };
 
   const command = new InvokeModelCommand({
-    modelId: "anthropic.claude-3-haiku-20240307-v1:0",
+    modelId: "anthropic.claude-haiku-4-5-20251001-v1:0",
     body: JSON.stringify(payload)
   });
 
@@ -226,7 +224,7 @@ Do not include a title or image placeholders - just the content.`;
 };
 
 const generateBlogPost = async (topic, postNumber) => {
-  const [heroImage, image2] = await getUniqueImages(postNumber);
+  const [heroImage, image2] = await getUniqueHeroImage();
   
   const aiContent = await generateBlogContent(topic);
   const paragraphs = aiContent.split('\n\n');
