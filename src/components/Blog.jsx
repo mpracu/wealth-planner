@@ -1,6 +1,27 @@
 import { useState, useEffect } from 'react';
 import './Blog.css';
 
+const FALLBACK_IMAGES = [
+  'photo-1554224155-8d04cb21cd6c', 'photo-1579621970563-ebec7560ff3e',
+  'photo-1590283603385-17ffb3a7f29f', 'photo-1553729459-efe14ef6055d',
+  'photo-1559526324-4b87b5e36e44', 'photo-1434626881859-194d67b2b86f',
+  'photo-1579532537598-459ecdaf39cc', 'photo-1563986768609-322da13575f3',
+  'photo-1611974789855-9c2a0a7236a3', 'photo-1460925895917-afdab827c52f',
+  'photo-1518186285589-2f7649de83e0', 'photo-1507679799987-c73779587ccf',
+  'photo-1551836022-deb4988cc6c0', 'photo-1450101499163-c8848c66ca85',
+  'photo-1526304640581-d334cdbbf45e', 'photo-1543286386-713bdd548da4',
+  'photo-1454165804606-c3d57bc86b40', 'photo-1488190211105-8b0e65b80b4e',
+  'photo-1499750310107-5fef28a66643', 'photo-1521791136064-7986c2920216',
+  'photo-1486312338219-ce68d2c6f44d', 'photo-1600880292203-757bb62b4baf',
+  'photo-1565372195458-9de0b320ef04', 'photo-1444653614773-995cb1ef9efa',
+  'photo-1520607162513-77705c0f0d4a', 'photo-1434030216411-0b793f4b4173',
+];
+
+const getFallbackImage = (postId, index) => {
+  const hash = (postId || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), index * 7);
+  return `https://images.unsplash.com/${FALLBACK_IMAGES[hash % FALLBACK_IMAGES.length]}?w=1200&h=600&fit=crop`;
+};
+
 function Blog() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -15,16 +36,18 @@ function Blog() {
       const response = await fetch('https://rkjlzbsc84.execute-api.us-east-1.amazonaws.com/prod/blog-posts');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      setPosts(data.map(post => {
-        // Remove all markdown syntax for clean excerpt
+      setPosts(data.map((post, index) => {
         const cleanContent = post.content
-          .replace(/!\[.*?\]\(.*?\)/g, '') // Remove images
-          .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-          .replace(/\*(.*?)\*/g, '$1') // Remove italic
-          .replace(/#[A-Za-z]+/g, '') // Remove hashtags
-          .replace(/\n\n+/g, ' ') // Replace multiple newlines with space
+          .replace(/!\[.*?\]\(.*?\)/g, '')
+          .replace(/\*\*(.*?)\*\*/g, '$1')
+          .replace(/\*(.*?)\*/g, '$1')
+          .replace(/#{1,3}\s+/g, '')
+          .replace(/#[A-Za-z]+/g, '')
+          .replace(/\n\n+/g, ' ')
           .trim();
-        
+
+        const image = post.image || getFallbackImage(post.postId, index);
+
         return {
           id: post.postId,
           title: post.title,
@@ -32,9 +55,10 @@ function Blog() {
           author: 'Wealth Planner Team',
           readTime: '8 min read',
           tags: ['Investing', 'Wealth Building', 'Financial Independence'],
-          image: post.image,
+          image,
           excerpt: cleanContent.substring(0, 180) + '...',
-          content: post.content
+          content: post.content,
+          fallbackImage: getFallbackImage(post.postId, index + 1),
         };
       }));
     } catch (error) {
@@ -44,14 +68,19 @@ function Blog() {
     }
   };
 
-  const renderContent = (content) => {
+  const renderContent = (content, fallbackImage) => {
     const contentWithoutFirstImage = content.replace(/^!\[.*?\]\(.*?\)\n\n/, '');
+    let inlineImageCount = 0;
 
     return contentWithoutFirstImage.split('\n\n').map((paragraph, idx) => {
       // Images
       if (paragraph.startsWith('![')) {
         const match = paragraph.match(/!\[(.*?)\]\((.*?)\)/);
-        if (match) return <img key={idx} src={match[2]} alt={match[1]} className="blog-image" />;
+        if (match) {
+          inlineImageCount++;
+          const src = match[2] || fallbackImage;
+          return <img key={idx} src={src} alt={match[1]} className="blog-image" />;
+        }
       }
 
       // Headings
@@ -64,7 +93,7 @@ function Blog() {
         return <h3 key={idx}>{text}</h3>;
       }
 
-      // Hashtag lines (e.g. "#Finance #Wealth")
+      // Hashtag lines
       if (paragraph.startsWith('#') && paragraph.includes(' #')) {
         const hashtags = paragraph.split(' ').filter(tag => tag.startsWith('#'));
         return (
@@ -86,7 +115,7 @@ function Blog() {
     return (
       <div className="blog">
         <div className="blog-header">
-          <h1>💡 Wealth Building Insights</h1>
+          <h1>Wealth Building Insights</h1>
           <p>Loading latest articles...</p>
         </div>
       </div>
@@ -96,29 +125,6 @@ function Blog() {
   if (selectedPost) {
     return (
       <div className="blog">
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            "headline": selectedPost.title,
-            "image": selectedPost.image,
-            "datePublished": selectedPost.date,
-            "author": {
-              "@type": "Organization",
-              "name": "Wealth Planner Team"
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "Wealth Planner",
-              "logo": {
-                "@type": "ImageObject",
-                "url": "https://wealth-planner-app.s3.us-east-1.amazonaws.com/vite.svg"
-              }
-            },
-            "description": selectedPost.excerpt,
-            "keywords": selectedPost.tags.join(", ")
-          })}
-        </script>
         <button className="back-btn" onClick={() => setSelectedPost(null)}>
           ← Back to all posts
         </button>
@@ -140,7 +146,7 @@ function Blog() {
             </div>
           </div>
           <div className="post-content">
-            {renderContent(selectedPost.content)}
+            {renderContent(selectedPost.content, selectedPost.fallbackImage)}
           </div>
         </article>
       </div>
@@ -150,7 +156,7 @@ function Blog() {
   return (
     <div className="blog">
       <div className="blog-header">
-        <h1>💡 Wealth Building Insights</h1>
+        <h1>Wealth Building Insights</h1>
         <p>Expert advice and strategies for building lasting wealth. New posts every 2 days.</p>
       </div>
 
