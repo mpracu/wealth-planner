@@ -148,14 +148,6 @@
   margin-bottom: 2rem;
 }
 
-.tag {
-  background: #2a2a3e;
-  color: #3b82f6;
-  padding: 0.5rem 1rem;
-  border-radius: 16px;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
 
 .post-content {
   color: var(--text-primary);

@@ -44,33 +44,39 @@ function Blog() {
   };
 
   const renderContent = (content) => {
-    // Remove first image from content since we show it as hero
     const contentWithoutFirstImage = content.replace(/^!\[.*?\]\(.*?\)\n\n/, '');
-    
+
     return contentWithoutFirstImage.split('\n\n').map((paragraph, idx) => {
+      // Images
       if (paragraph.startsWith('![')) {
         const match = paragraph.match(/!\[(.*?)\]\((.*?)\)/);
-        if (match) {
-          return <img key={idx} src={match[2]} alt={match[1]} className="blog-image" />;
-        }
+        if (match) return <img key={idx} src={match[2]} alt={match[1]} className="blog-image" />;
       }
-      
-      // Check if paragraph contains hashtags
+
+      // Headings
+      const headingMatch = paragraph.match(/^(#{1,3})\s+(.+)/);
+      if (headingMatch) {
+        const level = headingMatch[1].length;
+        const text = headingMatch[2];
+        if (level === 1) return <h1 key={idx}>{text}</h1>;
+        if (level === 2) return <h2 key={idx}>{text}</h2>;
+        return <h3 key={idx}>{text}</h3>;
+      }
+
+      // Hashtag lines (e.g. "#Finance #Wealth")
       if (paragraph.startsWith('#') && paragraph.includes(' #')) {
         const hashtags = paragraph.split(' ').filter(tag => tag.startsWith('#'));
         return (
           <div key={idx} className="hashtags">
-            {hashtags.map((tag, i) => (
-              <span key={i} className="hashtag">{tag}</span>
-            ))}
+            {hashtags.map((tag, i) => <span key={i} className="hashtag">{tag}</span>)}
           </div>
         );
       }
-      
-      let processedText = paragraph
+
+      const processedText = paragraph
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>');
-      
+
       return <p key={idx} dangerouslySetInnerHTML={{ __html: processedText }} />;
     });
   };
@@ -112,7 +118,7 @@ function Blog() {
             "keywords": selectedPost.tags.join(", ")
           })}
         </script>
-        <button className="back-button" onClick={() => setSelectedPost(null)}>
+        <button className="back-btn" onClick={() => setSelectedPost(null)}>
           ← Back to all posts
         </button>
         <article className="blog-post-full">
