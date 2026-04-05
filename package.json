@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && aws s3 sync dist/ s3://your-wealth-planner-bucket --delete && aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths '/*'"
+    "deploy": "npm run build && aws s3 sync dist/ s3://wealth-planner-app --delete && aws cloudfront create-invalidation --distribution-id E3RXLLVE8CC0XQ --paths '/*'"
   },
   "dependencies": {
     "react": "^19.0.0",
