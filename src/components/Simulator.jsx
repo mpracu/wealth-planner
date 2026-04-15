@@ -222,7 +222,10 @@ export default function Simulator() {
                     max={max}
                     step={step}
                     onChange={e => {
-                      const v = Math.min(max, Math.max(min, Number(e.target.value)));
+                      if (!isNaN(e.target.valueAsNumber)) set(e.target.valueAsNumber);
+                    }}
+                    onBlur={e => {
+                      const v = Math.min(max, Math.max(min, isNaN(e.target.valueAsNumber) ? min : e.target.valueAsNumber));
                       set(v);
                       track(label, v);
                     }}

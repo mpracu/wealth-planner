@@ -19,6 +19,7 @@ export default function NetWorth() {
   const [showForm, setShowForm] = useState(false);
   const [showRecurringForm, setShowRecurringForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [editingRecurringId, setEditingRecurringId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     type: 'asset',
@@ -115,7 +116,12 @@ export default function NetWorth() {
 
   const saveItem = async (e) => {
     e.preventDefault();
-    if (!formData.name || formData.value === 0) return;
+    const itemData = { ...formData };
+    // Auto-calculate value from shares × price when both are set
+    if (itemData.shares && itemData.pricePerShare) {
+      itemData.value = parseFloat(itemData.shares) * parseFloat(itemData.pricePerShare);
+    }
+    if (!itemData.name || !itemData.value) return;
     try {
       const session = await fetchAuthSession();
       const token = session.tokens?.idToken?.toString();
@@ -123,23 +129,13 @@ export default function NetWorth() {
         await apiPut({
           apiName: 'WealthPlannerAPI',
           path: `/networth/${editingId}`,
-          options: { 
-            body: formData,
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
+          options: { body: itemData, headers: { Authorization: `Bearer ${token}` } }
         }).response;
       } else {
         await apiPost({
           apiName: 'WealthPlannerAPI',
           path: '/networth',
-          options: { 
-            body: formData,
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
+          options: { body: itemData, headers: { Authorization: `Bearer ${token}` } }
         }).response;
       }
       resetForm();
@@ -151,25 +147,39 @@ export default function NetWorth() {
 
   const saveRecurringItem = async (e) => {
     e.preventDefault();
-    if (!recurringFormData.assetName || recurringFormData.amount === 0) return;
+    if (!recurringFormData.assetName || !recurringFormData.amount) return;
     try {
       const session = await fetchAuthSession();
       const token = session.tokens?.idToken?.toString();
-      await apiPost({
-        apiName: 'WealthPlannerAPI',
-        path: '/recurring',
-        options: { 
-          body: recurringFormData,
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      }).response;
+      if (editingRecurringId) {
+        await apiPut({
+          apiName: 'WealthPlannerAPI',
+          path: `/recurring/${editingRecurringId}`,
+          options: { body: recurringFormData, headers: { Authorization: `Bearer ${token}` } }
+        }).response;
+      } else {
+        await apiPost({
+          apiName: 'WealthPlannerAPI',
+          path: '/recurring',
+          options: { body: recurringFormData, headers: { Authorization: `Bearer ${token}` } }
+        }).response;
+      }
       resetRecurringForm();
       loadRecurringItems();
     } catch (err) {
       console.error('Error saving recurring item:', err);
     }
+  };
+
+  const editRecurringItem = (item) => {
+    setRecurringFormData({
+      assetName: item.assetName,
+      amount: item.amount,
+      dayOfMonth: item.dayOfMonth,
+      tags: item.tags || ''
+    });
+    setEditingRecurringId(item.itemId);
+    setShowRecurringForm(true);
   };
 
   const deleteItem = async (itemId) => {
@@ -324,6 +334,7 @@ export default function NetWorth() {
 
   const resetRecurringForm = () => {
     setRecurringFormData({ assetName: '', amount: 0, dayOfMonth: 1, tags: '' });
+    setEditingRecurringId(null);
     setShowRecurringForm(false);
   };
 
@@ -635,8 +646,16 @@ export default function NetWorth() {
               </label>
 
               <label className="form-field">
-                <span>Value ({currency})</span>
-                <input type="number" step="0.01" placeholder="0.00" value={formData.value} onChange={e => setFormData({...formData, value: +e.target.value})} required />
+                <span>Value ({currency}){formData.shares && formData.pricePerShare ? <span className="field-hint"> — auto-calculated</span> : ''}</span>
+                <input
+                  type="number" step="0.01" placeholder="0.00"
+                  value={formData.shares && formData.pricePerShare
+                    ? (parseFloat(formData.shares) * parseFloat(formData.pricePerShare)).toFixed(2)
+                    : formData.value}
+                  readOnly={!!(formData.shares && formData.pricePerShare)}
+                  onChange={e => setFormData({...formData, value: +e.target.value})}
+                  style={formData.shares && formData.pricePerShare ? {opacity: 0.7, cursor: 'default'} : {}}
+                />
               </label>
 
               <label className="form-field form-field--wide">
@@ -648,39 +667,19 @@ export default function NetWorth() {
                 <>
                   <label className="form-field">
                     <span>ISIN <span className="field-hint">(optional)</span></span>
-                    <input
-                      placeholder="e.g., IE00BYX5MX67"
-                      value={formData.isin || ''}
-                      onChange={e => setFormData({...formData, isin: e.target.value.toUpperCase()})}
-                      maxLength={12}
-                    />
+                    <input placeholder="e.g., IE00BYX5MX67" value={formData.isin || ''} onChange={e => setFormData({...formData, isin: e.target.value.toUpperCase()})} maxLength={12} />
                   </label>
-
                   <label className="form-field">
                     <span>Shares / Units <span className="field-hint">(optional)</span></span>
-                    <input
-                      type="number"
-                      step="0.001"
-                      placeholder="e.g., 1000"
-                      value={formData.shares || ''}
-                      onChange={e => setFormData({...formData, shares: e.target.value})}
-                    />
+                    <input type="number" step="0.001" placeholder="e.g., 1000" value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} />
                   </label>
-
                   <label className="form-field">
                     <span>Price per Share <span className="field-hint">(optional)</span></span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      placeholder="e.g., 14.49"
-                      value={formData.pricePerShare || ''}
-                      onChange={e => setFormData({...formData, pricePerShare: e.target.value})}
-                    />
+                    <input type="number" step="0.01" placeholder="e.g., 14.49" value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
                   </label>
                 </>
               )}
             </div>
-
             <div className="form-actions">
               <button type="submit">💾 Save</button>
               <button type="button" onClick={resetForm}>Cancel</button>
@@ -714,47 +713,41 @@ export default function NetWorth() {
       <div className="items-list">
         <div className="items-section-header">
           <h3>Assets</h3>
-          <span className="items-count">{items.filter(i => i.type === 'asset').length} items</span>
+          <span className="items-count">{items.filter(i => i.type === 'asset').length} items · {currency}{totalAssets.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
         </div>
         {items.filter(i => i.type === 'asset').length === 0 && (
-          <div className="empty-state-small">No assets yet. Click "Add Item" to get started.</div>
+          <div className="empty-state-small">No assets yet — click "Add Item" to get started.</div>
         )}
-        {items.filter(i => i.type === 'asset').map(item => (
+        {items.filter(i => i.type === 'asset').sort((a,b) => b.value - a.value).map(item => (
           <React.Fragment key={item.itemId}>
-            <div className={`item-card ${item.isin ? 'item-card--investment' : ''}`}>
-              <div className="item-header">
-                <div className="item-title-group">
-                  <h4>{item.name}</h4>
-                  {item.tags && <div className="item-tags">{item.tags.split(',').map(t => <span key={t} className="tag">{t.trim()}</span>)}</div>}
+            <div className={`item-row ${item.isin ? 'item-row--investment' : ''}`}>
+              <div className="item-row-info">
+                <div className="item-row-name">{item.name}</div>
+                <div className="item-row-sub">
+                  {item.isin && <span className="isin-badge">{item.isin}</span>}
+                  {item.shares && item.pricePerShare && (
+                    <span className="shares-detail">{parseFloat(item.shares).toLocaleString('es-ES', {maximumFractionDigits: 3})} shares · {currency}{parseFloat(item.pricePerShare).toFixed(2)}</span>
+                  )}
+                  {item.tags && item.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => <span key={t} className="tag">{t}</span>)}
                 </div>
+              </div>
+              <div className="item-row-right">
+                <span className="item-row-value">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                 <div className="item-actions">
                   <button className="btn-icon" onClick={() => editItem(item)} title="Edit">✏️</button>
                   <button className="btn-icon btn-icon--danger" onClick={() => deleteItem(item.itemId)} title="Delete">🗑️</button>
                 </div>
               </div>
-              <p className="item-value">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-              {item.isin && (
-                <div className="investment-details">
-                  <span className="isin-badge">{item.isin}</span>
-                  {item.shares && (
-                    <span className="shares-detail">
-                      {parseFloat(item.shares).toLocaleString('es-ES', {minimumFractionDigits: 3, maximumFractionDigits: 3})} shares
-                      {item.pricePerShare && <> · {currency}{parseFloat(item.pricePerShare).toFixed(2)}/share</>}
-                    </span>
-                  )}
-                  {item.updatedAt && <span className="price-updated">updated {new Date(item.updatedAt).toLocaleDateString()}</span>}
-                </div>
-              )}
             </div>
 
             {showForm && editingId === item.itemId && (
               <div className="item-form" ref={formRef}>
-                <h3>Edit Item</h3>
+                <h3>Edit — {item.name}</h3>
                 <form onSubmit={saveItem}>
                   <div className="form-grid">
                     <label className="form-field form-field--wide">
                       <span>Name</span>
-                      <input placeholder="e.g., Savings Account, Fidelity S&P 500" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                      <input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
                     </label>
                     <label className="form-field">
                       <span>Type</span>
@@ -764,12 +757,20 @@ export default function NetWorth() {
                       </select>
                     </label>
                     <label className="form-field">
-                      <span>Value ({currency})</span>
-                      <input type="number" step="0.01" placeholder="0.00" value={formData.value} onChange={e => setFormData({...formData, value: +e.target.value})} required />
+                      <span>Value ({currency}){formData.shares && formData.pricePerShare ? <span className="field-hint"> — auto-calculated</span> : ''}</span>
+                      <input
+                        type="number" step="0.01"
+                        value={formData.shares && formData.pricePerShare
+                          ? (parseFloat(formData.shares) * parseFloat(formData.pricePerShare)).toFixed(2)
+                          : formData.value}
+                        readOnly={!!(formData.shares && formData.pricePerShare)}
+                        onChange={e => setFormData({...formData, value: +e.target.value})}
+                        style={formData.shares && formData.pricePerShare ? {opacity: 0.7, cursor: 'default'} : {}}
+                      />
                     </label>
                     <label className="form-field form-field--wide">
                       <span>Tags <span className="field-hint">(optional)</span></span>
-                      <input placeholder="e.g., Stocks, Real Estate, Index Fund" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+                      <input placeholder="e.g., Stocks, Index Fund" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
                     </label>
                     {formData.type === 'asset' && (
                       <>
@@ -778,12 +779,12 @@ export default function NetWorth() {
                           <input placeholder="e.g., IE00BYX5MX67" value={formData.isin || ''} onChange={e => setFormData({...formData, isin: e.target.value.toUpperCase()})} maxLength={12} />
                         </label>
                         <label className="form-field">
-                          <span>Shares / Units <span className="field-hint">(optional)</span></span>
+                          <span>Shares / Units</span>
                           <input type="number" step="0.001" placeholder="e.g., 1000" value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} />
                         </label>
                         <label className="form-field">
-                          <span>Price per Share <span className="field-hint">(optional)</span></span>
-                          <input type="number" step="0.01" placeholder="e.g., 14.49" value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
+                          <span>Price per Share</span>
+                          <input type="number" step="0.0001" placeholder="e.g., 14.49" value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
                         </label>
                       </>
                     )}
@@ -800,29 +801,33 @@ export default function NetWorth() {
 
         <div className="items-section-header" style={{marginTop: '1.5rem'}}>
           <h3>Liabilities</h3>
-          <span className="items-count">{items.filter(i => i.type === 'liability').length} items</span>
+          <span className="items-count">{items.filter(i => i.type === 'liability').length} items · {currency}{totalLiabilities.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
         </div>
         {items.filter(i => i.type === 'liability').length === 0 && (
           <div className="empty-state-small">No liabilities.</div>
         )}
-        {items.filter(i => i.type === 'liability').map(item => (
+        {items.filter(i => i.type === 'liability').sort((a,b) => b.value - a.value).map(item => (
           <React.Fragment key={item.itemId}>
-            <div className="item-card item-card--liability">
-              <div className="item-header">
-                <div className="item-title-group">
-                  <h4>{item.name}</h4>
-                  {item.tags && <div className="item-tags">{item.tags.split(',').map(t => <span key={t} className="tag">{t.trim()}</span>)}</div>}
-                </div>
+            <div className="item-row item-row--liability">
+              <div className="item-row-info">
+                <div className="item-row-name">{item.name}</div>
+                {item.tags && (
+                  <div className="item-row-sub">
+                    {item.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => <span key={t} className="tag">{t}</span>)}
+                  </div>
+                )}
+              </div>
+              <div className="item-row-right">
+                <span className="item-row-value negative">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                 <div className="item-actions">
                   <button className="btn-icon" onClick={() => editItem(item)} title="Edit">✏️</button>
                   <button className="btn-icon btn-icon--danger" onClick={() => deleteItem(item.itemId)} title="Delete">🗑️</button>
                 </div>
               </div>
-              <p className="item-value negative">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
             </div>
             {showForm && editingId === item.itemId && (
               <div className="item-form" ref={formRef}>
-                <h3>Edit Liability</h3>
+                <h3>Edit — {item.name}</h3>
                 <form onSubmit={saveItem}>
                   <div className="form-grid">
                     <label className="form-field form-field--wide">
@@ -855,55 +860,91 @@ export default function NetWorth() {
         <>
           <div className="tab-header">
             <h2>Recurring Investments</h2>
-            <button onClick={() => setShowRecurringForm(!showRecurringForm)}>
+            <button onClick={() => { resetRecurringForm(); setShowRecurringForm(s => !s); }}>
               ➕ Add Recurring
             </button>
           </div>
 
           {showRecurringForm && (
             <div className="item-form">
-              <h3>New Recurring Investment</h3>
+              <h3>{editingRecurringId ? 'Edit Recurring Investment' : 'New Recurring Investment'}</h3>
               <form onSubmit={saveRecurringItem}>
-                <label>
-                  <span>Asset Name</span>
-                  <input placeholder="e.g., Index Fund" value={recurringFormData.assetName} onChange={e => setRecurringFormData({...recurringFormData, assetName: e.target.value})} required />
-                </label>
-                
-                <label>
-                  <span>Monthly Amount ({currency})</span>
-                  <input type="number" step="0.01" placeholder="0.00" value={recurringFormData.amount} onChange={e => setRecurringFormData({...recurringFormData, amount: +e.target.value})} required />
-                </label>
-                
-                <label>
-                  <span>Day of Month</span>
-                  <input type="number" placeholder="1-28" min="1" max="28" value={recurringFormData.dayOfMonth} onChange={e => setRecurringFormData({...recurringFormData, dayOfMonth: +e.target.value})} required />
-                  <small style={{color: '#888', display: 'block', marginTop: '0.25rem'}}>This amount will be added monthly on day {recurringFormData.dayOfMonth}</small>
-                </label>
-                
-                <label>
-                  <span>Tags (optional)</span>
-                  <input placeholder="e.g., Stocks, Retirement" value={recurringFormData.tags} onChange={e => setRecurringFormData({...recurringFormData, tags: e.target.value})} />
-                </label>
-                
+                <div className="form-grid">
+                  <label className="form-field form-field--wide">
+                    <span>Linked Asset</span>
+                    <select
+                      value={recurringFormData.assetName}
+                      onChange={e => setRecurringFormData({...recurringFormData, assetName: e.target.value})}
+                      required
+                    >
+                      <option value="">Select an asset…</option>
+                      {assetNames.map(name => <option key={name} value={name}>{name}</option>)}
+                      <option value="__custom">+ Custom name…</option>
+                    </select>
+                  </label>
+
+                  {recurringFormData.assetName === '__custom' && (
+                    <label className="form-field form-field--wide">
+                      <span>Custom Asset Name</span>
+                      <input
+                        placeholder="e.g., Bitcoin, Pension Fund"
+                        onChange={e => setRecurringFormData({...recurringFormData, assetName: e.target.value})}
+                        autoFocus
+                      />
+                    </label>
+                  )}
+
+                  <label className="form-field">
+                    <span>Monthly Amount ({currency})</span>
+                    <input type="number" step="0.01" placeholder="0.00" value={recurringFormData.amount || ''} onChange={e => setRecurringFormData({...recurringFormData, amount: +e.target.value})} required />
+                  </label>
+
+                  <label className="form-field">
+                    <span>Day of Month <span className="field-hint">(1–28)</span></span>
+                    <input type="number" min="1" max="28" value={recurringFormData.dayOfMonth} onChange={e => setRecurringFormData({...recurringFormData, dayOfMonth: +e.target.value})} required />
+                  </label>
+
+                  <label className="form-field form-field--wide">
+                    <span>Tags <span className="field-hint">(optional)</span></span>
+                    <input placeholder="e.g., Stocks, Retirement" value={recurringFormData.tags} onChange={e => setRecurringFormData({...recurringFormData, tags: e.target.value})} />
+                  </label>
+                </div>
+
                 <div className="form-actions">
-                  <button type="submit">💾 Save</button>
-                  <button type="button" onClick={() => setShowRecurringForm(false)}>Cancel</button>
+                  <button type="submit">💾 {editingRecurringId ? 'Update' : 'Save'}</button>
+                  <button type="button" onClick={resetRecurringForm}>Cancel</button>
                 </div>
               </form>
             </div>
           )}
 
           <div className="items-list">
+            {recurringItems.length === 0 && (
+              <div className="empty-state-small">No recurring investments set up yet.</div>
+            )}
             {recurringItems.map(item => (
-              <div key={item.itemId} className="item-card">
-                <div className="item-header">
-                  <h4>{item.assetName}</h4>
-                  <button onClick={() => deleteRecurringItem(item.itemId)}>🗑️</button>
+              <div key={item.itemId} className="item-row">
+                <div className="item-row-info">
+                  <div className="item-row-name">{item.assetName}</div>
+                  <div className="item-row-sub">
+                    <span className="tag">day {item.dayOfMonth} of month</span>
+                    {item.tags && item.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => <span key={t} className="tag">{t}</span>)}
+                  </div>
                 </div>
-                <p className="item-value">{currency}{item.amount.toLocaleString('es-ES', {minimumFractionDigits: 2})} monthly on day {item.dayOfMonth}</p>
-                {item.tags && <p className="item-tags">{item.tags}</p>}
+                <div className="item-row-right">
+                  <span className="item-row-value">{currency}{item.amount.toLocaleString('es-ES', {minimumFractionDigits: 2})}<span className="item-row-sub-value">/mo</span></span>
+                  <div className="item-actions">
+                    <button className="btn-icon" onClick={() => { editRecurringItem(item); setShowRecurringForm(true); }} title="Edit">✏️</button>
+                    <button className="btn-icon btn-icon--danger" onClick={() => deleteRecurringItem(item.itemId)} title="Delete">🗑️</button>
+                  </div>
+                </div>
               </div>
             ))}
+            {recurringItems.length > 0 && (
+              <div className="recurring-total">
+                Total monthly: <strong>{currency}{recurringItems.reduce((s,r) => s + r.amount, 0).toLocaleString('es-ES', {minimumFractionDigits: 2})}</strong>
+              </div>
+            )}
           </div>
         </>
       )}

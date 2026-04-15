@@ -177,6 +177,16 @@ exports.handler = async (event) => {
       return { statusCode: 201, headers, body: JSON.stringify({ itemId }) };
     }
 
+    if (path.startsWith('/recurring/') && method === 'PUT') {
+      const itemId = path.split('/')[2];
+      const body = JSON.parse(event.body);
+      await docClient.send(new PutCommand({
+        TableName: 'wealth-planner-recurring',
+        Item: { userId, itemId, ...body, updatedAt: new Date().toISOString() }
+      }));
+      return { statusCode: 200, headers, body: '' };
+    }
+
     if (path.startsWith('/recurring/') && method === 'DELETE') {
       const itemId = path.split('/')[2];
       await docClient.send(new DeleteCommand({
