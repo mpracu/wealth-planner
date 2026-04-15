@@ -150,7 +150,7 @@ export default function Simulator() {
   }, [age, currentCapital, monthlyInvestment, annualReturn, inflation, pinnedScenarios]);
 
   const goalData = useMemo(() => {
-    const hit = data.find(d => d.real >= targetAmount);
+    const hit = data.find(d => d.nominal >= targetAmount);
     return hit ? { age: hit.age, year: hit.year } : null;
   }, [data, targetAmount]);
 
@@ -160,12 +160,12 @@ export default function Simulator() {
     ReactGA.event({ category: 'User Input', action: `Adjusted ${name}`, value: Math.round(value) });
 
   const controls = [
-    { label: 'Current Age', id: 'age', value: age, set: setAge, min: 18, max: 65, step: 1, suffix: 'yrs' },
+    { label: 'Current Age', id: 'age', value: age, set: setAge, min: 18, max: 80, step: 1, suffix: 'yrs' },
     { label: 'Starting Capital', id: 'currentCapital', value: currentCapital, set: setCurrentCapital, min: 0, max: 500000, step: 1000, prefix: '$' },
     { label: 'Monthly Investment', id: 'monthlyInvestment', value: monthlyInvestment, set: setMonthlyInvestment, min: 0, max: 10000, step: 100, prefix: '$' },
     { label: 'Annual Return', id: 'annualReturn', value: annualReturn, set: setAnnualReturn, min: 0, max: 15, step: 0.5, suffix: '%' },
     { label: 'Inflation Rate', id: 'inflation', value: inflation, set: setInflation, min: 0, max: 10, step: 0.5, suffix: '%' },
-    { label: 'Goal Amount', id: 'targetAmount', value: targetAmount, set: setTargetAmount, min: 100000, max: 10000000, step: 50000, prefix: '$' },
+    { label: 'Goal Amount', id: 'targetAmount', value: targetAmount, set: setTargetAmount, min: 10000, max: 5000000, step: 10000, prefix: '$' },
   ];
 
   return (

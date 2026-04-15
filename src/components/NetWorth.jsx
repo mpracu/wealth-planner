@@ -307,7 +307,10 @@ export default function NetWorth() {
       name: item.name,
       type: item.type,
       value: item.value,
-      tags: item.tags || ''
+      tags: item.tags || '',
+      isin: item.isin || '',
+      shares: item.shares || '',
+      pricePerShare: item.pricePerShare || ''
     });
     setEditingId(item.itemId);
     setShowForm(true);
@@ -617,65 +620,67 @@ export default function NetWorth() {
         <div className="item-form" ref={formRef}>
           <h3>New Item</h3>
           <form onSubmit={saveItem}>
-            <label>
-              <span>Name</span>
-              <input placeholder="e.g., Savings Account, Vanguard Global Stock" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
-            </label>
-            
-            <label>
-              <span>Type</span>
-              <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
-                <option value="asset">Asset</option>
-                <option value="liability">Liability</option>
-              </select>
-            </label>
+            <div className="form-grid">
+              <label className="form-field form-field--wide">
+                <span>Name</span>
+                <input placeholder="e.g., Savings Account, Fidelity S&P 500" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+              </label>
 
-            <label>
-              <span>Value ({currency})</span>
-              <input type="number" step="0.01" placeholder="0.00" value={formData.value} onChange={e => setFormData({...formData, value: +e.target.value})} required />
-            </label>
-            
-            <label>
-              <span>Tags (optional)</span>
-              <input placeholder="e.g., Stocks, Real Estate, Index Fund" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
-            </label>
+              <label className="form-field">
+                <span>Type</span>
+                <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+                  <option value="asset">Asset</option>
+                  <option value="liability">Liability</option>
+                </select>
+              </label>
 
-            {formData.tags?.toLowerCase().includes('fund') || formData.tags?.toLowerCase().includes('stock') || formData.tags?.toLowerCase().includes('investment') ? (
-              <>
-                <label>
-                  <span>ISIN (optional)</span>
-                  <input 
-                    placeholder="e.g., IE00B3RBWM25" 
-                    value={formData.isin || ''} 
-                    onChange={e => setFormData({...formData, isin: e.target.value.toUpperCase()})}
-                    pattern="[A-Z]{2}[A-Z0-9]{10}"
-                  />
-                </label>
-                
-                <label>
-                  <span>Shares/Units (optional)</span>
-                  <input 
-                    type="number" 
-                    step="0.001" 
-                    placeholder="e.g., 10.5" 
-                    value={formData.shares || ''} 
-                    onChange={e => setFormData({...formData, shares: e.target.value})}
-                  />
-                </label>
+              <label className="form-field">
+                <span>Value ({currency})</span>
+                <input type="number" step="0.01" placeholder="0.00" value={formData.value} onChange={e => setFormData({...formData, value: +e.target.value})} required />
+              </label>
 
-                <label>
-                  <span>Price per Share (optional)</span>
-                  <input 
-                    type="number" 
-                    step="0.01" 
-                    placeholder="e.g., 85.50" 
-                    value={formData.pricePerShare || ''} 
-                    onChange={e => setFormData({...formData, pricePerShare: e.target.value})}
-                  />
-                </label>
-              </>
-            ) : null}
-            
+              <label className="form-field form-field--wide">
+                <span>Tags <span className="field-hint">(optional, comma separated)</span></span>
+                <input placeholder="e.g., Stocks, Real Estate, Index Fund" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+              </label>
+
+              {formData.type === 'asset' && (
+                <>
+                  <label className="form-field">
+                    <span>ISIN <span className="field-hint">(optional)</span></span>
+                    <input
+                      placeholder="e.g., IE00BYX5MX67"
+                      value={formData.isin || ''}
+                      onChange={e => setFormData({...formData, isin: e.target.value.toUpperCase()})}
+                      maxLength={12}
+                    />
+                  </label>
+
+                  <label className="form-field">
+                    <span>Shares / Units <span className="field-hint">(optional)</span></span>
+                    <input
+                      type="number"
+                      step="0.001"
+                      placeholder="e.g., 1000"
+                      value={formData.shares || ''}
+                      onChange={e => setFormData({...formData, shares: e.target.value})}
+                    />
+                  </label>
+
+                  <label className="form-field">
+                    <span>Price per Share <span className="field-hint">(optional)</span></span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="e.g., 14.49"
+                      value={formData.pricePerShare || ''}
+                      onChange={e => setFormData({...formData, pricePerShare: e.target.value})}
+                    />
+                  </label>
+                </>
+              )}
+            </div>
+
             <div className="form-actions">
               <button type="submit">💾 Save</button>
               <button type="button" onClick={resetForm}>Cancel</button>
@@ -707,72 +712,82 @@ export default function NetWorth() {
       )}
 
       <div className="items-list">
-        <h3>Assets</h3>
+        <div className="items-section-header">
+          <h3>Assets</h3>
+          <span className="items-count">{items.filter(i => i.type === 'asset').length} items</span>
+        </div>
+        {items.filter(i => i.type === 'asset').length === 0 && (
+          <div className="empty-state-small">No assets yet. Click "Add Item" to get started.</div>
+        )}
         {items.filter(i => i.type === 'asset').map(item => (
           <React.Fragment key={item.itemId}>
-            <div className="item-card">
+            <div className={`item-card ${item.isin ? 'item-card--investment' : ''}`}>
               <div className="item-header">
-                <h4>{item.name}</h4>
+                <div className="item-title-group">
+                  <h4>{item.name}</h4>
+                  {item.tags && <div className="item-tags">{item.tags.split(',').map(t => <span key={t} className="tag">{t.trim()}</span>)}</div>}
+                </div>
                 <div className="item-actions">
-                  <button onClick={() => editItem(item)}>✏️</button>
-                  <button onClick={() => deleteItem(item.itemId)}>🗑️</button>
+                  <button className="btn-icon" onClick={() => editItem(item)} title="Edit">✏️</button>
+                  <button className="btn-icon btn-icon--danger" onClick={() => deleteItem(item.itemId)} title="Delete">🗑️</button>
                 </div>
               </div>
               <p className="item-value">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-              {item.tags && <p className="item-tags">{item.tags}</p>}
               {item.isin && (
                 <div className="investment-details">
-                  <p className="isin">ISIN: {item.isin}</p>
-                  {item.shares && item.pricePerShare && (
-                    <p className="shares-info">
-                      {parseFloat(item.shares).toFixed(3)} shares @ {currency}{parseFloat(item.pricePerShare).toFixed(2)}
-                    </p>
+                  <span className="isin-badge">{item.isin}</span>
+                  {item.shares && (
+                    <span className="shares-detail">
+                      {parseFloat(item.shares).toLocaleString('es-ES', {minimumFractionDigits: 3, maximumFractionDigits: 3})} shares
+                      {item.pricePerShare && <> · {currency}{parseFloat(item.pricePerShare).toFixed(2)}/share</>}
+                    </span>
                   )}
+                  {item.updatedAt && <span className="price-updated">updated {new Date(item.updatedAt).toLocaleDateString()}</span>}
                 </div>
               )}
             </div>
-            
+
             {showForm && editingId === item.itemId && (
               <div className="item-form" ref={formRef}>
                 <h3>Edit Item</h3>
                 <form onSubmit={saveItem}>
-                  <label>
-                    <span>Name</span>
-                    <input placeholder="e.g., Savings Account, Vanguard Global Stock" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
-                  </label>
-                  <label>
-                    <span>Type</span>
-                    <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
-                      <option value="asset">Asset</option>
-                      <option value="liability">Liability</option>
-                    </select>
-                  </label>
-                  <label>
-                    <span>Value</span>
-                    <input type="number" step="0.01" placeholder="Value" value={formData.value} onChange={e => setFormData({...formData, value: +e.target.value})} required />
-                  </label>
-                  <label>
-                    <span>Tags (comma separated)</span>
-                    <input placeholder="e.g., fund, stocks, investment" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
-                  </label>
-                  
-                  {(formData.tags?.toLowerCase().includes('fund') || formData.tags?.toLowerCase().includes('stock') || formData.tags?.toLowerCase().includes('investment')) && (
-                    <>
-                      <label>
-                        <span>ISIN Code (optional)</span>
-                        <input placeholder="e.g., IE00B3RBWM25" value={formData.isin || ''} onChange={e => setFormData({...formData, isin: e.target.value})} />
-                      </label>
-                      <label>
-                        <span>Shares/Units (optional)</span>
-                        <input type="number" step="0.001" placeholder="e.g., 10.5" value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} />
-                      </label>
-                      <label>
-                        <span>Price per Share (optional)</span>
-                        <input type="number" step="0.01" placeholder="e.g., 85.50" value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
-                      </label>
-                    </>
-                  )}
-                  
+                  <div className="form-grid">
+                    <label className="form-field form-field--wide">
+                      <span>Name</span>
+                      <input placeholder="e.g., Savings Account, Fidelity S&P 500" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                    </label>
+                    <label className="form-field">
+                      <span>Type</span>
+                      <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+                        <option value="asset">Asset</option>
+                        <option value="liability">Liability</option>
+                      </select>
+                    </label>
+                    <label className="form-field">
+                      <span>Value ({currency})</span>
+                      <input type="number" step="0.01" placeholder="0.00" value={formData.value} onChange={e => setFormData({...formData, value: +e.target.value})} required />
+                    </label>
+                    <label className="form-field form-field--wide">
+                      <span>Tags <span className="field-hint">(optional)</span></span>
+                      <input placeholder="e.g., Stocks, Real Estate, Index Fund" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+                    </label>
+                    {formData.type === 'asset' && (
+                      <>
+                        <label className="form-field">
+                          <span>ISIN <span className="field-hint">(optional)</span></span>
+                          <input placeholder="e.g., IE00BYX5MX67" value={formData.isin || ''} onChange={e => setFormData({...formData, isin: e.target.value.toUpperCase()})} maxLength={12} />
+                        </label>
+                        <label className="form-field">
+                          <span>Shares / Units <span className="field-hint">(optional)</span></span>
+                          <input type="number" step="0.001" placeholder="e.g., 1000" value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} />
+                        </label>
+                        <label className="form-field">
+                          <span>Price per Share <span className="field-hint">(optional)</span></span>
+                          <input type="number" step="0.01" placeholder="e.g., 14.49" value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
+                        </label>
+                      </>
+                    )}
+                  </div>
                   <div className="form-actions">
                     <button type="submit">💾 Save</button>
                     <button type="button" onClick={resetForm}>Cancel</button>
@@ -783,19 +798,54 @@ export default function NetWorth() {
           </React.Fragment>
         ))}
 
-        <h3>Liabilities</h3>
+        <div className="items-section-header" style={{marginTop: '1.5rem'}}>
+          <h3>Liabilities</h3>
+          <span className="items-count">{items.filter(i => i.type === 'liability').length} items</span>
+        </div>
+        {items.filter(i => i.type === 'liability').length === 0 && (
+          <div className="empty-state-small">No liabilities.</div>
+        )}
         {items.filter(i => i.type === 'liability').map(item => (
-          <div key={item.itemId} className="item-card">
-            <div className="item-header">
-              <h4>{item.name}</h4>
-              <div className="item-actions">
-                <button onClick={() => editItem(item)}>✏️</button>
-                <button onClick={() => deleteItem(item.itemId)}>🗑️</button>
+          <React.Fragment key={item.itemId}>
+            <div className="item-card item-card--liability">
+              <div className="item-header">
+                <div className="item-title-group">
+                  <h4>{item.name}</h4>
+                  {item.tags && <div className="item-tags">{item.tags.split(',').map(t => <span key={t} className="tag">{t.trim()}</span>)}</div>}
+                </div>
+                <div className="item-actions">
+                  <button className="btn-icon" onClick={() => editItem(item)} title="Edit">✏️</button>
+                  <button className="btn-icon btn-icon--danger" onClick={() => deleteItem(item.itemId)} title="Delete">🗑️</button>
+                </div>
               </div>
+              <p className="item-value negative">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
             </div>
-            <p className="item-value negative">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-            {item.tags && <p className="item-tags">{item.tags}</p>}
-          </div>
+            {showForm && editingId === item.itemId && (
+              <div className="item-form" ref={formRef}>
+                <h3>Edit Liability</h3>
+                <form onSubmit={saveItem}>
+                  <div className="form-grid">
+                    <label className="form-field form-field--wide">
+                      <span>Name</span>
+                      <input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                    </label>
+                    <label className="form-field">
+                      <span>Value ({currency})</span>
+                      <input type="number" step="0.01" value={formData.value} onChange={e => setFormData({...formData, value: +e.target.value})} required />
+                    </label>
+                    <label className="form-field form-field--wide">
+                      <span>Tags <span className="field-hint">(optional)</span></span>
+                      <input placeholder="e.g., Mortgage, Car Loan" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+                    </label>
+                  </div>
+                  <div className="form-actions">
+                    <button type="submit">💾 Save</button>
+                    <button type="button" onClick={resetForm}>Cancel</button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </React.Fragment>
         ))}
       </div>
         </>
