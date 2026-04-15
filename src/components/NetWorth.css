@@ -57,7 +57,7 @@
   font-weight: 600;
 }
 
-.export-btn, .import-btn {
+.refresh-btn, .export-btn, .import-btn {
   padding: 0.5rem 1rem;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -68,8 +68,13 @@
   transition: all 0.2s;
 }
 
-.export-btn:hover, .import-btn:hover {
+.refresh-btn:hover, .export-btn:hover, .import-btn:hover {
   border-color: #3b82f6;
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .demo-notice {

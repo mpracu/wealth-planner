@@ -116,7 +116,7 @@ INTEGRATION_ID=$(aws apigatewayv2 create-integration \
   --output text)
 
 # Create routes
-for route in "GET /scenarios" "POST /scenarios" "DELETE /scenarios/{id}" "GET /networth" "POST /networth" "PUT /networth/{id}" "DELETE /networth/{id}" "GET /stock-price"; do
+for route in "GET /scenarios" "POST /scenarios" "DELETE /scenarios/{id}" "GET /networth" "POST /networth" "PUT /networth/{id}" "DELETE /networth/{id}" "GET /stock-price" "POST /refresh-prices"; do
   aws apigatewayv2 create-route \
     --api-id $API_ID \
     --route-key "$route" \

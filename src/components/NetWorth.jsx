@@ -33,6 +33,7 @@ export default function NetWorth() {
   });
   const [currency, setCurrency] = useState('€');
   const [activeTab, setActiveTab] = useState('overview');
+  const [refreshing, setRefreshing] = useState(false);
   const [forecastYears, setForecastYears] = useState(10);
   const [forecastReturn, setForecastReturn] = useState(7);
   const [forecastInflation, setForecastInflation] = useState(2);
@@ -209,6 +210,24 @@ export default function NetWorth() {
     }
   };
 
+  const refreshPrices = async () => {
+    setRefreshing(true);
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      await apiPost({
+        apiName: 'WealthPlannerAPI',
+        path: '/refresh-prices',
+        options: { headers: { Authorization: `Bearer ${token}` } }
+      }).response;
+      await loadItems();
+    } catch (err) {
+      console.error('Error refreshing prices:', err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const exportToCSV = () => {
     const csvRows = [];
     csvRows.push('Type,Name,Value,Tags,ISIN,Shares,PricePerShare');
@@ -372,7 +391,15 @@ export default function NetWorth() {
           </div>
         </div>
         <div className="header-actions">
-          <button 
+          <button
+            className="refresh-btn"
+            onClick={refreshPrices}
+            disabled={refreshing}
+            title="Refresh prices from Yahoo Finance"
+          >
+            {refreshing ? '⏳ Refreshing...' : '🔄 Refresh Prices'}
+          </button>
+          <button
             className="export-btn"
             onClick={exportToCSV}
             title="Export data to CSV"
