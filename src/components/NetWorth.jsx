@@ -371,7 +371,12 @@ export default function NetWorth() {
     return data;
   }, [netWorth, recurringItems, forecastYears, forecastReturn, forecastInflation]);
 
-  const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+
+  const lastSnapshot = history.length > 0 ? history[history.length - 1] : null;
+  const netWorthChange = lastSnapshot ? netWorth - lastSnapshot.netWorth : null;
+  const netWorthChangePct = lastSnapshot?.netWorth ? (netWorthChange / lastSnapshot.netWorth) * 100 : null;
+  const monthlyDCA = recurringItems.reduce((s, r) => s + r.amount, 0);
 
   const allocationData = useMemo(() => {
     const grouped = {};
@@ -389,47 +394,32 @@ export default function NetWorth() {
 
   return (
     <div className="networth">
-      <div className="networth-header">
-        <div className="networth-summary">
-          <div className="summary-card">
-            <h3>Total Assets</h3>
-            <p className="positive">{currency}{totalAssets.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-          </div>
-          <div className="summary-card">
-            <h3>Total Liabilities</h3>
-            <p className="negative">{currency}{totalLiabilities.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-          </div>
-          <div className="summary-card highlight">
-            <h3>Net Worth</h3>
-            <p className={netWorth >= 0 ? 'positive' : 'negative'}>{currency}{netWorth.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-          </div>
+
+      {/* ── Premium Hero ─────────────────────────────────── */}
+      <div className="nw-hero">
+        <div className="nw-hero-glow" />
+        <div className="nw-hero-left">
+          <p className="nw-hero-label">Total Net Worth</p>
+          <h1 className="nw-hero-amount">
+            <span className="nw-hero-currency">{currency}</span>
+            {Math.abs(netWorth).toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+          </h1>
+          {netWorthChange !== null && (
+            <div className={`nw-hero-badge ${netWorthChange >= 0 ? 'nw-hero-badge--up' : 'nw-hero-badge--down'}`}>
+              <span>{netWorthChange >= 0 ? '▲' : '▼'}</span>
+              <span>{currency}{Math.abs(netWorthChange).toLocaleString('es-ES', {minimumFractionDigits: 2})}</span>
+              {netWorthChangePct !== null && <span className="nw-hero-badge-pct">({netWorthChangePct >= 0 ? '+' : ''}{netWorthChangePct.toFixed(2)}%)</span>}
+              <span className="nw-hero-badge-sub">since last snapshot</span>
+            </div>
+          )}
         </div>
-        <div className="header-actions">
-          <button
-            className="refresh-btn"
-            onClick={refreshPrices}
-            disabled={refreshing}
-            title="Refresh prices from Yahoo Finance"
-          >
-            {refreshing ? '⏳ Refreshing...' : '🔄 Refresh Prices'}
+        <div className="nw-hero-actions">
+          <button className="nw-btn nw-btn--primary" onClick={refreshPrices} disabled={refreshing}>
+            {refreshing ? '↻ Updating…' : '↻ Refresh'}
           </button>
-          <button
-            className="export-btn"
-            onClick={exportToCSV}
-            title="Export data to CSV"
-          >
-            📥 Export
-          </button>
-          <label className="import-btn" title="Import data from CSV">
-            📤 Import
-            <input 
-              type="file" 
-              accept=".csv" 
-              onChange={importFromCSV} 
-              style={{ display: 'none' }}
-            />
-          </label>
-          <select value={currency} onChange={e => setCurrency(e.target.value)} className="currency-select">
+          <button className="nw-btn" onClick={exportToCSV}>↓ Export</button>
+          <label className="nw-btn">↑ Import<input type="file" accept=".csv" onChange={importFromCSV} style={{display:'none'}} /></label>
+          <select value={currency} onChange={e => setCurrency(e.target.value)} className="nw-currency-select">
             <option value="€">€ EUR</option>
             <option value="$">$ USD</option>
             <option value="£">£ GBP</option>
@@ -437,195 +427,159 @@ export default function NetWorth() {
         </div>
       </div>
 
-      <div className="tabs">
-        <button 
-          className={activeTab === 'overview' ? 'tab active' : 'tab'} 
-          onClick={() => setActiveTab('overview')}
-        >
-          📊 Overview
-        </button>
-        <button 
-          className={activeTab === 'assets' ? 'tab active' : 'tab'} 
-          onClick={() => setActiveTab('assets')}
-        >
-          💰 Assets & Liabilities
-        </button>
-        <button 
-          className={activeTab === 'recurring' ? 'tab active' : 'tab'} 
-          onClick={() => setActiveTab('recurring')}
-        >
-          🔄 Recurring Investments
-        </button>
-        <button 
-          className={activeTab === 'history' ? 'tab active' : 'tab'} 
-          onClick={() => setActiveTab('history')}
-        >
-          📈 History
-        </button>
+      {/* ── Stats bar ────────────────────────────────────── */}
+      <div className="nw-stats-bar">
+        <div className="nw-stat">
+          <span className="nw-stat-label">Assets</span>
+          <span className="nw-stat-value nw-stat-value--up">{currency}{totalAssets.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
+        </div>
+        <div className="nw-stat-sep" />
+        <div className="nw-stat">
+          <span className="nw-stat-label">Liabilities</span>
+          <span className="nw-stat-value nw-stat-value--down">{currency}{totalLiabilities.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
+        </div>
+        <div className="nw-stat-sep" />
+        <div className="nw-stat">
+          <span className="nw-stat-label">Monthly DCA</span>
+          <span className="nw-stat-value">{currency}{monthlyDCA.toLocaleString('es-ES', {maximumFractionDigits: 0})}<span className="nw-stat-sub">/mo</span></span>
+        </div>
+        <div className="nw-stat-sep" />
+        <div className="nw-stat">
+          <span className="nw-stat-label">Tracked Holdings</span>
+          <span className="nw-stat-value">{items.filter(i => i.isin).length}<span className="nw-stat-sub"> ISINs</span></span>
+        </div>
+      </div>
+
+      {/* ── Pill tabs ────────────────────────────────────── */}
+      <div className="nw-tabs">
+        {[
+          { id: 'overview',  label: 'Overview'  },
+          { id: 'assets',    label: 'Holdings'  },
+          { id: 'recurring', label: 'Recurring' },
+          { id: 'history',   label: 'History'   },
+        ].map(({ id, label }) => (
+          <button key={id} className={`nw-tab ${activeTab === id ? 'nw-tab--active' : ''}`} onClick={() => setActiveTab(id)}>
+            {label}
+          </button>
+        ))}
       </div>
 
       {activeTab === 'overview' && (
         <>
-          <div className="charts-grid">
+          {/* Charts row */}
+          <div className="nw-charts-grid">
             {chartData.length > 0 && (
-              <div className="chart">
-                <h3>Net Worth History</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={chartData}>
+              <div className="nw-card">
+                <div className="nw-card-header"><h3>Net Worth History</h3></div>
+                <ResponsiveContainer width="100%" height={260}>
+                  <LineChart data={chartData} margin={{top:8,right:8,left:0,bottom:0}}>
+                    <defs>
+                      <linearGradient id="gwGreen" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.15}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
-                    <XAxis dataKey="date" stroke={themeColors.axis} />
-                    <YAxis stroke={themeColors.axis} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} />
-                    <Tooltip 
-                      contentStyle={{ background: themeColors.bg, border: `1px solid ${themeColors.border}`, color: themeColors.text }} 
-                      labelStyle={{ color: themeColors.text }}
-                      itemStyle={{ color: themeColors.text }}
-                      formatter={v => `${currency}${v.toLocaleString('es-ES', {minimumFractionDigits: 2})}`} 
-                    />
-                    <Line type="monotone" dataKey="netWorth" stroke="#22c55e" strokeWidth={3} dot={{ fill: '#22c55e', r: 4 }} />
+                    <XAxis dataKey="date" stroke={themeColors.axis} tick={{fontSize:11}} />
+                    <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={56} />
+                    <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => [`${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`, 'Net Worth']} />
+                    <Line type="monotone" dataKey="netWorth" stroke="#10b981" strokeWidth={2.5} dot={false} activeDot={{r:4, fill:'#10b981'}} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             )}
 
             {allocationData.length > 0 && (
-              <div className="chart">
-                <h3>Asset Allocation</h3>
-                <ResponsiveContainer width="100%" height={350}>
+              <div className="nw-card">
+                <div className="nw-card-header"><h3>Allocation</h3></div>
+                <ResponsiveContainer width="100%" height={260}>
                   <PieChart>
-                    <Pie
-                      data={allocationData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={true}
-                      label={({ name, percentage }) => `${name}: ${percentage}%`}
-                      outerRadius={90}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {allocationData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
+                    <Pie data={allocationData} cx="50%" cy="50%" innerRadius={55} outerRadius={95} paddingAngle={3} dataKey="value">
+                      {allocationData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                     </Pie>
-                    <Tooltip 
-                      contentStyle={{ background: themeColors.bg, border: `1px solid ${themeColors.border}`, color: themeColors.text }}
-                      labelStyle={{ color: themeColors.text }}
-                      itemStyle={{ color: themeColors.text }}
-                      formatter={(value) => `${currency}${value.toLocaleString('es-ES', {minimumFractionDigits: 2})}`}
-                    />
+                    <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => `${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`} />
+                    <Legend iconType="circle" iconSize={8} wrapperStyle={{fontSize:'0.78rem'}} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
             )}
           </div>
 
-          <div className="forecast-section">
-            <h3>📈 Net Worth Forecast</h3>
-            <div className="forecast-controls">
-              <label>
-                <span>Years</span>
-                <input 
-                  type="number" 
-                  min="1" 
-                  max="50" 
-                  value={forecastYears} 
-                  onChange={e => setForecastYears(+e.target.value)}
-                />
-              </label>
-              <label>
-                <span>Annual Return (%)</span>
-                <input 
-                  type="number" 
-                  step="0.1" 
-                  value={forecastReturn} 
-                  onChange={e => setForecastReturn(+e.target.value)}
-                />
-              </label>
-              <label>
-                <span>Inflation (%)</span>
-                <input 
-                  type="number" 
-                  step="0.1" 
-                  value={forecastInflation} 
-                  onChange={e => setForecastInflation(+e.target.value)}
-                />
-              </label>
-            </div>
-            
-            <div className="forecast-summary">
-              <div className="forecast-card">
-                <h4>Current Net Worth</h4>
-                <p>{currency}{netWorth.toLocaleString('es-ES', {minimumFractionDigits: 2})}</p>
-              </div>
-              <div className="forecast-card">
-                <h4>Monthly Recurring</h4>
-                <p>{currency}{recurringItems.reduce((sum, r) => sum + r.amount, 0).toLocaleString('es-ES', {minimumFractionDigits: 2})}</p>
-              </div>
-              <div className="forecast-card highlight">
-                <h4>Projected ({forecastYears} years)</h4>
-                <p>{currency}{forecastData[forecastYears]?.nominal.toLocaleString('es-ES')}</p>
-                <small>Real: {currency}{forecastData[forecastYears]?.real.toLocaleString('es-ES')}</small>
+          {/* Allocation bars */}
+          {allocationData.length > 0 && (
+            <div className="nw-card" style={{marginBottom:'1.25rem'}}>
+              <div className="nw-card-header"><h3>Portfolio Breakdown</h3><span className="nw-card-sub">{items.filter(i=>i.type==='asset').length} assets · {currency}{totalAssets.toLocaleString('es-ES',{maximumFractionDigits:0})}</span></div>
+              <div className="nw-alloc-list">
+                {allocationData.map((cat, i) => (
+                  <div key={cat.name} className="nw-alloc-row">
+                    <div className="nw-alloc-dot" style={{background: COLORS[i % COLORS.length]}} />
+                    <div className="nw-alloc-info">
+                      <div className="nw-alloc-name">{cat.name}</div>
+                      <div className="nw-alloc-bar-track">
+                        <div className="nw-alloc-bar-fill" style={{width:`${cat.percentage}%`, background: COLORS[i % COLORS.length]}} />
+                      </div>
+                    </div>
+                    <div className="nw-alloc-numbers">
+                      <span className="nw-alloc-value">{currency}{cat.value.toLocaleString('es-ES',{maximumFractionDigits:0})}</span>
+                      <span className="nw-alloc-pct">{cat.percentage}%</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
+          )}
 
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={forecastData}>
+          {/* Forecast */}
+          <div className="nw-card">
+            <div className="nw-card-header">
+              <h3>Wealth Forecast</h3>
+              <div className="nw-forecast-controls">
+                <label className="nw-fc-label"><span>Years</span><input type="number" min="1" max="50" value={forecastYears} onChange={e => setForecastYears(+e.target.value)} /></label>
+                <label className="nw-fc-label"><span>Return %</span><input type="number" step="0.1" value={forecastReturn} onChange={e => setForecastReturn(+e.target.value)} /></label>
+                <label className="nw-fc-label"><span>Inflation %</span><input type="number" step="0.1" value={forecastInflation} onChange={e => setForecastInflation(+e.target.value)} /></label>
+              </div>
+            </div>
+            <div className="nw-forecast-summary">
+              <div className="nw-fc-stat">
+                <span>Today</span>
+                <strong>{currency}{netWorth.toLocaleString('es-ES',{maximumFractionDigits:0})}</strong>
+              </div>
+              <div className="nw-fc-arrow">→</div>
+              <div className="nw-fc-stat nw-fc-stat--highlight">
+                <span>In {forecastYears} years (nominal)</span>
+                <strong>{currency}{forecastData[forecastYears]?.nominal.toLocaleString('es-ES')}</strong>
+              </div>
+              <div className="nw-fc-stat">
+                <span>Real (inflation-adj.)</span>
+                <strong>{currency}{forecastData[forecastYears]?.real.toLocaleString('es-ES')}</strong>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={forecastData} margin={{top:8,right:8,left:0,bottom:8}}>
                 <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
-                <XAxis dataKey="year" stroke={themeColors.axis} label={{ value: 'Years', position: 'insideBottom', offset: -5 }} />
-                <YAxis stroke={themeColors.axis} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} />
-                <Tooltip 
-                  contentStyle={{ background: themeColors.bg, border: `1px solid ${themeColors.border}`, color: themeColors.text }}
-                  labelStyle={{ color: themeColors.text }}
-                  itemStyle={{ color: themeColors.text }}
-                  formatter={v => `${currency}${v.toLocaleString('es-ES')}`}
-                />
-                <Line type="monotone" dataKey="nominal" stroke="#3b82f6" strokeWidth={2} name="Nominal Value" />
-                <Line type="monotone" dataKey="real" stroke="#22c55e" strokeWidth={2} name="Real Value (Inflation-Adjusted)" />
-                <Legend />
+                <XAxis dataKey="year" stroke={themeColors.axis} tick={{fontSize:11}} label={{value:'Years from now', position:'insideBottom', offset:-4, fill:themeColors.axis, fontSize:11}} />
+                <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={56} />
+                <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => `${currency}${v.toLocaleString('es-ES')}`} />
+                <Line type="monotone" dataKey="nominal" stroke="#6366f1" strokeWidth={2} name="Nominal" dot={false} />
+                <Line type="monotone" dataKey="real" stroke="#10b981" strokeWidth={2} name="Real" dot={false} strokeDasharray="5 3" />
+                <Legend iconType="plainline" wrapperStyle={{fontSize:'0.8rem', paddingTop:'8px'}} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
-
-          <div className="allocation-table">
-            <h3>Detailed Allocation</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Asset</th>
-                  <th>Value</th>
-                  <th>Weight</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.filter(i => i.type === 'asset').sort((a, b) => b.value - a.value).map(item => (
-                  <tr key={item.itemId}>
-                    <td>{item.name}</td>
-                    <td>{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td>{((item.value / totalAssets) * 100).toFixed(2)}%</td>
-                  </tr>
-                ))}
-                <tr className="total-row">
-                  <td><strong>Total</strong></td>
-                  <td><strong>{currency}{totalAssets.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
-                  <td><strong>100%</strong></td>
-                </tr>
-              </tbody>
-            </table>
           </div>
         </>
       )}
 
       {activeTab === 'assets' && (
         <>
-          <div className="tab-header">
-            <h2>Manage Assets & Liabilities</h2>
-            <button onClick={() => { console.log('Add Item clicked'); setShowForm(!showForm); }}>
-              ➕ Add Item
+          <div className="nw-tab-toolbar">
+            <div className="nw-tab-toolbar-left">
+              <h2>Holdings</h2>
+              <a href="/networth-template.csv" download className="nw-template-link">↓ CSV template</a>
+            </div>
+            <button className="nw-btn nw-btn--primary" onClick={() => { setShowForm(!showForm); setEditingId(null); }}>
+              + Add Item
             </button>
           </div>
-
-      <div className="import-help">
-        <p>💡 <a href="/networth-template.csv" download>Download CSV Template</a> for bulk import</p>
-      </div>
 
       {showForm && !editingId && (
         <div className="item-form" ref={formRef}>
@@ -858,11 +812,9 @@ export default function NetWorth() {
 
       {activeTab === 'recurring' && (
         <>
-          <div className="tab-header">
-            <h2>Recurring Investments</h2>
-            <button onClick={() => { resetRecurringForm(); setShowRecurringForm(s => !s); }}>
-              ➕ Add Recurring
-            </button>
+          <div className="nw-tab-toolbar">
+            <div className="nw-tab-toolbar-left"><h2>Recurring Investments</h2></div>
+            <button className="nw-btn nw-btn--primary" onClick={() => { resetRecurringForm(); setShowRecurringForm(s => !s); }}>+ Add Recurring</button>
           </div>
 
           {showRecurringForm && (
@@ -951,18 +903,40 @@ export default function NetWorth() {
 
       {activeTab === 'history' && (
         <>
-          <h2>Net Worth History</h2>
-          <div className="chart-large">
-            <ResponsiveContainer width="100%" height={500}>
-              <LineChart data={history}>
-                <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
-                <XAxis dataKey="date" stroke={themeColors.axis} />
-                <YAxis stroke={themeColors.axis} />
-                <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }} />
-                <Line type="monotone" dataKey="netWorth" stroke="#3b82f6" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="nw-tab-toolbar">
+            <div className="nw-tab-toolbar-left"><h2>Net Worth History</h2></div>
           </div>
+          {history.length === 0 ? (
+            <div className="nw-empty">
+              <p>No history yet — snapshots are taken automatically each day by the system.</p>
+            </div>
+          ) : (
+            <div className="nw-card">
+              <ResponsiveContainer width="100%" height={480}>
+                <LineChart data={history} margin={{top:16,right:16,left:0,bottom:8}}>
+                  <defs>
+                    <linearGradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
+                  <XAxis dataKey="date" stroke={themeColors.axis} tick={{fontSize:11}} />
+                  <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={60} />
+                  <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text}} formatter={v => [`${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`, 'Net Worth']} />
+                  <Line type="monotone" dataKey="netWorth" stroke="#6366f1" strokeWidth={2.5} dot={false} activeDot={{r:5, fill:'#6366f1'}} />
+                </LineChart>
+              </ResponsiveContainer>
+              <div className="nw-history-table">
+                {[...history].reverse().slice(0,12).map(h => (
+                  <div key={h.date} className="nw-history-row">
+                    <span className="nw-history-date">{new Date(h.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span>
+                    <span className="nw-history-val">{currency}{h.netWorth.toLocaleString('es-ES',{minimumFractionDigits:2})}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
