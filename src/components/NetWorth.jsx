@@ -225,14 +225,22 @@ export default function NetWorth() {
     try {
       const session = await fetchAuthSession();
       const token = session.tokens?.idToken?.toString();
-      await apiPost({
+      const res = await apiPost({
         apiName: 'WealthPlannerAPI',
         path: '/refresh-prices',
         options: { headers: { Authorization: `Bearer ${token}` } }
       }).response;
+      const result = await res.body.json();
+      console.log('Refresh result:', result);
+      if (result.errors?.length) console.warn('Refresh errors:', result.errors);
       await loadItems();
+      const msg = result.updated > 0
+        ? `Updated ${result.updated} of ${result.total} holding${result.total !== 1 ? 's' : ''}`
+        : `No holdings updated (${result.total} with ISIN found${result.errors?.length ? `, ${result.errors.length} error(s) — check console` : ''})`;
+      alert(msg);
     } catch (err) {
       console.error('Error refreshing prices:', err);
+      alert('Refresh failed — check console for details');
     } finally {
       setRefreshing(false);
     }

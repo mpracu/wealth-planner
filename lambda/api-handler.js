@@ -1,23 +1,40 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient, PutCommand, QueryCommand, DeleteCommand, GetCommand, ScanCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
 
+const YF_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'Accept': 'application/json',
+  'Accept-Language': 'en-US,en;q=0.9',
+};
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
 async function getTickerFromISIN(isin) {
-  const response = await fetch(
-    `https://query1.finance.yahoo.com/v1/finance/search?q=${isin}&quotesCount=1&newsCount=0&enableFuzzyQuery=false`,
-    { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }
+  const res = await fetchWithTimeout(
+    `https://query2.finance.yahoo.com/v1/finance/search?q=${isin}&quotesCount=1&newsCount=0&enableFuzzyQuery=false`,
+    { headers: YF_HEADERS }
   );
-  const data = await response.json();
+  const data = await res.json();
   const quotes = data?.quotes;
   if (!quotes || quotes.length === 0) return null;
   return quotes[0].symbol;
 }
 
 async function getPriceForTicker(ticker) {
-  const response = await fetch(
-    `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`,
-    { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }
+  const res = await fetchWithTimeout(
+    `https://query2.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`,
+    { headers: YF_HEADERS }
   );
-  const data = await response.json();
+  const data = await res.json();
   return data?.chart?.result?.[0]?.meta?.regularMarketPrice || null;
 }
 
@@ -235,42 +252,60 @@ exports.handler = async (event) => {
       const itemsResult = await docClient.send(new QueryCommand({
         TableName: 'wealth-planner-networth-items',
         KeyConditionExpression: 'userId = :userId',
-        FilterExpression: 'attribute_exists(isin) AND attribute_exists(shares)',
-        ExpressionAttributeValues: { ':userId': userId }
+        FilterExpression: 'attribute_exists(isin) AND isin <> :empty',
+        ExpressionAttributeValues: { ':userId': userId, ':empty': '' }
       }));
 
       const items = itemsResult.Items || [];
+      console.log(`Found ${items.length} items with ISIN for user ${userId}`);
+
       const priceCache = {};
       let updatedCount = 0;
+      const errors = [];
 
       for (const item of items) {
-        const isin = item.isin;
-        if (!priceCache[isin]) {
-          const ticker = await getTickerFromISIN(isin);
-          if (!ticker) continue;
-          const price = await getPriceForTicker(ticker);
-          if (!price) continue;
-          priceCache[isin] = price;
-        }
-
-        const price = priceCache[isin];
-        const newValue = parseFloat(item.shares) * price;
-
-        await docClient.send(new UpdateCommand({
-          TableName: 'wealth-planner-networth-items',
-          Key: { userId: item.userId, itemId: item.itemId },
-          UpdateExpression: 'SET pricePerShare = :price, #val = :value, updatedAt = :updatedAt',
-          ExpressionAttributeNames: { '#val': 'value' },
-          ExpressionAttributeValues: {
-            ':price': price,
-            ':value': newValue,
-            ':updatedAt': new Date().toISOString()
+        try {
+          const isin = item.isin;
+          if (!priceCache[isin]) {
+            console.log(`Looking up ISIN: ${isin}`);
+            const ticker = await getTickerFromISIN(isin);
+            if (!ticker) { errors.push(`${isin}: no ticker found`); continue; }
+            console.log(`${isin} → ${ticker}`);
+            const price = await getPriceForTicker(ticker);
+            if (!price) { errors.push(`${isin}: no price for ${ticker}`); continue; }
+            priceCache[isin] = { ticker, price };
           }
-        }));
-        updatedCount++;
+
+          const { price } = priceCache[isin];
+          const shares = parseFloat(item.shares);
+          const hasShares = !isNaN(shares) && shares > 0;
+
+          if (hasShares) {
+            await docClient.send(new UpdateCommand({
+              TableName: 'wealth-planner-networth-items',
+              Key: { userId: item.userId, itemId: item.itemId },
+              UpdateExpression: 'SET pricePerShare = :price, #val = :value, updatedAt = :updatedAt',
+              ExpressionAttributeNames: { '#val': 'value' },
+              ExpressionAttributeValues: { ':price': price, ':value': shares * price, ':updatedAt': new Date().toISOString() }
+            }));
+            console.log(`Updated ${item.name}: ${shares} × ${price} = ${shares * price}`);
+          } else {
+            await docClient.send(new UpdateCommand({
+              TableName: 'wealth-planner-networth-items',
+              Key: { userId: item.userId, itemId: item.itemId },
+              UpdateExpression: 'SET pricePerShare = :price, updatedAt = :updatedAt',
+              ExpressionAttributeValues: { ':price': price, ':updatedAt': new Date().toISOString() }
+            }));
+            console.log(`Updated price only for ${item.name}: ${price} (no shares set)`);
+          }
+          updatedCount++;
+        } catch (err) {
+          console.error(`Error on item ${item.itemId}:`, err.message);
+          errors.push(`${item.name}: ${err.message}`);
+        }
       }
 
-      return { statusCode: 200, headers, body: JSON.stringify({ updated: updatedCount }) };
+      return { statusCode: 200, headers, body: JSON.stringify({ updated: updatedCount, total: items.length, errors }) };
     }
 
     return { statusCode: 404, headers, body: JSON.stringify({ error: 'Not found' }) };
