@@ -31,8 +31,95 @@ const BLOG_TOPICS = [
   'Building Generational Wealth',
   'Health Savings Accounts (HSAs)',
   'Backdoor Roth IRA Strategies',
-  'International Investing'
+  'International Investing',
+  'How to Choose an ETF in Europe',
+  'ISIN Codes Explained for Retail Investors',
+  'Investing with Degiro: A Beginner Guide',
+  'Scalable Capital vs Interactive Brokers',
+  'The European FIRE Community',
+  'Net Worth Tracking: Why It Matters',
+  'Compound Interest: The Eighth Wonder',
+  'How to Invest Your First €1,000',
+  'The Bogleheads Investment Philosophy',
+  'Sustainable and ESG Investing',
+  'Currency Risk for European Investors',
+  'Understanding TER (Total Expense Ratio)',
+  'Accumulating vs Distributing ETFs',
+  'How to Invest in the S&P 500 from Europe',
+  'Tax on Investments in Spain',
+  'Tax on Investments in Germany',
+  'Tax on Investments in the UK',
+  'Tax on Investments in Italy',
+  'Tax on Investments in France',
+  'MSCI World vs S&P 500',
+  'The Case for Small-Cap Investing',
+  'Bond Allocation by Age',
+  'What Is a Robo-Advisor?',
+  'Avoiding Lifestyle Inflation',
+  'How to Calculate Your Savings Rate',
+  'The 50/30/20 Budget Rule',
+  'Zero-Based Budgeting Explained',
+  'How to Build a 3-Fund Portfolio',
+  'All-Weather Portfolio Strategy',
+  'Ray Dalio\'s Investment Principles',
+  'Warren Buffett\'s Advice for Regular Investors',
+  'How to Invest a Windfall',
+  'Lump Sum vs Dollar Cost Averaging',
+  'When Should You Sell Investments?',
+  'Understanding Capital Gains Tax',
+  'The Cost of Waiting to Invest',
+  'Pension vs Private Investment Accounts',
+  'How Much Do You Need to Retire Early?',
+  'The Trinity Study and Safe Withdrawal Rates',
+  'Sequence of Returns Risk',
+  'Bucket Strategy for Retirement',
+  'How to Protect Wealth During a Recession',
+  'Diversification: How Much Is Enough?',
+  'Investing in Your 50s: What Changes',
+  'Teaching Kids About Money and Investing',
+  'How Automation Builds Better Investment Habits',
+  'The Danger of Timing the Market',
+  'Stock Market Corrections: What to Do',
+  'Bear Markets: How to Stay Calm',
+  'Understanding Your Net Worth Statement',
 ];
+
+const getUnusedTopic = async () => {
+  // Load previously used topics from DynamoDB
+  let usedTopics = [];
+  try {
+    const result = await docClient.send(new GetCommand({
+      TableName: 'wealth-planner-blog-posts',
+      Key: { postId: 'USED_TOPICS' }
+    }));
+    usedTopics = result.Item?.topics || [];
+  } catch (err) {
+    console.log('No used topics found, starting fresh');
+  }
+
+  const usedSet = new Set(usedTopics);
+  const unused = BLOG_TOPICS.filter(t => !usedSet.has(t));
+
+  let topic;
+  if (unused.length > 0) {
+    // Pick the next unused topic in order
+    topic = unused[0];
+  } else {
+    // All topics exhausted — reset and start the cycle again
+    console.log('All topics used, resetting cycle');
+    usedTopics = [];
+    topic = BLOG_TOPICS[0];
+  }
+
+  // Persist the updated used-topics list
+  usedTopics.push(topic);
+  await docClient.send(new PutCommand({
+    TableName: 'wealth-planner-blog-posts',
+    Item: { postId: 'USED_TOPICS', topics: usedTopics }
+  }));
+
+  return topic;
+};
 
 const PHOTO_POOL = [
   'photo-1554224155-8d04cb21cd6c', 'photo-1579621970563-ebec7560ff3e',
@@ -239,6 +326,11 @@ const generateBlogPost = async (topic, postNumber) => {
 
 exports.handler = async (event) => {
   try {
+    // Get a topic that hasn't been published yet
+    const topic = await getUnusedTopic();
+    console.log(`Generating post for topic: "${topic}"`);
+
+    // Increment the post counter (for postNumber tracking only)
     let counter = 0;
     try {
       const counterResult = await docClient.send(new GetCommand({
@@ -249,13 +341,10 @@ exports.handler = async (event) => {
     } catch (err) {
       console.log('No counter found, starting at 0');
     }
-    
+
     const postNumber = counter + 1;
-    const topicIndex = counter % BLOG_TOPICS.length;
-    const topic = BLOG_TOPICS[topicIndex];
-    
     const post = await generateBlogPost(topic, postNumber);
-    
+
     await docClient.send(new PutCommand({
       TableName: 'wealth-planner-blog-posts',
       Item: {
@@ -263,7 +352,7 @@ exports.handler = async (event) => {
         ...post
       }
     }));
-    
+
     await docClient.send(new PutCommand({
       TableName: 'wealth-planner-blog-posts',
       Item: {
@@ -271,10 +360,10 @@ exports.handler = async (event) => {
         count: postNumber
       }
     }));
-    
+
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Blog post created', post })
+      body: JSON.stringify({ message: 'Blog post created', topic, postNumber })
     };
   } catch (error) {
     console.error('Error:', error);
