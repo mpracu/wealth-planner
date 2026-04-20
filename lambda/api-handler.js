@@ -63,7 +63,7 @@ exports.handler = async (event) => {
         TableName: 'wealth-planner-blog-posts'
       }));
       const posts = (result.Items || [])
-        .filter(item => item.postId !== 'COUNTER' && item.postId !== 'USED_IMAGES')
+        .filter(item => !['COUNTER', 'USED_IMAGES', 'USED_TOPICS'].includes(item.postId))
         .sort((a, b) => new Date(b.publishedDate) - new Date(a.publishedDate));
       return { statusCode: 200, headers, body: JSON.stringify(posts) };
     } catch (error) {
