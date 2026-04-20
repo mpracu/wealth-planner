@@ -7,43 +7,45 @@ export default function MoneyBag({ className }) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        <linearGradient id="mbGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+        <linearGradient id="mbG1" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#3b82f6" />
           <stop offset="100%" stopColor="#22c55e" />
         </linearGradient>
-        <linearGradient id="mbGradHi" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+        <linearGradient id="mbG2" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#60a5fa" />
           <stop offset="100%" stopColor="#34d399" />
         </linearGradient>
       </defs>
 
-      {/* ── Left bow lobe ── */}
+      {/* ── Main bag shape: wide gather at top, large round body ── */}
       <path
-        d="M20 18 C14 18 10 14 12 10 C14 6 20 8 22 12 C23 14 22 17 20 18Z"
-        fill="url(#mbGrad)"
-      />
-      {/* ── Right bow lobe ── */}
-      <path
-        d="M44 18 C50 18 54 14 52 10 C50 6 44 8 42 12 C41 14 42 17 44 18Z"
-        fill="url(#mbGrad)"
-      />
-      {/* ── Centre knot ── */}
-      <ellipse cx="32" cy="16" rx="7" ry="5" fill="url(#mbGradHi)" />
-
-      {/* ── Neck (cinched part below knot) ── */}
-      <path
-        d="M24 20 Q32 18 40 20 L39 26 Q32 24 25 26 Z"
-        fill="url(#mbGrad)"
+        d="
+          M 26 24
+          C 26 20 28 18 32 18
+          C 36 18 38 20 38 24
+          C 46 26 52 34 52 44
+          C 52 56 43 62 32 62
+          C 21 62 12 56 12 44
+          C 12 34 18 26 26 24
+          Z
+        "
+        fill="url(#mbG1)"
       />
 
-      {/* ── Bag body ── */}
+      {/* ── Knot dome: simple oval sitting on top of the gather ── */}
+      <ellipse cx="32" cy="14" rx="13" ry="8" fill="url(#mbG2)" />
+
+      {/* ── Subtle cinch crease where bag is tied ── */}
       <path
-        d="M10 42 C10 28 19 26 25 26 L39 26 C45 26 54 28 54 42 C54 54 44 60 32 60 C20 60 10 54 10 42 Z"
-        fill="url(#mbGrad)"
+        d="M 24 24 Q 32 29 40 24"
+        stroke="rgba(0,0,60,0.12)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
       />
 
-      {/* ── Highlight / sheen ── */}
-      <ellipse cx="21" cy="38" rx="4" ry="6" fill="white" opacity="0.15" />
+      {/* ── Inner highlight / sheen ── */}
+      <ellipse cx="20" cy="38" rx="4" ry="7" fill="white" opacity="0.18" />
     </svg>
   );
 }
