@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import ReactGA from 'react-ga4';
+import { BarChart2, Wallet, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X, Target } from 'lucide-react';
 import Auth from './components/Auth';
 import Simulator from './components/Simulator';
 import NetWorth from './components/NetWorth';
@@ -63,62 +64,76 @@ function App() {
   return (
     <div className="app">
       <nav className="navbar">
-        <h1 onClick={() => navigate('landing')} style={{ cursor: 'pointer' }}>💰 Wealth Planner</h1>
-        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? '✕' : '☰'}
+        <div className="navbar-brand" onClick={() => navigate('landing')}>
+          <span className="navbar-logo-mark">W</span>
+          <span className="navbar-logo-text">Wealth Planner</span>
+        </div>
+        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
         <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
           <button
             className={view === 'simulator' ? 'active' : ''}
             onClick={() => navigate('simulator')}
           >
-            📊 Simulator
+            <BarChart2 size={15} />
+            Simulator
           </button>
           <button
             className={view === 'risk' ? 'active' : ''}
             onClick={() => navigate('risk')}
           >
-            🎯 Risk Profile
+            <Target size={15} />
+            Risk Profile
           </button>
           {user ? (
             <>
-              <button 
-                className={view === 'networth' ? 'active' : ''} 
+              <button
+                className={view === 'networth' ? 'active' : ''}
                 onClick={() => navigate('networth')}
               >
-                💼 Net Worth
+                <Wallet size={15} />
+                Net Worth
               </button>
-              <button 
-                className={view === 'blog' ? 'active' : ''} 
+              <button
+                className={view === 'blog' ? 'active' : ''}
                 onClick={() => navigate('blog')}
               >
-                📝 Blog
+                <BookOpen size={15} />
+                Blog
               </button>
-              <button 
+              <button
                 className="theme-toggle"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
               >
-                {theme === 'dark' ? '☀️' : '🌙'}
+                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
               </button>
-              <button onClick={() => { handleSignOut(); setMenuOpen(false); }}>🚪 Sign Out</button>
+              <button className="nav-signout" onClick={() => { handleSignOut(); setMenuOpen(false); }}>
+                <LogOut size={15} />
+                Sign Out
+              </button>
             </>
           ) : (
             <>
-              <button 
-                className={view === 'blog' ? 'active' : ''} 
+              <button
+                className={view === 'blog' ? 'active' : ''}
                 onClick={() => navigate('blog')}
               >
-                📝 Blog
+                <BookOpen size={15} />
+                Blog
               </button>
-              <button 
+              <button
                 className="theme-toggle"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
               >
-                {theme === 'dark' ? '☀️' : '🌙'}
+                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
               </button>
-              <button onClick={() => navigate('login')}>🔐 Login</button>
+              <button className="nav-login" onClick={() => navigate('login')}>
+                <LogIn size={15} />
+                Login
+              </button>
             </>
           )}
         </div>

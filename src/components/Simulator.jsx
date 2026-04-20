@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { Trash2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { post as apiPost, get as apiGet, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
@@ -366,7 +367,7 @@ export default function Simulator({ preset }) {
                       {pinned ? 'Comparing' : 'Compare'}
                     </button>
                     <button className="btn btn--ghost" onClick={() => loadScenario(s)}>Load</button>
-                    <button className="btn btn--danger" onClick={() => deleteScenario(s.scenarioId)}>✕</button>
+                    <button className="btn btn--danger" onClick={() => deleteScenario(s.scenarioId)}><Trash2 size={14} /></button>
                   </div>
                 </div>
               );

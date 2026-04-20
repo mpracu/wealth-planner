@@ -90,8 +90,21 @@
 }
 
 .feature-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.feature:hover .feature-icon {
+  background: #3b82f6;
+  color: #fff;
 }
 
 .feature h3 {

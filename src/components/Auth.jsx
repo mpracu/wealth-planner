@@ -94,7 +94,7 @@ export default function Auth({ onAuthSuccess }) {
     <div className="auth-container">
       <div className="auth-box">
         <div className="auth-header">
-          <div className="logo">💰</div>
+          <div className="logo"><span className="logo-mark">W</span></div>
           <h1>Wealth Planner</h1>
           <p className="tagline">Track your net worth, plan your future</p>
         </div>

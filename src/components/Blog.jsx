@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import './Blog.css';
 
 const FALLBACK_IMAGES = [
@@ -125,7 +126,7 @@ function Blog() {
     return (
       <div className="blog">
         <button className="back-btn" onClick={() => setSelectedPost(null)}>
-          ← Back to all posts
+          <ArrowLeft size={15} /> Back to all posts
         </button>
         <article className="blog-post-full">
           <img src={selectedPost.image} alt={selectedPost.title} className="post-hero-image" />

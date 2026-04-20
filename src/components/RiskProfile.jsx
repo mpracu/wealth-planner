@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { Target, ArrowRight, ArrowLeft, ChevronRight } from 'lucide-react';
 import './RiskProfile.css';
 
 const QUESTIONS = [
@@ -199,7 +200,7 @@ export default function RiskProfile({ onLoadInSimulator }) {
     return (
       <div className="rp-wrap">
         <div className="rp-intro-card">
-          <div className="rp-intro-icon">🎯</div>
+          <div className="rp-intro-icon"><Target size={40} strokeWidth={1.5} /></div>
           <h1 className="rp-intro-title">Investor Profile Quiz</h1>
           <p className="rp-intro-sub">
             7 questions · 2 minutes · Personalised portfolio recommendation
@@ -210,7 +211,7 @@ export default function RiskProfile({ onLoadInSimulator }) {
             timeline, and comfort with volatility.
           </p>
           <button className="rp-btn rp-btn--primary rp-btn--lg" onClick={handleStart}>
-            Start the quiz →
+            Start the quiz <ArrowRight size={16} />
           </button>
         </div>
       </div>
@@ -255,7 +256,7 @@ export default function RiskProfile({ onLoadInSimulator }) {
               className="rp-btn rp-btn--ghost rp-back-btn"
               onClick={() => { setStep(step - 1); setAnswers(answers.slice(0, -1)); }}
             >
-              ← Back
+              <ArrowLeft size={15} /> Back
             </button>
           )}
         </div>
@@ -347,7 +348,7 @@ export default function RiskProfile({ onLoadInSimulator }) {
               className="rp-btn rp-btn--primary"
               onClick={() => onLoadInSimulator(profileKey, profile)}
             >
-              Load into Simulator →
+              Load into Simulator <ChevronRight size={15} />
             </button>
           )}
           <button className="rp-btn rp-btn--ghost" onClick={handleRestart}>

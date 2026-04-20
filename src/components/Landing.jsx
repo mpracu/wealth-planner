@@ -1,3 +1,4 @@
+import { BarChart2, Wallet, RefreshCw, TrendingUp, BookOpen, Globe } from 'lucide-react';
 import './Landing.css';
 
 function Landing({ onNavigate, isAuthenticated }) {
@@ -16,32 +17,32 @@ function Landing({ onNavigate, isAuthenticated }) {
 
       <section className="features">
         <div className="feature">
-          <div className="feature-icon">📊</div>
+          <div className="feature-icon"><BarChart2 size={24} strokeWidth={1.5} /></div>
           <h3>Wealth Simulator</h3>
           <p>Model your financial future with compound interest, inflation adjustments, and custom scenarios</p>
         </div>
         <div className="feature">
-          <div className="feature-icon">💰</div>
+          <div className="feature-icon"><Wallet size={24} strokeWidth={1.5} /></div>
           <h3>Net Worth Tracker</h3>
           <p>Track assets, liabilities, and investments with ISIN codes. Monitor your progress over time</p>
         </div>
         <div className="feature">
-          <div className="feature-icon">🔄</div>
+          <div className="feature-icon"><RefreshCw size={24} strokeWidth={1.5} /></div>
           <h3>Recurring Investments</h3>
           <p>Set up automatic monthly contributions and watch them compound automatically</p>
         </div>
         <div className="feature">
-          <div className="feature-icon">📈</div>
+          <div className="feature-icon"><TrendingUp size={24} strokeWidth={1.5} /></div>
           <h3>Net Worth Forecast</h3>
           <p>Project your future wealth based on current holdings and recurring investments</p>
         </div>
         <div className="feature">
-          <div className="feature-icon">📝</div>
+          <div className="feature-icon"><BookOpen size={24} strokeWidth={1.5} /></div>
           <h3>Investment Blog</h3>
           <p>Learn about index funds, ETFs, and long-term investing strategies</p>
         </div>
         <div className="feature">
-          <div className="feature-icon">🌍</div>
+          <div className="feature-icon"><Globe size={24} strokeWidth={1.5} /></div>
           <h3>Multi-Currency</h3>
           <p>Support for €, $, and £ with proper locale formatting</p>
         </div>
