@@ -13,7 +13,7 @@ function Landing({ onNavigate, isAuthenticated }) {
           </h1>
           <p>
             Track net worth, simulate wealth growth, and plan recurring
-            investments — all in one place.
+            investments, all in one place.
           </p>
           <div className="hero-buttons">
             <button className="btn-outline" onClick={() => onNavigate('simulator')}>

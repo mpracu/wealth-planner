@@ -205,7 +205,7 @@ export default function Simulator({ preset }) {
       {/* Goal Banner */}
       <div className={`milestone ${goalData ? '' : 'warning'}`}>
         {goalData
-          ? `You'll reach ${fmt(targetAmount)} at age ${goalData.age} — ${goalData.year} years from now`
+          ? `You'll reach ${fmt(targetAmount)} at age ${goalData.age}. That's ${goalData.year} years from now`
           : `Goal not reached in 50 years. Try increasing your contributions or expected return.`}
       </div>
 

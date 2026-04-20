@@ -18,10 +18,10 @@ const QUESTIONS = [
     id: 2,
     text: 'Your portfolio drops 25% in a market crash. What do you do?',
     options: [
-      { label: 'Sell everything — I can\'t handle the stress', score: 1 },
+      { label: 'Sell everything. I can\'t handle the stress', score: 1 },
       { label: 'Sell part of my holdings to reduce risk', score: 2 },
       { label: 'Hold on and wait for recovery', score: 3 },
-      { label: 'Buy more — it\'s a discount opportunity', score: 4 },
+      { label: 'Buy more. It\'s a discount opportunity', score: 4 },
     ],
   },
   {
@@ -31,47 +31,47 @@ const QUESTIONS = [
       { label: 'Protect my savings from losing value', score: 1 },
       { label: 'Grow steadily with modest risk', score: 2 },
       { label: 'Grow significantly over the long term', score: 3 },
-      { label: 'Maximise returns — I accept high volatility', score: 4 },
+      { label: 'Maximise returns. I accept high volatility', score: 4 },
     ],
   },
   {
     id: 4,
     text: 'How would you describe your investing experience?',
     options: [
-      { label: 'None — I\'m just starting out', score: 1 },
-      { label: 'Basic — I have a savings account or pension', score: 2 },
-      { label: 'Intermediate — I own some funds or ETFs', score: 3 },
-      { label: 'Advanced — I actively manage a diversified portfolio', score: 4 },
+      { label: 'None. I\'m just starting out', score: 1 },
+      { label: 'Basic. I have a savings account or pension', score: 2 },
+      { label: 'Intermediate. I own some funds or ETFs', score: 3 },
+      { label: 'Advanced. I actively manage a diversified portfolio', score: 4 },
     ],
   },
   {
     id: 5,
     text: 'What share of your total savings are you planning to invest?',
     options: [
-      { label: 'Less than 10% — I need most of it accessible', score: 1 },
+      { label: 'Less than 10%. I need most of it accessible', score: 1 },
       { label: '10–30%', score: 2 },
       { label: '30–60%', score: 3 },
-      { label: 'More than 60% — I have a solid emergency fund', score: 4 },
+      { label: 'More than 60%. I have a solid emergency fund', score: 4 },
     ],
   },
   {
     id: 6,
     text: 'How stable is your income over the next few years?',
     options: [
-      { label: 'Very uncertain — freelance or irregular', score: 1 },
-      { label: 'Somewhat uncertain — could change soon', score: 2 },
-      { label: 'Fairly stable — salaried employment', score: 3 },
-      { label: 'Very stable — secure job or multiple income sources', score: 4 },
+      { label: 'Very uncertain. Freelance or irregular', score: 1 },
+      { label: 'Somewhat uncertain. Could change soon', score: 2 },
+      { label: 'Fairly stable. Salaried employment', score: 3 },
+      { label: 'Very stable. Secure job or multiple income sources', score: 4 },
     ],
   },
   {
     id: 7,
     text: 'Which statement best matches your attitude toward risk and reward?',
     options: [
-      { label: 'I prefer safety over growth — even 2–3% is fine', score: 1 },
-      { label: 'I want some growth but hate big swings — 4–6% feels right', score: 2 },
+      { label: 'I prefer safety over growth. Even 2-3% is fine', score: 1 },
+      { label: 'I want some growth but hate big swings. 4-6% feels right', score: 2 },
       { label: 'I can handle volatility for 7–10% expected returns', score: 3 },
-      { label: 'I want maximum long-term returns — 10%+ is the target', score: 4 },
+      { label: 'I want maximum long-term returns. 10%+ target', score: 4 },
     ],
   },
 ];
@@ -91,8 +91,8 @@ const PROFILES = {
       { name: 'Cash / Money Market', pct: 15, color: '#8b949e' },
     ],
     funds: [
-      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Global equity index — 1,600+ companies (MSCI World)' },
-      { name: 'Fidelity Index Euro Government Bond Fund P Acc EUR', isin: 'IE00BYX5MZ82', role: 'Eurozone government bonds — core defensive holding' },
+      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Global equity index, 1,600+ companies (MSCI World)' },
+      { name: 'Fidelity Index Euro Government Bond Fund P Acc EUR', isin: 'IE00BYX5MZ82', role: 'Eurozone government bonds, core defensive holding' },
       { name: 'Vanguard Global Bond Index Fund EUR Hedged Acc', isin: 'IE00B18GC888', role: 'Global bonds, currency-hedged to EUR' },
     ],
   },
@@ -110,9 +110,9 @@ const PROFILES = {
       { name: 'Emerging Markets', pct: 10, color: '#a855f7' },
     ],
     funds: [
-      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Core global equity index — 60% of portfolio (MSCI World)' },
-      { name: 'Vanguard Global Bond Index Fund EUR Hedged Acc', isin: 'IE00B18GC888', role: 'Global bond index, hedged to EUR — 30% stabiliser' },
-      { name: 'Fidelity Index Emerging Markets Fund P Acc EUR', isin: 'IE00BYX5MW60', role: 'Emerging market index — China, India, Brazil and more' },
+      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Core global equity index, 60% of portfolio (MSCI World)' },
+      { name: 'Vanguard Global Bond Index Fund EUR Hedged Acc', isin: 'IE00B18GC888', role: 'Global bond index, hedged to EUR, 30% stabiliser' },
+      { name: 'Fidelity Index Emerging Markets Fund P Acc EUR', isin: 'IE00BYX5MW60', role: 'Emerging market index: China, India, Brazil and more' },
     ],
   },
   aggressive: {
@@ -122,16 +122,16 @@ const PROFILES = {
     colorSoft: 'rgba(16,185,129,0.15)',
     returnRange: '8–12%',
     description:
-      'You\'re playing the long game. Short-term volatility doesn\'t faze you — you know markets recover and time in the market beats timing the market. A near-total equity index fund portfolio, globally diversified, is your path to wealth.',
+      'You\'re playing the long game. Short-term volatility doesn\'t faze you. Markets recover and time in the market beats timing the market. A near-total equity index fund portfolio, globally diversified, is your path to wealth.',
     allocation: [
       { name: 'Global Equities', pct: 70, color: '#10b981' },
       { name: 'Emerging Markets', pct: 20, color: '#6366f1' },
       { name: 'US Equities', pct: 10, color: '#f59e0b' },
     ],
     funds: [
-      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Core global equity index — 70% of portfolio (MSCI World)' },
-      { name: 'Fidelity Index Emerging Markets Fund P Acc EUR', isin: 'IE00BYX5MW60', role: 'Higher-growth emerging market index — 20%' },
-      { name: 'Fidelity Index US Fund P Acc EUR', isin: 'IE00BYX5MX18', role: 'US equity index for additional growth tilt — 10%' },
+      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Core global equity index, 70% of portfolio (MSCI World)' },
+      { name: 'Fidelity Index Emerging Markets Fund P Acc EUR', isin: 'IE00BYX5MW60', role: 'Higher-growth emerging market index, 20%' },
+      { name: 'Fidelity Index US Fund P Acc EUR', isin: 'IE00BYX5MX18', role: 'US equity index for additional growth tilt, 10%' },
     ],
   },
 };
@@ -206,7 +206,7 @@ export default function RiskProfile({ onLoadInSimulator }) {
             7 questions · 2 minutes · Personalised portfolio recommendation
           </p>
           <p className="rp-intro-desc">
-            Answer honestly — there are no right or wrong answers. We'll match you with a
+            Answer honestly. There are no right or wrong answers. We'll match you with a
             risk profile and recommend a concrete ETF allocation suited to your goals,
             timeline, and comfort with volatility.
           </p>

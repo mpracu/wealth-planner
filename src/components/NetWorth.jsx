@@ -236,11 +236,11 @@ export default function NetWorth() {
       await loadItems();
       const msg = result.updated > 0
         ? `Updated ${result.updated} of ${result.total} holding${result.total !== 1 ? 's' : ''}`
-        : `No holdings updated (${result.total} with ISIN found${result.errors?.length ? `, ${result.errors.length} error(s) — check console` : ''})`;
+        : `No holdings updated (${result.total} with ISIN found${result.errors?.length ? `, ${result.errors.length} error(s). Check console` : ''})`;
       alert(msg);
     } catch (err) {
       console.error('Error refreshing prices:', err);
-      alert('Refresh failed — check console for details');
+      alert('Refresh failed. Check console for details.');
     } finally {
       setRefreshing(false);
     }
@@ -608,7 +608,7 @@ export default function NetWorth() {
               </label>
 
               <label className="form-field">
-                <span>Value ({currency}){formData.shares && formData.pricePerShare ? <span className="field-hint"> — auto-calculated</span> : ''}</span>
+                <span>Value ({currency}){formData.shares && formData.pricePerShare ? <span className="field-hint"> (auto-calculated)</span> : ''}</span>
                 <input
                   type="number" step="0.01" placeholder="0.00"
                   value={formData.shares && formData.pricePerShare
@@ -678,7 +678,7 @@ export default function NetWorth() {
           <span className="items-count">{items.filter(i => i.type === 'asset').length} items · {currency}{totalAssets.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
         </div>
         {items.filter(i => i.type === 'asset').length === 0 && (
-          <div className="empty-state-small">No assets yet — click "Add Item" to get started.</div>
+          <div className="empty-state-small">No assets yet. Click "Add Item" to get started.</div>
         )}
         {items.filter(i => i.type === 'asset').sort((a,b) => b.value - a.value).map(item => (
           <React.Fragment key={item.itemId}>
@@ -704,7 +704,7 @@ export default function NetWorth() {
 
             {showForm && editingId === item.itemId && (
               <div className="item-form" ref={formRef}>
-                <h3>Edit — {item.name}</h3>
+                <h3>Edit: {item.name}</h3>
                 <form onSubmit={saveItem}>
                   <div className="form-grid">
                     <label className="form-field form-field--wide">
@@ -719,7 +719,7 @@ export default function NetWorth() {
                       </select>
                     </label>
                     <label className="form-field">
-                      <span>Value ({currency}){formData.shares && formData.pricePerShare ? <span className="field-hint"> — auto-calculated</span> : ''}</span>
+                      <span>Value ({currency}){formData.shares && formData.pricePerShare ? <span className="field-hint"> (auto-calculated)</span> : ''}</span>
                       <input
                         type="number" step="0.01"
                         value={formData.shares && formData.pricePerShare
@@ -789,7 +789,7 @@ export default function NetWorth() {
             </div>
             {showForm && editingId === item.itemId && (
               <div className="item-form" ref={formRef}>
-                <h3>Edit — {item.name}</h3>
+                <h3>Edit: {item.name}</h3>
                 <form onSubmit={saveItem}>
                   <div className="form-grid">
                     <label className="form-field form-field--wide">
@@ -916,7 +916,7 @@ export default function NetWorth() {
           </div>
           {history.length === 0 ? (
             <div className="nw-empty">
-              <p>No history yet — snapshots are taken automatically each day by the system.</p>
+              <p>No history yet. Snapshots are taken automatically each day.</p>
             </div>
           ) : (
             <div className="nw-card">
