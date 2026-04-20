@@ -21,11 +21,11 @@
   margin-bottom: 2rem;
 }
 
-.auth-header .logo {
-  font-size: 4rem;
+.auth-header .auth-logo {
+  width: 72px;
+  height: 72px;
   margin-bottom: 0.5rem;
   animation: float 3s ease-in-out infinite;
-  filter: sepia(1) hue-rotate(185deg) saturate(3) brightness(1.1);
 }
 
 @keyframes float {
