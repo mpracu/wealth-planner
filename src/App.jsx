@@ -6,6 +6,7 @@ import Simulator from './components/Simulator';
 import NetWorth from './components/NetWorth';
 import Blog from './components/Blog';
 import Landing from './components/Landing';
+import RiskProfile from './components/RiskProfile';
 import './aws-config';
 import './App.css';
 
@@ -15,6 +16,7 @@ function App() {
   const [view, setView] = useState('landing');
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const [simulatorPreset, setSimulatorPreset] = useState(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -47,6 +49,13 @@ function App() {
     setMenuOpen(false);
   };
 
+  const handleLoadInSimulator = (profileKey, profile) => {
+    // Map profile to a sensible annual return mid-point
+    const returnMap = { conservative: 4, moderate: 6.5, aggressive: 9 };
+    setSimulatorPreset({ annualReturn: returnMap[profileKey] });
+    navigate('simulator');
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -59,11 +68,17 @@ function App() {
           {menuOpen ? '✕' : '☰'}
         </button>
         <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
-          <button 
-            className={view === 'simulator' ? 'active' : ''} 
+          <button
+            className={view === 'simulator' ? 'active' : ''}
             onClick={() => navigate('simulator')}
           >
             📊 Simulator
+          </button>
+          <button
+            className={view === 'risk' ? 'active' : ''}
+            onClick={() => navigate('risk')}
+          >
+            🎯 Risk Profile
           </button>
           {user ? (
             <>
@@ -114,8 +129,10 @@ function App() {
           <Landing onNavigate={navigate} isAuthenticated={!!user} />
         ) : view === 'login' && !user ? (
           <Auth onAuthSuccess={() => { checkUser(); setView('networth'); }} />
+        ) : view === 'risk' ? (
+          <RiskProfile onLoadInSimulator={handleLoadInSimulator} />
         ) : view === 'simulator' ? (
-          <Simulator />
+          <Simulator preset={simulatorPreset} />
         ) : view === 'blog' ? (
           <Blog />
         ) : view === 'networth' && user ? (

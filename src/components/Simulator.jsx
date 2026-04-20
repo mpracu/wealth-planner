@@ -32,7 +32,7 @@ const computeData = (age, capital, monthly, annualReturn, inflation) => {
   return rows;
 };
 
-export default function Simulator() {
+export default function Simulator({ preset }) {
   const [themeColors, setThemeColors] = useState(getThemeColors());
 
   useEffect(() => {
@@ -44,9 +44,14 @@ export default function Simulator() {
   const [age, setAge] = useState(30);
   const [currentCapital, setCurrentCapital] = useState(50000);
   const [monthlyInvestment, setMonthlyInvestment] = useState(1000);
-  const [annualReturn, setAnnualReturn] = useState(7);
+  const [annualReturn, setAnnualReturn] = useState(preset?.annualReturn ?? 7);
   const [inflation, setInflation] = useState(2.5);
   const [targetAmount, setTargetAmount] = useState(1000000);
+
+  // Apply preset when navigating from Risk Profile
+  useEffect(() => {
+    if (preset?.annualReturn != null) setAnnualReturn(preset.annualReturn);
+  }, [preset]);
 
   const [scenarios, setScenarios] = useState([]);
   const [pinnedScenarios, setPinnedScenarios] = useState([]);
