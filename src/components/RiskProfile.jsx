@@ -90,9 +90,9 @@ const PROFILES = {
       { name: 'Cash / Money Market', pct: 15, color: '#8b949e' },
     ],
     funds: [
-      { name: 'iShares Core € Govt Bond', isin: 'IE00B4WXJJ64', role: 'Eurozone government bonds — core bond holding' },
-      { name: 'Vanguard Global Bond Index', isin: 'IE00B18GC888', role: 'Global bond diversification (EUR hedged)' },
-      { name: 'Amundi MSCI World', isin: 'LU1681043599', role: 'Broad global equity exposure (25%)' },
+      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Global equity index — 1,600+ companies (MSCI World)' },
+      { name: 'Fidelity Index Euro Government Bond Fund P Acc EUR', isin: 'IE00BYX5MZ82', role: 'Eurozone government bonds — core defensive holding' },
+      { name: 'Vanguard Global Bond Index Fund EUR Hedged Acc', isin: 'IE00B18GC888', role: 'Global bonds, currency-hedged to EUR' },
     ],
   },
   moderate: {
@@ -102,16 +102,16 @@ const PROFILES = {
     colorSoft: 'rgba(245,158,11,0.15)',
     returnRange: '5–8%',
     description:
-      'You want your money to grow meaningfully over time but can\'t stomach watching it drop by half. A diversified mix of equities and bonds gives you growth potential while cushioning market shocks.',
+      'You want your money to grow meaningfully over time but can\'t stomach watching it drop by half. A diversified mix of equity and bond index funds gives you growth potential while cushioning market shocks.',
     allocation: [
       { name: 'Global Equities', pct: 60, color: '#f59e0b' },
       { name: 'Bonds', pct: 30, color: '#3b82f6' },
-      { name: 'Real Estate (REITs)', pct: 10, color: '#a855f7' },
+      { name: 'Emerging Markets', pct: 10, color: '#a855f7' },
     ],
     funds: [
-      { name: 'Vanguard FTSE All-World', isin: 'IE00B3RBWM25', role: 'Core global equity — 60% of portfolio' },
-      { name: 'iShares Core Global Aggregate Bond', isin: 'IE00B3F81R35', role: 'Diversified global bonds (EUR hedged)' },
-      { name: 'Amundi FTSE EPRA Europe Real Estate', isin: 'LU1681038599', role: 'European real estate exposure' },
+      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Core global equity index — 60% of portfolio (MSCI World)' },
+      { name: 'Vanguard Global Bond Index Fund EUR Hedged Acc', isin: 'IE00B18GC888', role: 'Global bond index, hedged to EUR — 30% stabiliser' },
+      { name: 'Fidelity Index Emerging Markets Fund P Acc EUR', isin: 'IE00BYX5MW60', role: 'Emerging market index — China, India, Brazil and more' },
     ],
   },
   aggressive: {
@@ -121,16 +121,16 @@ const PROFILES = {
     colorSoft: 'rgba(16,185,129,0.15)',
     returnRange: '8–12%',
     description:
-      'You\'re playing the long game. Short-term volatility doesn\'t faze you — you know markets recover and time in the market beats timing the market. A near-total equity portfolio, globally diversified, is your path to wealth.',
+      'You\'re playing the long game. Short-term volatility doesn\'t faze you — you know markets recover and time in the market beats timing the market. A near-total equity index fund portfolio, globally diversified, is your path to wealth.',
     allocation: [
       { name: 'Global Equities', pct: 70, color: '#10b981' },
       { name: 'Emerging Markets', pct: 20, color: '#6366f1' },
-      { name: 'Small-Cap Equities', pct: 10, color: '#f59e0b' },
+      { name: 'US Equities', pct: 10, color: '#f59e0b' },
     ],
     funds: [
-      { name: 'Vanguard FTSE All-World', isin: 'IE00B3RBWM25', role: 'Core global equity — foundation holding' },
-      { name: 'iShares MSCI EM IMI', isin: 'IE00BKM4GZ66', role: 'Emerging market growth exposure' },
-      { name: 'iShares MSCI World Small Cap', isin: 'IE00BF4RFH31', role: 'Small-cap premium over the long term' },
+      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Core global equity index — 70% of portfolio (MSCI World)' },
+      { name: 'Fidelity Index Emerging Markets Fund P Acc EUR', isin: 'IE00BYX5MW60', role: 'Higher-growth emerging market index — 20%' },
+      { name: 'Fidelity Index US Fund P Acc EUR', isin: 'IE00BYX5MX18', role: 'US equity index for additional growth tilt — 10%' },
     ],
   },
 };
@@ -335,7 +335,7 @@ export default function RiskProfile({ onLoadInSimulator }) {
             ))}
           </div>
           <p className="rp-etf-note">
-            These index funds are available on Degiro, Trading 212, Scalable Capital, and Interactive Brokers.
+            These index funds are available through MyInvestor, Indexa Capital, Fidelity Direct, and most European investment platforms.
             Always check the KIID and your local tax treatment before investing.
           </p>
         </div>
