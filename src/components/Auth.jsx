@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { signIn, signUp, confirmSignUp, signInWithRedirect, resetPassword, confirmResetPassword } from 'aws-amplify/auth';
+import MoneyBag from './MoneyBag';
 import './Auth.css';
 
 export default function Auth({ onAuthSuccess }) {
@@ -94,7 +95,7 @@ export default function Auth({ onAuthSuccess }) {
     <div className="auth-container">
       <div className="auth-box">
         <div className="auth-header">
-          <div className="logo">💰</div>
+          <div className="logo"><MoneyBag className="auth-logo-icon" /></div>
           <h1>Wealth Planner</h1>
           <p className="tagline">Track your net worth, plan your future</p>
         </div>

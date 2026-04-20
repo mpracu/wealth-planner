@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import ReactGA from 'react-ga4';
 import { BarChart2, Wallet, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X, Target } from 'lucide-react';
+import MoneyBag from './components/MoneyBag';
 import Auth from './components/Auth';
 import Simulator from './components/Simulator';
 import NetWorth from './components/NetWorth';
@@ -65,7 +66,7 @@ function App() {
     <div className="app">
       <nav className="navbar">
         <div className="navbar-brand" onClick={() => navigate('landing')}>
-          <span className="navbar-logo-emoji">💰</span>
+          <MoneyBag className="navbar-logo-icon" />
           <span className="navbar-logo-text">Wealth Planner</span>
         </div>
         <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
