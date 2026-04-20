@@ -65,7 +65,7 @@ function App() {
     <div className="app">
       <nav className="navbar">
         <div className="navbar-brand" onClick={() => navigate('landing')}>
-          <span className="navbar-logo-mark">W</span>
+          <span className="navbar-logo-emoji">💰</span>
           <span className="navbar-logo-text">Wealth Planner</span>
         </div>
         <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
