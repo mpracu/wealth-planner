@@ -77,10 +77,11 @@ body { margin: 0; min-height: 100vh; background: var(--bg-gradient); }
   text-decoration: none;
 }
 
-.navbar-logo-icon {
-  width: 30px;
-  height: 33px;
+.navbar-logo-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
   flex-shrink: 0;
+  filter: hue-rotate(175deg) saturate(2);
 }
 
 .navbar-logo-text {

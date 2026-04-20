@@ -94,26 +94,7 @@ export default function Auth({ onAuthSuccess }) {
     <div className="auth-container">
       <div className="auth-box">
         <div className="auth-header">
-          <div className="logo">
-            <svg className="auth-logo-icon" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="authBagGrad" x1="0" y1="0" x2="40" y2="44" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#3b82f6"/>
-                  <stop offset="100%" stopColor="#22c55e"/>
-                </linearGradient>
-                <linearGradient id="authBagGradLight" x1="0" y1="0" x2="40" y2="44" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#60a5fa"/>
-                  <stop offset="100%" stopColor="#34d399"/>
-                </linearGradient>
-              </defs>
-              <ellipse cx="15" cy="11" rx="4" ry="2.5" transform="rotate(-20 15 11)" fill="url(#authBagGrad)"/>
-              <ellipse cx="25" cy="11" rx="4" ry="2.5" transform="rotate(20 25 11)" fill="url(#authBagGrad)"/>
-              <ellipse cx="20" cy="12" rx="3" ry="2.5" fill="url(#authBagGradLight)"/>
-              <path d="M15 14 Q20 13 25 14 L24 18 Q20 17 16 18 Z" fill="url(#authBagGrad)"/>
-              <path d="M7 28 C7 20 12 18 16 18 L24 18 C28 18 33 20 33 28 C33 36 27 42 20 42 C13 42 7 36 7 28 Z" fill="url(#authBagGrad)"/>
-              <ellipse cx="14" cy="25" rx="3" ry="4" fill="white" opacity="0.15"/>
-            </svg>
-          </div>
+          <div className="logo">💰</div>
           <h1>Wealth Planner</h1>
           <p className="tagline">Track your net worth, plan your future</p>
         </div>

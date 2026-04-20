@@ -22,16 +22,10 @@
 }
 
 .auth-header .logo {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
+  font-size: 4rem;
+  margin-bottom: 0.5rem;
   animation: float 3s ease-in-out infinite;
-}
-
-.auth-logo-icon {
-  width: 64px;
-  height: 64px;
-  filter: drop-shadow(0 6px 16px rgba(59, 130, 246, 0.4));
+  filter: hue-rotate(175deg) saturate(2);
 }
 
 @keyframes float {
