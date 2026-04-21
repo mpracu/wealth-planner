@@ -54,6 +54,8 @@ export default function Simulator({ preset }) {
     if (preset?.annualReturn != null) setAnnualReturn(preset.annualReturn);
   }, [preset]);
 
+  const [drafts, setDrafts] = useState({});
+
   const [scenarios, setScenarios] = useState([]);
   const [pinnedScenarios, setPinnedScenarios] = useState([]);
   const [scenarioName, setScenarioName] = useState('');
@@ -167,11 +169,11 @@ export default function Simulator({ preset }) {
 
   const controls = [
     { label: 'Current Age', id: 'age', value: age, set: setAge, min: 18, max: 80, step: 1, suffix: 'yrs' },
-    { label: 'Starting Capital', id: 'currentCapital', value: currentCapital, set: setCurrentCapital, min: 0, max: 500000, step: 1000, prefix: '$' },
-    { label: 'Monthly Investment', id: 'monthlyInvestment', value: monthlyInvestment, set: setMonthlyInvestment, min: 0, max: 10000, step: 100, prefix: '$' },
+    { label: 'Starting Capital', id: 'currentCapital', value: currentCapital, set: setCurrentCapital, min: 0, max: 500000, step: 1000, prefix: '$', format: true },
+    { label: 'Monthly Investment', id: 'monthlyInvestment', value: monthlyInvestment, set: setMonthlyInvestment, min: 0, max: 10000, step: 100, prefix: '$', format: true },
     { label: 'Annual Return', id: 'annualReturn', value: annualReturn, set: setAnnualReturn, min: 0, max: 15, step: 0.5, suffix: '%' },
     { label: 'Inflation Rate', id: 'inflation', value: inflation, set: setInflation, min: 0, max: 10, step: 0.5, suffix: '%' },
-    { label: 'Goal Amount', id: 'targetAmount', value: targetAmount, set: setTargetAmount, min: 10000, max: 5000000, step: 10000, prefix: '$' },
+    { label: 'Goal Amount', id: 'targetAmount', value: targetAmount, set: setTargetAmount, min: 10000, max: 5000000, step: 10000, prefix: '$', format: true },
   ];
 
   return (
@@ -213,29 +215,51 @@ export default function Simulator({ preset }) {
       <div className="controls">
         <h3 className="section-title">Parameters</h3>
         <div className="controls-grid">
-          {controls.map(({ label, id, value, set, min, max, step, prefix, suffix }) => (
+          {controls.map(({ label, id, value, set, min, max, step, prefix, suffix, format }) => (
             <div key={id} className="control">
               <div className="control-header">
                 <label htmlFor={`input-${id}`}>{label}</label>
                 <div className="control-input-wrap">
                   {prefix && <span className="control-affix">{prefix}</span>}
-                  <input
-                    id={`input-${id}`}
-                    type="number"
-                    className="control-number"
-                    value={value}
-                    min={min}
-                    max={max}
-                    step={step}
-                    onChange={e => {
-                      if (!isNaN(e.target.valueAsNumber)) set(e.target.valueAsNumber);
-                    }}
-                    onBlur={e => {
-                      const v = Math.min(max, Math.max(min, isNaN(e.target.valueAsNumber) ? min : e.target.valueAsNumber));
-                      set(v);
-                      track(label, v);
-                    }}
-                  />
+                  {format ? (
+                    <input
+                      id={`input-${id}`}
+                      type="text"
+                      inputMode="numeric"
+                      className="control-number"
+                      value={drafts[id] !== undefined ? drafts[id] : value.toLocaleString('en-US')}
+                      onChange={e => {
+                        const raw = e.target.value.replace(/[^0-9]/g, '');
+                        setDrafts(d => ({ ...d, [id]: e.target.value.replace(/[^0-9,]/g, '') }));
+                        const num = parseInt(raw, 10);
+                        if (!isNaN(num)) set(num);
+                      }}
+                      onBlur={() => {
+                        const v = Math.min(max, Math.max(min, value));
+                        set(v);
+                        setDrafts(d => { const nd = { ...d }; delete nd[id]; return nd; });
+                        track(label, v);
+                      }}
+                    />
+                  ) : (
+                    <input
+                      id={`input-${id}`}
+                      type="number"
+                      className="control-number"
+                      value={value}
+                      min={min}
+                      max={max}
+                      step={step}
+                      onChange={e => {
+                        if (!isNaN(e.target.valueAsNumber)) set(e.target.valueAsNumber);
+                      }}
+                      onBlur={e => {
+                        const v = Math.min(max, Math.max(min, isNaN(e.target.valueAsNumber) ? min : e.target.valueAsNumber));
+                        set(v);
+                        track(label, v);
+                      }}
+                    />
+                  )}
                   {suffix && <span className="control-affix">{suffix}</span>}
                 </div>
               </div>
