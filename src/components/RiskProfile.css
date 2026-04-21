@@ -106,7 +106,7 @@
 
 .rp-option {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
   width: 100%;
   background: var(--bg-primary);
@@ -117,6 +117,7 @@
   text-align: left;
   transition: border-color 0.15s, background 0.15s, transform 0.1s;
   color: var(--text-primary);
+  box-sizing: border-box;
 }
 
 .rp-option:hover:not(:disabled) {
@@ -138,6 +139,7 @@
 
 .rp-option-letter {
   min-width: 28px;
+  width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
@@ -148,6 +150,7 @@
   font-weight: 700;
   color: var(--text-secondary);
   flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .rp-option--selected .rp-option-letter {
@@ -158,6 +161,9 @@
 .rp-option-text {
   font-size: 0.95rem;
   line-height: 1.4;
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
 }
 
 /* Back button */
