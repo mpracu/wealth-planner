@@ -91,7 +91,7 @@ const PROFILES = {
       { name: 'Cash / Money Market', pct: 15, color: '#8b949e' },
     ],
     funds: [
-      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Global equity index, 1,600+ companies (MSCI World)' },
+      { name: 'Fidelity MSCI World Index Fund EUR P Acc', isin: 'IE00BYX5NX33', role: 'Global equity index across 23 developed markets, 25% equity sleeve' },
       { name: 'Fidelity Index Euro Government Bond Fund P Acc EUR', isin: 'IE00BYX5MZ82', role: 'Eurozone government bonds, core defensive holding' },
       { name: 'Vanguard Global Bond Index Fund EUR Hedged Acc', isin: 'IE00B18GC888', role: 'Global bonds, currency-hedged to EUR' },
     ],
@@ -110,9 +110,9 @@ const PROFILES = {
       { name: 'Emerging Markets', pct: 10, color: '#a855f7' },
     ],
     funds: [
-      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Core global equity index, 60% of portfolio (MSCI World)' },
+      { name: 'Fidelity MSCI World Index Fund EUR P Acc', isin: 'IE00BYX5NX33', role: 'Core global equity index across 23 developed markets, 60% of portfolio' },
       { name: 'Vanguard Global Bond Index Fund EUR Hedged Acc', isin: 'IE00B18GC888', role: 'Global bond index, hedged to EUR, 30% stabiliser' },
-      { name: 'Fidelity Index Emerging Markets Fund P Acc EUR', isin: 'IE00BYX5MW60', role: 'Emerging market index: China, India, Brazil and more' },
+      { name: 'iShares Emerging Markets Index Fund (IE) S Acc EUR', isin: 'IE000QAZP7L2', role: 'Emerging market equity index: China, India, Brazil and more' },
     ],
   },
   aggressive: {
@@ -129,9 +129,9 @@ const PROFILES = {
       { name: 'US Equities', pct: 10, color: '#f59e0b' },
     ],
     funds: [
-      { name: 'Fidelity Index World Fund P Acc EUR', isin: 'IE00BYX5MX67', role: 'Core global equity index, 70% of portfolio (MSCI World)' },
-      { name: 'Fidelity Index Emerging Markets Fund P Acc EUR', isin: 'IE00BYX5MW60', role: 'Higher-growth emerging market index, 20%' },
-      { name: 'Fidelity Index US Fund P Acc EUR', isin: 'IE00BYX5MX18', role: 'US equity index for additional growth tilt, 10%' },
+      { name: 'Fidelity MSCI World Index Fund EUR P Acc', isin: 'IE00BYX5NX33', role: 'Core global equity index across 23 developed markets, 70% of portfolio' },
+      { name: 'iShares Emerging Markets Index Fund (IE) S Acc EUR', isin: 'IE000QAZP7L2', role: 'Higher-growth emerging market equity index, 20%' },
+      { name: 'Fidelity S&P 500 Index Fund EUR P Acc', isin: 'IE00BYX5MX67', role: 'US large-cap equity index, additional growth tilt, 10%' },
     ],
   },
 };
