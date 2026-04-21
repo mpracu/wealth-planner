@@ -415,7 +415,7 @@ export default function NetWorth() {
           {netWorthChange !== null && (
             <div className={`nw-hero-badge ${netWorthChange >= 0 ? 'nw-hero-badge--up' : 'nw-hero-badge--down'}`}>
               <span>{netWorthChange >= 0 ? '▲' : '▼'}</span>
-              <span>{currency}{Math.abs(netWorthChange).toLocaleString('es-ES', {minimumFractionDigits: 2})}</span>
+              <span>{currency}{Math.abs(netWorthChange).toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
               {netWorthChangePct !== null && <span className="nw-hero-badge-pct">({netWorthChangePct >= 0 ? '+' : ''}{netWorthChangePct.toFixed(2)}%)</span>}
               <span className="nw-hero-badge-sub">since last snapshot</span>
             </div>
