@@ -8,7 +8,6 @@ import NetWorth from './components/NetWorth';
 import Blog from './components/Blog';
 import Landing from './components/Landing';
 import RiskProfile from './components/RiskProfile';
-import ShieldLogo from './components/ShieldLogo';
 import './aws-config';
 import './App.css';
 
@@ -65,10 +64,7 @@ function App() {
   return (
     <div className="app">
       <nav className="navbar">
-        <div className="navbar-brand" onClick={() => navigate('landing')}>
-          <ShieldLogo className="navbar-logo-icon" />
-          <span className="navbar-logo-text">Wealth Planner</span>
-        </div>
+        <h1 className="navbar-logo" onClick={() => navigate('landing')}>💰 Wealth Planner</h1>
         <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
