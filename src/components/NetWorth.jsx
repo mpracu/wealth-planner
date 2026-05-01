@@ -40,6 +40,7 @@ export default function NetWorth() {
   const [forecastYears, setForecastYears] = useState(10);
   const [forecastReturn, setForecastReturn] = useState(7);
   const [forecastInflation, setForecastInflation] = useState(2);
+  const [forecastDCAOverride, setForecastDCAOverride] = useState(null);
   const [themeColors, setThemeColors] = useState(getThemeColors());
 
   useEffect(() => {
@@ -361,9 +362,11 @@ export default function NetWorth() {
     }));
   }, [history]);
 
+  const monthlyDCA = recurringItems.reduce((s, r) => s + r.amount, 0);
+  const forecastDCA = forecastDCAOverride !== null ? forecastDCAOverride : monthlyDCA;
+
   const forecastData = useMemo(() => {
-    const monthlyRecurring = recurringItems.reduce((sum, r) => sum + r.amount, 0);
-    const annualRecurring = monthlyRecurring * 12;
+    const annualRecurring = forecastDCA * 12;
 
     let currentValue = netWorth;
     let currentNoDCA = netWorth;
@@ -382,14 +385,13 @@ export default function NetWorth() {
     }
 
     return data;
-  }, [netWorth, recurringItems, forecastYears, forecastReturn, forecastInflation]);
+  }, [netWorth, forecastDCA, forecastYears, forecastReturn, forecastInflation]);
 
   const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
   const lastSnapshot = history.length > 0 ? history[history.length - 1] : null;
   const netWorthChange = lastSnapshot ? netWorth - lastSnapshot.netWorth : null;
   const netWorthChangePct = lastSnapshot?.netWorth ? (netWorthChange / lastSnapshot.netWorth) * 100 : null;
-  const monthlyDCA = recurringItems.reduce((s, r) => s + r.amount, 0);
   const dcaBoost = (forecastData[forecastYears]?.nominal ?? 0) - (forecastData[forecastYears]?.noDCA ?? 0);
 
   const allocationData = useMemo(() => {
@@ -551,13 +553,24 @@ export default function NetWorth() {
                 <label className="nw-fc-label"><span>{t('nw.years')}</span><input type="number" min="1" max="50" value={forecastYears} onChange={e => setForecastYears(+e.target.value)} /></label>
                 <label className="nw-fc-label"><span>{t('nw.returnPct')}</span><input type="number" step="0.1" value={forecastReturn} onChange={e => setForecastReturn(+e.target.value)} /></label>
                 <label className="nw-fc-label"><span>{t('nw.inflPct')}</span><input type="number" step="0.1" value={forecastInflation} onChange={e => setForecastInflation(+e.target.value)} /></label>
+                <label className="nw-fc-label">
+                  <span>{t('nw.dcaPerMonth')}</span>
+                  <div className="nw-fc-dca-wrap">
+                    <input type="number" min="0" step="50" value={forecastDCA} onChange={e => setForecastDCAOverride(+e.target.value)} className="nw-fc-dca-input" />
+                    {forecastDCAOverride !== null && (
+                      <button className="nw-fc-reset-btn" onClick={() => setForecastDCAOverride(null)} title={t('nw.forecastResetDCA')}>↺</button>
+                    )}
+                  </div>
+                </label>
               </div>
             </div>
-            {monthlyDCA > 0 ? (
-              <div className="nw-forecast-dca-note nw-forecast-dca-note--active">
-                {t('nw.forecastIncludes').replace('{n}', `${currency}${monthlyDCA.toLocaleString('es-ES')}`)}
+            {forecastDCAOverride !== null && (
+              <div className="nw-forecast-dca-note nw-forecast-dca-note--scenario">
+                {t('nw.forecastScenario').replace('{n}', `${currency}${monthlyDCA.toLocaleString('es-ES')}`)}
+                <button className="nw-fc-reset-link" onClick={() => setForecastDCAOverride(null)}>{t('nw.forecastResetDCA')}</button>
               </div>
-            ) : (
+            )}
+            {forecastDCAOverride === null && monthlyDCA === 0 && (
               <div className="nw-forecast-dca-note nw-forecast-dca-note--empty">
                 {t('nw.forecastNoRecurring')}
               </div>
@@ -576,7 +589,7 @@ export default function NetWorth() {
                 <span>{t('nw.realAdj')}</span>
                 <strong>{currency}{forecastData[forecastYears]?.real.toLocaleString('es-ES')}</strong>
               </div>
-              {monthlyDCA > 0 && (
+              {forecastDCA > 0 && (
                 <>
                   <div className="nw-fc-sep" />
                   <div className="nw-fc-stat nw-fc-stat--boost">
@@ -594,7 +607,7 @@ export default function NetWorth() {
                 <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => `${currency}${v.toLocaleString('es-ES')}`} />
                 <Line type="monotone" dataKey="nominal" stroke="#6366f1" strokeWidth={2} name={t('sim.nominal')} dot={false} />
                 <Line type="monotone" dataKey="real" stroke="#10b981" strokeWidth={2} name={t('nw.realAdj')} dot={false} strokeDasharray="5 3" />
-                <Line type="monotone" dataKey="noDCA" stroke="#94a3b8" strokeWidth={1.5} name={t('nw.noDCA')} dot={false} strokeDasharray="3 3" hide={monthlyDCA === 0} />
+                <Line type="monotone" dataKey="noDCA" stroke="#94a3b8" strokeWidth={1.5} name={t('nw.noDCA')} dot={false} strokeDasharray="3 3" hide={forecastDCA === 0} />
                 <Legend iconType="plainline" wrapperStyle={{fontSize:'0.8rem', paddingTop:'8px'}} />
               </LineChart>
             </ResponsiveContainer>
