@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { post as apiPost, get as apiGet, put as apiPut, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { useLanguage } from '../LanguageContext';
 import './NetWorth.css';
 
 const getThemeColors = () => {
@@ -12,6 +13,7 @@ const getThemeColors = () => {
 };
 
 export default function NetWorth() {
+  const { t } = useLanguage();
   const formRef = useRef(null);
   const [items, setItems] = useState([]);
   const [recurringItems, setRecurringItems] = useState([]);
@@ -235,12 +237,12 @@ export default function NetWorth() {
       if (result.errors?.length) console.warn('Refresh errors:', result.errors);
       await loadItems();
       const msg = result.updated > 0
-        ? `Updated ${result.updated} of ${result.total} holding${result.total !== 1 ? 's' : ''}`
-        : `No holdings updated (${result.total} with ISIN found${result.errors?.length ? `, ${result.errors.length} error(s). Check console` : ''})`;
+        ? `${t('nw.refresh')}: ${result.updated}/${result.total}`
+        : `${t('nw.tracked')}: ${result.total} ISINs${result.errors?.length ? ` (${result.errors.length} errores)` : ''}`;
       alert(msg);
     } catch (err) {
       console.error('Error refreshing prices:', err);
-      alert('Refresh failed. Check console for details.');
+      alert(t('nw.refreshFailed'));
     } finally {
       setRefreshing(false);
     }
@@ -311,10 +313,10 @@ export default function NetWorth() {
       }
       
       loadItems();
-      alert('Import successful!');
+      alert(t('nw.importOk'));
     } catch (err) {
       console.error('Error importing:', err);
-      alert('Import failed. Check console for details.');
+      alert(t('nw.importFail'));
     }
     
     e.target.value = '';
@@ -407,7 +409,7 @@ export default function NetWorth() {
       <div className="nw-hero">
         <div className="nw-hero-glow" />
         <div className="nw-hero-left">
-          <p className="nw-hero-label">Total Net Worth</p>
+          <p className="nw-hero-label">{t('nw.totalNW')}</p>
           <h1 className="nw-hero-amount">
             <span className="nw-hero-currency">{currency}</span>
             {Math.abs(netWorth).toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
@@ -417,16 +419,16 @@ export default function NetWorth() {
               <span>{netWorthChange >= 0 ? '▲' : '▼'}</span>
               <span>{currency}{Math.abs(netWorthChange).toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
               {netWorthChangePct !== null && <span className="nw-hero-badge-pct">({netWorthChangePct >= 0 ? '+' : ''}{netWorthChangePct.toFixed(2)}%)</span>}
-              <span className="nw-hero-badge-sub">since last snapshot</span>
+              <span className="nw-hero-badge-sub">{t('nw.sinceSnapshot')}</span>
             </div>
           )}
         </div>
         <div className="nw-hero-actions">
           <button className="nw-btn nw-btn--primary" onClick={refreshPrices} disabled={refreshing}>
-            {refreshing ? '↻ Updating…' : '↻ Refresh'}
+            {refreshing ? t('nw.updating') : t('nw.refresh')}
           </button>
-          <button className="nw-btn" onClick={exportToCSV}>↓ Export</button>
-          <label className="nw-btn">↑ Import<input type="file" accept=".csv" onChange={importFromCSV} style={{display:'none'}} /></label>
+          <button className="nw-btn" onClick={exportToCSV}>{t('nw.export')}</button>
+          <label className="nw-btn">{t('nw.import')}<input type="file" accept=".csv" onChange={importFromCSV} style={{display:'none'}} /></label>
           <select value={currency} onChange={e => setCurrency(e.target.value)} className="nw-currency-select">
             <option value="€">€ EUR</option>
             <option value="$">$ USD</option>
@@ -438,22 +440,22 @@ export default function NetWorth() {
       {/* ── Stats bar ────────────────────────────────────── */}
       <div className="nw-stats-bar">
         <div className="nw-stat">
-          <span className="nw-stat-label">Assets</span>
+          <span className="nw-stat-label">{t('nw.assets')}</span>
           <span className="nw-stat-value nw-stat-value--up">{currency}{totalAssets.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
         </div>
         <div className="nw-stat-sep" />
         <div className="nw-stat">
-          <span className="nw-stat-label">Liabilities</span>
+          <span className="nw-stat-label">{t('nw.liabilities')}</span>
           <span className="nw-stat-value nw-stat-value--down">{currency}{totalLiabilities.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
         </div>
         <div className="nw-stat-sep" />
         <div className="nw-stat">
-          <span className="nw-stat-label">Monthly DCA</span>
-          <span className="nw-stat-value">{currency}{monthlyDCA.toLocaleString('es-ES', {maximumFractionDigits: 0})}<span className="nw-stat-sub">/mo</span></span>
+          <span className="nw-stat-label">{t('nw.monthlyDCA')}</span>
+          <span className="nw-stat-value">{currency}{monthlyDCA.toLocaleString('es-ES', {maximumFractionDigits: 0})}<span className="nw-stat-sub">{t('nw.perMo')}</span></span>
         </div>
         <div className="nw-stat-sep" />
         <div className="nw-stat">
-          <span className="nw-stat-label">Tracked Holdings</span>
+          <span className="nw-stat-label">{t('nw.tracked')}</span>
           <span className="nw-stat-value">{items.filter(i => i.isin).length}<span className="nw-stat-sub"> ISINs</span></span>
         </div>
       </div>
@@ -461,10 +463,10 @@ export default function NetWorth() {
       {/* ── Pill tabs ────────────────────────────────────── */}
       <div className="nw-tabs">
         {[
-          { id: 'overview',  label: 'Overview'  },
-          { id: 'assets',    label: 'Holdings'  },
-          { id: 'recurring', label: 'Recurring' },
-          { id: 'history',   label: 'History'   },
+          { id: 'overview',  label: t('nw.tab.overview')  },
+          { id: 'assets',    label: t('nw.tab.holdings')  },
+          { id: 'recurring', label: t('nw.tab.recurring') },
+          { id: 'history',   label: t('nw.tab.history')   },
         ].map(({ id, label }) => (
           <button key={id} className={`nw-tab ${activeTab === id ? 'nw-tab--active' : ''}`} onClick={() => setActiveTab(id)}>
             {label}
@@ -478,7 +480,7 @@ export default function NetWorth() {
           <div className="nw-charts-grid">
             {chartData.length > 0 && (
               <div className="nw-card">
-                <div className="nw-card-header"><h3>Net Worth History</h3></div>
+                <div className="nw-card-header"><h3>{t('nw.nwHistory')}</h3></div>
                 <ResponsiveContainer width="100%" height={260}>
                   <LineChart data={chartData} margin={{top:8,right:8,left:0,bottom:0}}>
                     <defs>
@@ -490,7 +492,7 @@ export default function NetWorth() {
                     <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
                     <XAxis dataKey="date" stroke={themeColors.axis} tick={{fontSize:11}} />
                     <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={56} />
-                    <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => [`${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`, 'Net Worth']} />
+                    <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => [`${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`, t('nw.netWorth')]} />
                     <Line type="monotone" dataKey="netWorth" stroke="#10b981" strokeWidth={2.5} dot={false} activeDot={{r:4, fill:'#10b981'}} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -499,7 +501,7 @@ export default function NetWorth() {
 
             {allocationData.length > 0 && (
               <div className="nw-card">
-                <div className="nw-card-header"><h3>Allocation</h3></div>
+                <div className="nw-card-header"><h3>{t('nw.allocation')}</h3></div>
                 <ResponsiveContainer width="100%" height={260}>
                   <PieChart>
                     <Pie data={allocationData} cx="50%" cy="50%" innerRadius={55} outerRadius={95} paddingAngle={3} dataKey="value">
@@ -516,7 +518,7 @@ export default function NetWorth() {
           {/* Allocation bars */}
           {allocationData.length > 0 && (
             <div className="nw-card" style={{marginBottom:'1.25rem'}}>
-              <div className="nw-card-header"><h3>Portfolio Breakdown</h3><span className="nw-card-sub">{items.filter(i=>i.type==='asset').length} assets · {currency}{totalAssets.toLocaleString('es-ES',{maximumFractionDigits:0})}</span></div>
+              <div className="nw-card-header"><h3>{t('nw.breakdown')}</h3><span className="nw-card-sub">{items.filter(i=>i.type==='asset').length} {t('nw.assets_word')} · {currency}{totalAssets.toLocaleString('es-ES',{maximumFractionDigits:0})}</span></div>
               <div className="nw-alloc-list">
                 {allocationData.map((cat, i) => (
                   <div key={cat.name} className="nw-alloc-row">
@@ -540,36 +542,36 @@ export default function NetWorth() {
           {/* Forecast */}
           <div className="nw-card">
             <div className="nw-card-header">
-              <h3>Wealth Forecast</h3>
+              <h3>{t('nw.forecast')}</h3>
               <div className="nw-forecast-controls">
-                <label className="nw-fc-label"><span>Years</span><input type="number" min="1" max="50" value={forecastYears} onChange={e => setForecastYears(+e.target.value)} /></label>
-                <label className="nw-fc-label"><span>Return %</span><input type="number" step="0.1" value={forecastReturn} onChange={e => setForecastReturn(+e.target.value)} /></label>
-                <label className="nw-fc-label"><span>Inflation %</span><input type="number" step="0.1" value={forecastInflation} onChange={e => setForecastInflation(+e.target.value)} /></label>
+                <label className="nw-fc-label"><span>{t('nw.years')}</span><input type="number" min="1" max="50" value={forecastYears} onChange={e => setForecastYears(+e.target.value)} /></label>
+                <label className="nw-fc-label"><span>{t('nw.returnPct')}</span><input type="number" step="0.1" value={forecastReturn} onChange={e => setForecastReturn(+e.target.value)} /></label>
+                <label className="nw-fc-label"><span>{t('nw.inflPct')}</span><input type="number" step="0.1" value={forecastInflation} onChange={e => setForecastInflation(+e.target.value)} /></label>
               </div>
             </div>
             <div className="nw-forecast-summary">
               <div className="nw-fc-stat">
-                <span>Today</span>
+                <span>{t('nw.today')}</span>
                 <strong>{currency}{netWorth.toLocaleString('es-ES',{maximumFractionDigits:0})}</strong>
               </div>
               <div className="nw-fc-arrow">→</div>
               <div className="nw-fc-stat nw-fc-stat--highlight">
-                <span>In {forecastYears} years (nominal)</span>
+                <span>{t('nw.inYears').replace('{n}', forecastYears)}</span>
                 <strong>{currency}{forecastData[forecastYears]?.nominal.toLocaleString('es-ES')}</strong>
               </div>
               <div className="nw-fc-stat">
-                <span>Real (inflation-adj.)</span>
+                <span>{t('nw.realAdj')}</span>
                 <strong>{currency}{forecastData[forecastYears]?.real.toLocaleString('es-ES')}</strong>
               </div>
             </div>
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={forecastData} margin={{top:8,right:8,left:0,bottom:8}}>
                 <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
-                <XAxis dataKey="year" stroke={themeColors.axis} tick={{fontSize:11}} label={{value:'Years from now', position:'insideBottom', offset:-4, fill:themeColors.axis, fontSize:11}} />
+                <XAxis dataKey="year" stroke={themeColors.axis} tick={{fontSize:11}} label={{value:t('nw.yearsFromNow'), position:'insideBottom', offset:-4, fill:themeColors.axis, fontSize:11}} />
                 <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={56} />
                 <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => `${currency}${v.toLocaleString('es-ES')}`} />
-                <Line type="monotone" dataKey="nominal" stroke="#6366f1" strokeWidth={2} name="Nominal" dot={false} />
-                <Line type="monotone" dataKey="real" stroke="#10b981" strokeWidth={2} name="Real" dot={false} strokeDasharray="5 3" />
+                <Line type="monotone" dataKey="nominal" stroke="#6366f1" strokeWidth={2} name={t('sim.nominal')} dot={false} />
+                <Line type="monotone" dataKey="real" stroke="#10b981" strokeWidth={2} name={t('nw.realAdj')} dot={false} strokeDasharray="5 3" />
                 <Legend iconType="plainline" wrapperStyle={{fontSize:'0.8rem', paddingTop:'8px'}} />
               </LineChart>
             </ResponsiveContainer>
@@ -581,34 +583,34 @@ export default function NetWorth() {
         <>
           <div className="nw-tab-toolbar">
             <div className="nw-tab-toolbar-left">
-              <h2>Holdings</h2>
-              <a href="/networth-template.csv" download className="nw-template-link">↓ CSV template</a>
+              <h2>{t('nw.tab.holdings')}</h2>
+              <a href="/networth-template.csv" download className="nw-template-link">{t('nw.csvTemplate')}</a>
             </div>
             <button className="nw-btn nw-btn--primary" onClick={() => { setShowForm(!showForm); setEditingId(null); }}>
-              + Add Item
+              {t('nw.addItem')}
             </button>
           </div>
 
       {showForm && !editingId && (
         <div className="item-form" ref={formRef}>
-          <h3>New Item</h3>
+          <h3>{t('nw.newItem')}</h3>
           <form onSubmit={saveItem}>
             <div className="form-grid">
               <label className="form-field form-field--wide">
-                <span>Name</span>
-                <input placeholder="e.g., Savings Account, Fidelity S&P 500" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                <span>{t('nw.name')}</span>
+                <input placeholder={t('nw.namePh')} value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
               </label>
 
               <label className="form-field">
-                <span>Type</span>
+                <span>{t('nw.type')}</span>
                 <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
-                  <option value="asset">Asset</option>
-                  <option value="liability">Liability</option>
+                  <option value="asset">{t('nw.asset')}</option>
+                  <option value="liability">{t('nw.liability')}</option>
                 </select>
               </label>
 
               <label className="form-field">
-                <span>Value ({currency}){formData.shares && formData.pricePerShare ? <span className="field-hint"> (auto-calculated)</span> : ''}</span>
+                <span>{t('nw.value')} ({currency}){formData.shares && formData.pricePerShare ? <span className="field-hint"> {t('nw.autoCalc')}</span> : ''}</span>
                 <input
                   type="number" step="0.01" placeholder="0.00"
                   value={formData.shares && formData.pricePerShare
@@ -621,30 +623,30 @@ export default function NetWorth() {
               </label>
 
               <label className="form-field form-field--wide">
-                <span>Tags <span className="field-hint">(optional, comma separated)</span></span>
-                <input placeholder="e.g., Stocks, Real Estate, Index Fund" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+                <span>{t('nw.tags')} <span className="field-hint">{t('nw.tagsHint')}</span></span>
+                <input placeholder={t('nw.tagsPh')} value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
               </label>
 
               {formData.type === 'asset' && (
                 <>
                   <label className="form-field">
-                    <span>ISIN <span className="field-hint">(optional)</span></span>
-                    <input placeholder="e.g., IE00BYX5MX67" value={formData.isin || ''} onChange={e => setFormData({...formData, isin: e.target.value.toUpperCase()})} maxLength={12} />
+                    <span>{t('nw.isin')} <span className="field-hint">{t('nw.optional')}</span></span>
+                    <input placeholder={t('nw.isinPh')} value={formData.isin || ''} onChange={e => setFormData({...formData, isin: e.target.value.toUpperCase()})} maxLength={12} />
                   </label>
                   <label className="form-field">
-                    <span>Shares / Units <span className="field-hint">(optional)</span></span>
-                    <input type="number" step="0.001" placeholder="e.g., 1000" value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} />
+                    <span>{t('nw.shares')} <span className="field-hint">{t('nw.optional')}</span></span>
+                    <input type="number" step="0.001" placeholder={t('nw.sharesPh')} value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} />
                   </label>
                   <label className="form-field">
-                    <span>Price per Share <span className="field-hint">(optional)</span></span>
-                    <input type="number" step="0.01" placeholder="e.g., 14.49" value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
+                    <span>{t('nw.pricePerShare')} <span className="field-hint">{t('nw.optional')}</span></span>
+                    <input type="number" step="0.01" placeholder={t('nw.pricePh')} value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
                   </label>
                 </>
               )}
             </div>
             <div className="form-actions">
-              <button type="submit">💾 Save</button>
-              <button type="button" onClick={resetForm}>Cancel</button>
+              <button type="submit">{t('nw.saveBtn')}</button>
+              <button type="button" onClick={resetForm}>{t('nw.cancel')}</button>
             </div>
           </form>
         </div>
@@ -652,21 +654,21 @@ export default function NetWorth() {
 
       {showRecurringForm && (
         <div className="item-form">
-          <h3>Recurring Monthly Investment</h3>
+          <h3>{t('nw.recurringTitle')}</h3>
           <form onSubmit={saveRecurringItem}>
             <select value={recurringFormData.assetName} onChange={e => setRecurringFormData({...recurringFormData, assetName: e.target.value})} required>
-              <option value="">Select existing asset...</option>
+              <option value="">{t('nw.selectAsset')}</option>
               {assetNames.map(name => (
                 <option key={name} value={name}>{name}</option>
               ))}
             </select>
-            <input type="number" placeholder="Amount" value={recurringFormData.amount} onChange={e => setRecurringFormData({...recurringFormData, amount: +e.target.value})} required />
-            <input type="number" min="1" max="28" placeholder="Day of month (1-28)" value={recurringFormData.dayOfMonth} onChange={e => setRecurringFormData({...recurringFormData, dayOfMonth: +e.target.value})} required />
-            <input placeholder="Tags (comma separated)" value={recurringFormData.tags} onChange={e => setRecurringFormData({...recurringFormData, tags: e.target.value})} />
-            
+            <input type="number" placeholder={t('nw.amount')} value={recurringFormData.amount} onChange={e => setRecurringFormData({...recurringFormData, amount: +e.target.value})} required />
+            <input type="number" min="1" max="28" placeholder={t('nw.dayOfMonthPh')} value={recurringFormData.dayOfMonth} onChange={e => setRecurringFormData({...recurringFormData, dayOfMonth: +e.target.value})} required />
+            <input placeholder={t('nw.tagsPh2')} value={recurringFormData.tags} onChange={e => setRecurringFormData({...recurringFormData, tags: e.target.value})} />
+
             <div className="form-actions">
-              <button type="submit">💾 Save</button>
-              <button type="button" onClick={resetRecurringForm}>Cancel</button>
+              <button type="submit">{t('nw.saveBtn')}</button>
+              <button type="button" onClick={resetRecurringForm}>{t('nw.cancel')}</button>
             </div>
           </form>
         </div>
@@ -674,11 +676,11 @@ export default function NetWorth() {
 
       <div className="items-list">
         <div className="items-section-header">
-          <h3>Assets</h3>
-          <span className="items-count">{items.filter(i => i.type === 'asset').length} items · {currency}{totalAssets.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
+          <h3>{t('nw.assetsSection')}</h3>
+          <span className="items-count">{items.filter(i => i.type === 'asset').length} {t('nw.items')} · {currency}{totalAssets.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
         </div>
         {items.filter(i => i.type === 'asset').length === 0 && (
-          <div className="empty-state-small">No assets yet. Click "Add Item" to get started.</div>
+          <div className="empty-state-small">{t('nw.noAssets')}</div>
         )}
         {items.filter(i => i.type === 'asset').sort((a,b) => b.value - a.value).map(item => (
           <React.Fragment key={item.itemId}>
@@ -704,22 +706,22 @@ export default function NetWorth() {
 
             {showForm && editingId === item.itemId && (
               <div className="item-form" ref={formRef}>
-                <h3>Edit: {item.name}</h3>
+                <h3>{t('nw.editPrefix')}{item.name}</h3>
                 <form onSubmit={saveItem}>
                   <div className="form-grid">
                     <label className="form-field form-field--wide">
-                      <span>Name</span>
+                      <span>{t('nw.name')}</span>
                       <input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
                     </label>
                     <label className="form-field">
-                      <span>Type</span>
+                      <span>{t('nw.type')}</span>
                       <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
-                        <option value="asset">Asset</option>
-                        <option value="liability">Liability</option>
+                        <option value="asset">{t('nw.asset')}</option>
+                        <option value="liability">{t('nw.liability')}</option>
                       </select>
                     </label>
                     <label className="form-field">
-                      <span>Value ({currency}){formData.shares && formData.pricePerShare ? <span className="field-hint"> (auto-calculated)</span> : ''}</span>
+                      <span>{t('nw.value')} ({currency}){formData.shares && formData.pricePerShare ? <span className="field-hint"> {t('nw.autoCalc')}</span> : ''}</span>
                       <input
                         type="number" step="0.01"
                         value={formData.shares && formData.pricePerShare
@@ -731,29 +733,29 @@ export default function NetWorth() {
                       />
                     </label>
                     <label className="form-field form-field--wide">
-                      <span>Tags <span className="field-hint">(optional)</span></span>
-                      <input placeholder="e.g., Stocks, Index Fund" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+                      <span>{t('nw.tags')} <span className="field-hint">{t('nw.optional')}</span></span>
+                      <input placeholder={t('nw.tagsEditPh')} value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
                     </label>
                     {formData.type === 'asset' && (
                       <>
                         <label className="form-field">
-                          <span>ISIN <span className="field-hint">(optional)</span></span>
-                          <input placeholder="e.g., IE00BYX5MX67" value={formData.isin || ''} onChange={e => setFormData({...formData, isin: e.target.value.toUpperCase()})} maxLength={12} />
+                          <span>{t('nw.isin')} <span className="field-hint">{t('nw.optional')}</span></span>
+                          <input placeholder={t('nw.isinPh')} value={formData.isin || ''} onChange={e => setFormData({...formData, isin: e.target.value.toUpperCase()})} maxLength={12} />
                         </label>
                         <label className="form-field">
-                          <span>Shares / Units</span>
-                          <input type="number" step="0.001" placeholder="e.g., 1000" value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} />
+                          <span>{t('nw.shares')}</span>
+                          <input type="number" step="0.001" placeholder={t('nw.sharesPh')} value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} />
                         </label>
                         <label className="form-field">
-                          <span>Price per Share</span>
-                          <input type="number" step="0.0001" placeholder="e.g., 14.49" value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
+                          <span>{t('nw.pricePerShare')}</span>
+                          <input type="number" step="0.0001" placeholder={t('nw.pricePh')} value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
                         </label>
                       </>
                     )}
                   </div>
                   <div className="form-actions">
-                    <button type="submit">💾 Save</button>
-                    <button type="button" onClick={resetForm}>Cancel</button>
+                    <button type="submit">{t('nw.saveBtn')}</button>
+                    <button type="button" onClick={resetForm}>{t('nw.cancel')}</button>
                   </div>
                 </form>
               </div>
@@ -762,11 +764,11 @@ export default function NetWorth() {
         ))}
 
         <div className="items-section-header" style={{marginTop: '1.5rem'}}>
-          <h3>Liabilities</h3>
-          <span className="items-count">{items.filter(i => i.type === 'liability').length} items · {currency}{totalLiabilities.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
+          <h3>{t('nw.liabSection')}</h3>
+          <span className="items-count">{items.filter(i => i.type === 'liability').length} {t('nw.items')} · {currency}{totalLiabilities.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
         </div>
         {items.filter(i => i.type === 'liability').length === 0 && (
-          <div className="empty-state-small">No liabilities.</div>
+          <div className="empty-state-small">{t('nw.noLiab')}</div>
         )}
         {items.filter(i => i.type === 'liability').sort((a,b) => b.value - a.value).map(item => (
           <React.Fragment key={item.itemId}>
@@ -789,25 +791,25 @@ export default function NetWorth() {
             </div>
             {showForm && editingId === item.itemId && (
               <div className="item-form" ref={formRef}>
-                <h3>Edit: {item.name}</h3>
+                <h3>{t('nw.editPrefix')}{item.name}</h3>
                 <form onSubmit={saveItem}>
                   <div className="form-grid">
                     <label className="form-field form-field--wide">
-                      <span>Name</span>
+                      <span>{t('nw.name')}</span>
                       <input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
                     </label>
                     <label className="form-field">
-                      <span>Value ({currency})</span>
+                      <span>{t('nw.value')} ({currency})</span>
                       <input type="number" step="0.01" value={formData.value} onChange={e => setFormData({...formData, value: +e.target.value})} required />
                     </label>
                     <label className="form-field form-field--wide">
-                      <span>Tags <span className="field-hint">(optional)</span></span>
-                      <input placeholder="e.g., Mortgage, Car Loan" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+                      <span>{t('nw.tags')} <span className="field-hint">{t('nw.optional')}</span></span>
+                      <input placeholder={t('nw.mortgagePh')} value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
                     </label>
                   </div>
                   <div className="form-actions">
-                    <button type="submit">💾 Save</button>
-                    <button type="button" onClick={resetForm}>Cancel</button>
+                    <button type="submit">{t('nw.saveBtn')}</button>
+                    <button type="button" onClick={resetForm}>{t('nw.cancel')}</button>
                   </div>
                 </form>
               </div>
@@ -821,33 +823,33 @@ export default function NetWorth() {
       {activeTab === 'recurring' && (
         <>
           <div className="nw-tab-toolbar">
-            <div className="nw-tab-toolbar-left"><h2>Recurring Investments</h2></div>
-            <button className="nw-btn nw-btn--primary" onClick={() => { resetRecurringForm(); setShowRecurringForm(s => !s); }}>+ Add Recurring</button>
+            <div className="nw-tab-toolbar-left"><h2>{t('nw.recurringInv')}</h2></div>
+            <button className="nw-btn nw-btn--primary" onClick={() => { resetRecurringForm(); setShowRecurringForm(s => !s); }}>{t('nw.addRecurring')}</button>
           </div>
 
           {showRecurringForm && (
             <div className="item-form">
-              <h3>{editingRecurringId ? 'Edit Recurring Investment' : 'New Recurring Investment'}</h3>
+              <h3>{editingRecurringId ? t('nw.editRecurring') : t('nw.newRecurring')}</h3>
               <form onSubmit={saveRecurringItem}>
                 <div className="form-grid">
                   <label className="form-field form-field--wide">
-                    <span>Linked Asset</span>
+                    <span>{t('nw.linkedAsset')}</span>
                     <select
                       value={recurringFormData.assetName}
                       onChange={e => setRecurringFormData({...recurringFormData, assetName: e.target.value})}
                       required
                     >
-                      <option value="">Select an asset…</option>
+                      <option value="">{t('nw.selectAnAsset')}</option>
                       {assetNames.map(name => <option key={name} value={name}>{name}</option>)}
-                      <option value="__custom">+ Custom name…</option>
+                      <option value="__custom">{t('nw.customName')}</option>
                     </select>
                   </label>
 
                   {recurringFormData.assetName === '__custom' && (
                     <label className="form-field form-field--wide">
-                      <span>Custom Asset Name</span>
+                      <span>{t('nw.customAssetName')}</span>
                       <input
-                        placeholder="e.g., Bitcoin, Pension Fund"
+                        placeholder={t('nw.customPh')}
                         onChange={e => setRecurringFormData({...recurringFormData, assetName: e.target.value})}
                         autoFocus
                       />
@@ -855,24 +857,24 @@ export default function NetWorth() {
                   )}
 
                   <label className="form-field">
-                    <span>Monthly Amount ({currency})</span>
+                    <span>{t('nw.monthlyAmt')} ({currency})</span>
                     <input type="number" step="0.01" placeholder="0.00" value={recurringFormData.amount || ''} onChange={e => setRecurringFormData({...recurringFormData, amount: +e.target.value})} required />
                   </label>
 
                   <label className="form-field">
-                    <span>Day of Month <span className="field-hint">(1–28)</span></span>
+                    <span>{t('nw.dayOfMonth')} <span className="field-hint">{t('nw.dayHint')}</span></span>
                     <input type="number" min="1" max="28" value={recurringFormData.dayOfMonth} onChange={e => setRecurringFormData({...recurringFormData, dayOfMonth: +e.target.value})} required />
                   </label>
 
                   <label className="form-field form-field--wide">
-                    <span>Tags <span className="field-hint">(optional)</span></span>
-                    <input placeholder="e.g., Stocks, Retirement" value={recurringFormData.tags} onChange={e => setRecurringFormData({...recurringFormData, tags: e.target.value})} />
+                    <span>{t('nw.tags')} <span className="field-hint">{t('nw.optional')}</span></span>
+                    <input placeholder={t('nw.stocksPh')} value={recurringFormData.tags} onChange={e => setRecurringFormData({...recurringFormData, tags: e.target.value})} />
                   </label>
                 </div>
 
                 <div className="form-actions">
-                  <button type="submit">💾 {editingRecurringId ? 'Update' : 'Save'}</button>
-                  <button type="button" onClick={resetRecurringForm}>Cancel</button>
+                  <button type="submit">{editingRecurringId ? t('nw.update') : t('nw.saveBtn')}</button>
+                  <button type="button" onClick={resetRecurringForm}>{t('nw.cancel')}</button>
                 </div>
               </form>
             </div>
@@ -880,19 +882,19 @@ export default function NetWorth() {
 
           <div className="items-list">
             {recurringItems.length === 0 && (
-              <div className="empty-state-small">No recurring investments set up yet.</div>
+              <div className="empty-state-small">{t('nw.noRecurring')}</div>
             )}
             {recurringItems.map(item => (
               <div key={item.itemId} className="item-row">
                 <div className="item-row-info">
                   <div className="item-row-name">{item.assetName}</div>
                   <div className="item-row-sub">
-                    <span className="tag">day {item.dayOfMonth} of month</span>
-                    {item.tags && item.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => <span key={t} className="tag">{t}</span>)}
+                    <span className="tag">{t('nw.dayTag')} {item.dayOfMonth} {t('nw.ofMonth')}</span>
+                    {item.tags && item.tags.split(',').map(tag => tag.trim()).filter(Boolean).map(tag => <span key={tag} className="tag">{tag}</span>)}
                   </div>
                 </div>
                 <div className="item-row-right">
-                  <span className="item-row-value">{currency}{item.amount.toLocaleString('es-ES', {minimumFractionDigits: 2})}<span className="item-row-sub-value">/mo</span></span>
+                  <span className="item-row-value">{currency}{item.amount.toLocaleString('es-ES', {minimumFractionDigits: 2})}<span className="item-row-sub-value">{t('nw.perMo')}</span></span>
                   <div className="item-actions">
                     <button className="btn-icon" onClick={() => { editRecurringItem(item); setShowRecurringForm(true); }} title="Edit">✏️</button>
                     <button className="btn-icon btn-icon--danger" onClick={() => deleteRecurringItem(item.itemId)} title="Delete">🗑️</button>
@@ -902,7 +904,7 @@ export default function NetWorth() {
             ))}
             {recurringItems.length > 0 && (
               <div className="recurring-total">
-                Total monthly: <strong>{currency}{recurringItems.reduce((s,r) => s + r.amount, 0).toLocaleString('es-ES', {minimumFractionDigits: 2})}</strong>
+                {t('nw.totalMonthly')}<strong>{currency}{recurringItems.reduce((s,r) => s + r.amount, 0).toLocaleString('es-ES', {minimumFractionDigits: 2})}</strong>
               </div>
             )}
           </div>
@@ -912,11 +914,11 @@ export default function NetWorth() {
       {activeTab === 'history' && (
         <>
           <div className="nw-tab-toolbar">
-            <div className="nw-tab-toolbar-left"><h2>Net Worth History</h2></div>
+            <div className="nw-tab-toolbar-left"><h2>{t('nw.historyTab')}</h2></div>
           </div>
           {history.length === 0 ? (
             <div className="nw-empty">
-              <p>No history yet. Snapshots are taken automatically each day.</p>
+              <p>{t('nw.noHistory')}</p>
             </div>
           ) : (
             <div className="nw-card">
@@ -931,7 +933,7 @@ export default function NetWorth() {
                   <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
                   <XAxis dataKey="date" stroke={themeColors.axis} tick={{fontSize:11}} />
                   <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={60} />
-                  <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text}} formatter={v => [`${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`, 'Net Worth']} />
+                  <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text}} formatter={v => [`${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`, t('nw.netWorth')]} />
                   <Line type="monotone" dataKey="netWorth" stroke="#6366f1" strokeWidth={2.5} dot={false} activeDot={{r:5, fill:'#6366f1'}} />
                 </LineChart>
               </ResponsiveContainer>

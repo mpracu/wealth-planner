@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { signIn, signUp, confirmSignUp, signInWithRedirect, resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 import ShieldLogo from './ShieldLogo';
+import { useLanguage } from '../LanguageContext';
 import './Auth.css';
 
 export default function Auth({ onAuthSuccess }) {
+  const { t } = useLanguage();
   const [mode, setMode] = useState('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,8 +17,8 @@ export default function Auth({ onAuthSuccess }) {
   const handleGoogleSignIn = async () => {
     try {
       await signInWithRedirect({ provider: 'Google' });
-    } catch (err) {
-      setError('Google sign-in not configured yet. Use email/password for now.');
+    } catch {
+      setError(t('auth.googleError'));
     }
   };
 
@@ -67,7 +69,7 @@ export default function Auth({ onAuthSuccess }) {
     setMessage('');
     try {
       await resetPassword({ username: email });
-      setMessage('Reset code sent to your email!');
+      setMessage(t('auth.resetSent'));
       setMode('resetconfirm');
     } catch (err) {
       setError(err.message);
@@ -81,7 +83,7 @@ export default function Auth({ onAuthSuccess }) {
     setError('');
     try {
       await confirmResetPassword({ username: email, confirmationCode: code, newPassword: password });
-      setMessage('Password reset successful! Please sign in.');
+      setMessage(t('auth.resetSuccess'));
       setMode('signin');
       setCode('');
       setPassword('');
@@ -97,80 +99,80 @@ export default function Auth({ onAuthSuccess }) {
         <div className="auth-header">
           <ShieldLogo className="auth-logo" />
           <h1>Wealth Planner</h1>
-          <p className="tagline">Track your net worth, plan your future</p>
+          <p className="tagline">{t('auth.tagline')}</p>
         </div>
-        
+
         {mode === 'signin' && (
           <form onSubmit={handleSignIn}>
-            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-            <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+            <input type="email" placeholder={t('auth.email')} value={email} onChange={e => setEmail(e.target.value)} required />
+            <input type="password" placeholder={t('auth.password')} value={password} onChange={e => setPassword(e.target.value)} required />
             {error && <div className="error">{error}</div>}
             {message && <div className="success">{message}</div>}
             <button type="submit" disabled={loading} className="primary-btn">
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? t('auth.signingIn') : t('auth.signIn')}
             </button>
             <p className="switch-mode">
-              <a onClick={() => setMode('forgot')}>Forgot Password?</a>
+              <a onClick={() => setMode('forgot')}>{t('auth.forgot')}</a>
             </p>
             <p className="switch-mode">
-              Don't have an account? <a onClick={() => setMode('signup')}>Sign Up</a>
+              {t('auth.noAccount')} <a onClick={() => setMode('signup')}>{t('auth.signUp')}</a>
             </p>
           </form>
         )}
 
         {mode === 'forgot' && (
           <form onSubmit={handleForgotPassword}>
-            <h2>Reset Password</h2>
-            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
+            <h2>{t('auth.reset.title')}</h2>
+            <input type="email" placeholder={t('auth.email')} value={email} onChange={e => setEmail(e.target.value)} required />
             {error && <div className="error">{error}</div>}
             {message && <div className="success">{message}</div>}
             <button type="submit" disabled={loading} className="primary-btn">
-              {loading ? 'Sending...' : 'Send Reset Code'}
+              {loading ? t('auth.sending') : t('auth.sendCode')}
             </button>
             <p className="switch-mode">
-              <a onClick={() => setMode('signin')}>Back to Sign In</a>
+              <a onClick={() => setMode('signin')}>{t('auth.backSignIn')}</a>
             </p>
           </form>
         )}
 
         {mode === 'resetconfirm' && (
           <form onSubmit={handleResetConfirm}>
-            <h2>Enter Reset Code</h2>
-            <input type="text" placeholder="Reset Code" value={code} onChange={e => setCode(e.target.value)} required />
-            <input type="password" placeholder="New Password" value={password} onChange={e => setPassword(e.target.value)} required />
+            <h2>{t('auth.enterCode')}</h2>
+            <input type="text" placeholder={t('auth.resetCode')} value={code} onChange={e => setCode(e.target.value)} required />
+            <input type="password" placeholder={t('auth.newPass')} value={password} onChange={e => setPassword(e.target.value)} required />
             {error && <div className="error">{error}</div>}
             <button type="submit" disabled={loading} className="primary-btn">
-              {loading ? 'Resetting...' : 'Reset Password'}
+              {loading ? t('auth.resetting') : t('auth.reset.title')}
             </button>
             <p className="switch-mode">
-              <a onClick={() => setMode('signin')}>Back to Sign In</a>
+              <a onClick={() => setMode('signin')}>{t('auth.backSignIn')}</a>
             </p>
           </form>
         )}
 
         {mode === 'signup' && (
           <form onSubmit={handleSignUp}>
-            <h2>Create Account</h2>
-            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-            <input type="password" placeholder="Password (min 8 chars)" value={password} onChange={e => setPassword(e.target.value)} required />
+            <h2>{t('auth.createAcc')}</h2>
+            <input type="email" placeholder={t('auth.email')} value={email} onChange={e => setEmail(e.target.value)} required />
+            <input type="password" placeholder={t('auth.passMin')} value={password} onChange={e => setPassword(e.target.value)} required />
             {error && <div className="error">{error}</div>}
             <button type="submit" disabled={loading} className="primary-btn">
-              {loading ? 'Creating account...' : 'Sign Up'}
+              {loading ? t('auth.creating') : t('auth.signUp')}
             </button>
             <p className="switch-mode">
-              Already have an account? <a onClick={() => setMode('signin')}>Sign In</a>
+              {t('auth.hasAccount')} <a onClick={() => setMode('signin')}>{t('auth.signIn')}</a>
             </p>
           </form>
         )}
 
         {mode === 'confirm' && (
           <form onSubmit={handleConfirm}>
-            <h2>Confirm Email</h2>
-            <p className="info-text">Check your email for the confirmation code</p>
-            <input type="text" placeholder="Confirmation Code" value={code} onChange={e => setCode(e.target.value)} required />
+            <h2>{t('auth.confirm.title')}</h2>
+            <p className="info-text">{t('auth.confirm.check')}</p>
+            <input type="text" placeholder={t('auth.confirm.code')} value={code} onChange={e => setCode(e.target.value)} required />
             {error && <div className="error">{error}</div>}
             <button type="submit" disabled={loading} className="primary-btn">
-              {loading ? 'Confirming...' : 'Confirm'}
+              {loading ? t('auth.confirming') : t('auth.confirm.btn')}
             </button>
           </form>
         )}

@@ -1,34 +1,34 @@
 import { BarChart2, Wallet, RefreshCw } from 'lucide-react';
+import { useLanguage } from '../LanguageContext';
 import './Landing.css';
 
 function Landing({ onNavigate, isAuthenticated }) {
+  const { t } = useLanguage();
+
   return (
     <div className="landing">
       <section className="hero">
         <div className="hero-content">
           <h1>
-            Build your<br />
-            <span className="hero-accent">financial</span> future<br />
-            with confidence
+            {t('land.hero.line1')}<br />
+            <span className="hero-accent">{t('land.hero.accent')}</span><br />
+            {t('land.hero.line3')}
           </h1>
-          <p>
-            Track net worth, simulate wealth growth, and plan recurring
-            investments, all in one place.
-          </p>
+          <p>{t('land.hero.sub')}</p>
           <div className="hero-buttons">
             <button className="btn-outline" onClick={() => onNavigate('simulator')}>
-              Try simulator
+              {t('land.hero.sim')}
             </button>
             <button className="btn-outline" onClick={() => onNavigate(isAuthenticated ? 'networth' : 'login')}>
-              View net worth
+              {t('land.hero.nw')}
             </button>
           </div>
         </div>
 
         <div className="hero-card">
-          <div className="hero-card-label">Total net worth</div>
-          <div className="hero-card-value">€284,500</div>
-          <div className="hero-card-badge">+12.4% this year</div>
+          <div className="hero-card-label">{t('land.card.label')}</div>
+          <div className="hero-card-value">€284.500</div>
+          <div className="hero-card-badge">{t('land.card.badge')}</div>
           <svg className="hero-sparkline" viewBox="0 0 220 64" fill="none" preserveAspectRatio="none">
             <defs>
               <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
@@ -55,21 +55,21 @@ function Landing({ onNavigate, isAuthenticated }) {
       <section className="features">
         <div className="feature" onClick={() => onNavigate('simulator')}>
           <div className="feature-icon"><BarChart2 size={18} strokeWidth={1.5} /></div>
-          <h3>Wealth simulator</h3>
-          <p>Project your future wealth with custom investment scenarios and timelines.</p>
-          <span className="feature-link">Open simulator →</span>
+          <h3>{t('land.f1.title')}</h3>
+          <p>{t('land.f1.desc')}</p>
+          <span className="feature-link">{t('land.f1.link')}</span>
         </div>
         <div className="feature" onClick={() => onNavigate(isAuthenticated ? 'networth' : 'login')}>
           <div className="feature-icon"><Wallet size={18} strokeWidth={1.5} /></div>
-          <h3>Net worth tracker</h3>
-          <p>Connect your accounts and get a real-time view of your full financial picture.</p>
-          <span className="feature-link">Track now →</span>
+          <h3>{t('land.f2.title')}</h3>
+          <p>{t('land.f2.desc')}</p>
+          <span className="feature-link">{t('land.f2.link')}</span>
         </div>
         <div className="feature" onClick={() => onNavigate(isAuthenticated ? 'networth' : 'login')}>
           <div className="feature-icon"><RefreshCw size={18} strokeWidth={1.5} /></div>
-          <h3>Recurring investments</h3>
-          <p>Set up automatic contributions and watch compound growth do its work.</p>
-          <span className="feature-link">Set up →</span>
+          <h3>{t('land.f3.title')}</h3>
+          <p>{t('land.f3.desc')}</p>
+          <span className="feature-link">{t('land.f3.link')}</span>
         </div>
       </section>
     </div>

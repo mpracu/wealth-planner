@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { useLanguage } from '../LanguageContext';
 import './Blog.css';
 
 const FALLBACK_IMAGES = [
@@ -24,6 +25,7 @@ const getFallbackImage = (postId, index) => {
 };
 
 function Blog() {
+  const { t } = useLanguage();
   const [selectedPost, setSelectedPost] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,20 +40,19 @@ function Blog() {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       setPosts(data.map((post, index) => {
-        // Extract tags from hashtag line in content (e.g. "#IndexFunds #StockMarket")
         const hashtagLine = post.content.split('\n\n').find(p =>
           p.trim().startsWith('#') && p.includes(' #')
         );
         const tags = hashtagLine
           ? hashtagLine.trim().split(/\s+/).filter(t => t.startsWith('#')).map(t => t.replace('#', ''))
-          : ['Investing', 'Wealth Building', 'Financial Independence'];
+          : ['Inversión', 'Patrimonio', 'Independencia financiera'];
 
         const cleanContent = post.content
           .replace(/!\[.*?\]\(.*?\)/g, '')
           .replace(/\*\*(.*?)\*\*/g, '$1')
           .replace(/\*(.*?)\*/g, '$1')
           .replace(/#{1,3}\s+/g, '')
-          .replace(/#[A-Za-z]+/g, '')
+          .replace(/#[A-Za-zÀ-ɏ]+/g, '')
           .replace(/\n\n+/g, ' ')
           .trim();
 
@@ -61,8 +62,8 @@ function Blog() {
           id: post.postId,
           title: post.title,
           date: new Date(post.publishedDate).toISOString().split('T')[0],
-          author: 'Wealth Planner Team',
-          readTime: '8 min read',
+          author: t('blog.author'),
+          readTime: t('blog.readTime'),
           tags,
           image,
           excerpt: cleanContent.substring(0, 180) + '...',
@@ -77,13 +78,11 @@ function Blog() {
   };
 
   const renderContent = (content) => {
-    // Strip all images from content — hero image is shown separately above
     const contentWithoutImages = content.replace(/!\[.*?\]\(.*?\)\n?\n?/g, '');
 
     return contentWithoutImages.split('\n\n').map((paragraph, idx) => {
       if (!paragraph.trim()) return null;
 
-      // Headings
       const headingMatch = paragraph.match(/^(#{1,3})\s+(.+)/);
       if (headingMatch) {
         const level = headingMatch[1].length;
@@ -93,7 +92,6 @@ function Blog() {
         return <h3 key={idx}>{text}</h3>;
       }
 
-      // Hashtag lines
       if (paragraph.startsWith('#') && paragraph.includes(' #')) {
         const hashtags = paragraph.split(' ').filter(tag => tag.startsWith('#'));
         return (
@@ -115,8 +113,8 @@ function Blog() {
     return (
       <div className="blog">
         <div className="blog-header">
-          <h1>Wealth Building Insights</h1>
-          <p>Loading latest articles...</p>
+          <h1>{t('blog.title')}</h1>
+          <p>{t('blog.loading')}</p>
         </div>
       </div>
     );
@@ -126,14 +124,14 @@ function Blog() {
     return (
       <div className="blog">
         <button className="back-btn" onClick={() => setSelectedPost(null)}>
-          <ArrowLeft size={15} /> Back to all posts
+          <ArrowLeft size={15} /> {t('blog.back')}
         </button>
         <article className="blog-post-full">
           <img src={selectedPost.image} alt={selectedPost.title} className="post-hero-image" />
           <div className="post-header">
             <h1>{selectedPost.title}</h1>
             <div className="post-meta">
-              <span>By {selectedPost.author}</span>
+              <span>{t('blog.by')}{selectedPost.author}</span>
               <span>•</span>
               <span>{selectedPost.date}</span>
               <span>•</span>
@@ -156,8 +154,8 @@ function Blog() {
   return (
     <div className="blog">
       <div className="blog-header">
-        <h1>Wealth Building Insights</h1>
-        <p>Expert advice and strategies for building lasting wealth. New posts every 2 days.</p>
+        <h1>{t('blog.title')}</h1>
+        <p>{t('blog.desc')}</p>
       </div>
 
       <div className="blog-grid">

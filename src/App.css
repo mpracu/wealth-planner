@@ -180,6 +180,7 @@ body { margin: 0; min-height: 100vh; background: var(--bg-gradient); }
     color: var(--text-secondary) !important;
   }
   .theme-toggle:hover { color: var(--text-primary) !important; }
+  .lang-toggle { font-size: 0.72rem !important; font-weight: 700 !important; letter-spacing: 0.04em !important; padding: 0.42rem 0.6rem !important; }
 
   .nav-login {
     background: var(--accent) !important;

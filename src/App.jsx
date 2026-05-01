@@ -8,10 +8,12 @@ import NetWorth from './components/NetWorth';
 import Blog from './components/Blog';
 import Landing from './components/Landing';
 import RiskProfile from './components/RiskProfile';
+import { useLanguage } from './LanguageContext';
 import './aws-config';
 import './App.css';
 
 function App() {
+  const { t, lang, toggleLang } = useLanguage();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState('landing');
@@ -50,22 +52,21 @@ function App() {
     setMenuOpen(false);
   };
 
-  const handleLoadInSimulator = (profileKey, profile) => {
-    // Map profile to a sensible annual return mid-point
+  const handleLoadInSimulator = (profileKey) => {
     const returnMap = { conservative: 4, moderate: 6.5, aggressive: 9 };
     setSimulatorPreset({ annualReturn: returnMap[profileKey] });
     navigate('simulator');
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return <div className="loading">{t('loading')}</div>;
   }
 
   return (
     <div className="app">
       <nav className="navbar">
         <h1 className="navbar-logo" onClick={() => navigate('landing')}>💰 Wealth Planner</h1>
-        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
+        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label={t('nav.toggleMenu')}>
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
         <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
@@ -74,14 +75,14 @@ function App() {
             onClick={() => navigate('simulator')}
           >
             <BarChart2 size={15} />
-            Simulator
+            {t('nav.simulator')}
           </button>
           <button
             className={view === 'risk' ? 'active' : ''}
             onClick={() => navigate('risk')}
           >
             <Target size={15} />
-            Risk Profile
+            {t('nav.risk')}
           </button>
           {user ? (
             <>
@@ -90,25 +91,28 @@ function App() {
                 onClick={() => navigate('networth')}
               >
                 <Wallet size={15} />
-                Net Worth
+                {t('nav.networth')}
               </button>
               <button
                 className={view === 'blog' ? 'active' : ''}
                 onClick={() => navigate('blog')}
               >
                 <BookOpen size={15} />
-                Blog
+                {t('nav.blog')}
               </button>
               <button
                 className="theme-toggle"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                title={theme === 'dark' ? t('nav.switchLight') : t('nav.switchDark')}
               >
                 {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
               </button>
+              <button className="theme-toggle lang-toggle" onClick={toggleLang} title={lang === 'es' ? 'Switch to English' : 'Cambiar a español'}>
+                {t('nav.langToggle')}
+              </button>
               <button className="nav-signout" onClick={() => { handleSignOut(); setMenuOpen(false); }}>
                 <LogOut size={15} />
-                Sign Out
+                {t('nav.signout')}
               </button>
             </>
           ) : (
@@ -118,18 +122,21 @@ function App() {
                 onClick={() => navigate('blog')}
               >
                 <BookOpen size={15} />
-                Blog
+                {t('nav.blog')}
               </button>
               <button
                 className="theme-toggle"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                title={theme === 'dark' ? t('nav.switchLight') : t('nav.switchDark')}
               >
                 {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
               </button>
+              <button className="theme-toggle lang-toggle" onClick={toggleLang} title={lang === 'es' ? 'Switch to English' : 'Cambiar a español'}>
+                {t('nav.langToggle')}
+              </button>
               <button className="nav-login" onClick={() => navigate('login')}>
                 <LogIn size={15} />
-                Login
+                {t('nav.login')}
               </button>
             </>
           )}
@@ -151,9 +158,9 @@ function App() {
           <NetWorth />
         ) : (
           <div className="auth-required">
-            <h2>Login Required</h2>
-            <p>Please login to access this feature</p>
-            <button onClick={() => setView('login')}>Login</button>
+            <h2>{t('auth.req.title')}</h2>
+            <p>{t('auth.req.text')}</p>
+            <button onClick={() => setView('login')}>{t('auth.req.btn')}</button>
           </div>
         )}
       </div>

@@ -4,6 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { post as apiPost, get as apiGet, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
 import ReactGA from 'react-ga4';
+import { useLanguage } from '../LanguageContext';
 
 const COMPARE_COLORS = ['#f59e0b', '#ef4444', '#a855f7', '#ec4899', '#14b8a6'];
 
@@ -15,9 +16,9 @@ const getThemeColors = () => {
 };
 
 const fmt = (v) => {
-  if (v >= 1000000) return `$${(v / 1000000).toFixed(1)}M`;
-  if (v >= 1000) return `$${Math.round(v / 1000)}k`;
-  return `$${v}`;
+  if (v >= 1000000) return `€${(v / 1000000).toFixed(1)}M`;
+  if (v >= 1000) return `€${Math.round(v / 1000)}k`;
+  return `€${v}`;
 };
 
 const computeData = (age, capital, monthly, annualReturn, inflation) => {
@@ -34,6 +35,7 @@ const computeData = (age, capital, monthly, annualReturn, inflation) => {
 };
 
 export default function Simulator({ preset }) {
+  const { t } = useLanguage();
   const [themeColors, setThemeColors] = useState(getThemeColors());
 
   useEffect(() => {
@@ -49,13 +51,11 @@ export default function Simulator({ preset }) {
   const [inflation, setInflation] = useState(2.5);
   const [targetAmount, setTargetAmount] = useState(1000000);
 
-  // Apply preset when navigating from Risk Profile
   useEffect(() => {
     if (preset?.annualReturn != null) setAnnualReturn(preset.annualReturn);
   }, [preset]);
 
   const [drafts, setDrafts] = useState({});
-
   const [scenarios, setScenarios] = useState([]);
   const [pinnedScenarios, setPinnedScenarios] = useState([]);
   const [scenarioName, setScenarioName] = useState('');
@@ -90,7 +90,7 @@ export default function Simulator({ preset }) {
   };
 
   const saveScenario = async () => {
-    if (!scenarioName.trim()) { alert('Please enter a scenario name'); return; }
+    if (!scenarioName.trim()) { alert(t('sim.nameRequired')); return; }
     try {
       const session = await fetchAuthSession();
       const token = session.tokens?.idToken?.toString();
@@ -107,7 +107,7 @@ export default function Simulator({ preset }) {
       loadScenarios();
     } catch (err) {
       console.error('Error saving:', err);
-      alert('Error saving scenario: ' + err.message);
+      alert(t('sim.errorSaving') + err.message);
     }
   };
 
@@ -168,13 +168,20 @@ export default function Simulator({ preset }) {
     ReactGA.event({ category: 'User Input', action: `Adjusted ${name}`, value: Math.round(value) });
 
   const controls = [
-    { label: 'Current Age', id: 'age', value: age, set: setAge, min: 18, max: 80, step: 1, suffix: 'yrs' },
-    { label: 'Starting Capital', id: 'currentCapital', value: currentCapital, set: setCurrentCapital, min: 0, max: 500000, step: 1000, prefix: '$', format: true },
-    { label: 'Monthly Investment', id: 'monthlyInvestment', value: monthlyInvestment, set: setMonthlyInvestment, min: 0, max: 10000, step: 100, prefix: '$', format: true },
-    { label: 'Annual Return', id: 'annualReturn', value: annualReturn, set: setAnnualReturn, min: 0, max: 15, step: 0.5, suffix: '%' },
-    { label: 'Inflation Rate', id: 'inflation', value: inflation, set: setInflation, min: 0, max: 10, step: 0.5, suffix: '%' },
-    { label: 'Goal Amount', id: 'targetAmount', value: targetAmount, set: setTargetAmount, min: 10000, max: 5000000, step: 10000, prefix: '$', format: true },
+    { label: t('sim.currentAge'), id: 'age', value: age, set: setAge, min: 18, max: 80, step: 1, suffix: t('sim.yrs') },
+    { label: t('sim.startCap'), id: 'currentCapital', value: currentCapital, set: setCurrentCapital, min: 0, max: 500000, step: 1000, prefix: '€', format: true },
+    { label: t('sim.monthlyInv'), id: 'monthlyInvestment', value: monthlyInvestment, set: setMonthlyInvestment, min: 0, max: 10000, step: 100, prefix: '€', format: true },
+    { label: t('sim.annualReturn'), id: 'annualReturn', value: annualReturn, set: setAnnualReturn, min: 0, max: 15, step: 0.5, suffix: '%' },
+    { label: t('sim.inflation'), id: 'inflation', value: inflation, set: setInflation, min: 0, max: 10, step: 0.5, suffix: '%' },
+    { label: t('sim.goalAmount'), id: 'targetAmount', value: targetAmount, set: setTargetAmount, min: 10000, max: 5000000, step: 10000, prefix: '€', format: true },
   ];
+
+  const goalBanner = goalData
+    ? t('sim.goalReached')
+        .replace('{amount}', fmt(targetAmount))
+        .replace('{age}', goalData.age)
+        .replace('{year}', goalData.year)
+    : t('sim.goalMissed');
 
   return (
     <div className="simulator">
@@ -182,38 +189,34 @@ export default function Simulator({ preset }) {
       {/* Stats Cards */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-label">Starting Capital</div>
-          <div className="stat-value">${currentCapital.toLocaleString()}</div>
+          <div className="stat-label">{t('sim.startCap')}</div>
+          <div className="stat-value">€{currentCapital.toLocaleString('es-ES')}</div>
         </div>
         <div className={`stat-card ${goalData ? 'stat-card--success' : 'stat-card--warn'}`}>
-          <div className="stat-label">Financial Goal</div>
+          <div className="stat-label">{t('sim.goal')}</div>
           <div className="stat-value">{fmt(targetAmount)}</div>
           <div className="stat-sub">
-            {goalData ? `Age ${goalData.age} · ${goalData.year}y away` : 'Not reached in 50y'}
+            {goalData ? `${t('sim.ageLabel')} ${goalData.age} · ${goalData.year}y` : t('sim.notReached')}
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Projected in 50 Years</div>
+          <div className="stat-label">{t('sim.proj50')}</div>
           <div className="stat-value">{fmt(projected50?.real ?? 0)}</div>
-          <div className="stat-sub">inflation-adjusted · age {age + 50}</div>
+          <div className="stat-sub">{t('sim.inflAdj')} {age + 50}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Monthly Contribution</div>
-          <div className="stat-value">${monthlyInvestment.toLocaleString()}</div>
-          <div className="stat-sub">{annualReturn}% expected return</div>
+          <div className="stat-label">{t('sim.monthlyContrib')}</div>
+          <div className="stat-value">€{monthlyInvestment.toLocaleString('es-ES')}</div>
+          <div className="stat-sub">{annualReturn}{t('sim.expectedRet')}</div>
         </div>
       </div>
 
       {/* Goal Banner */}
-      <div className={`milestone ${goalData ? '' : 'warning'}`}>
-        {goalData
-          ? `You'll reach ${fmt(targetAmount)} at age ${goalData.age}. That's ${goalData.year} years from now`
-          : `Goal not reached in 50 years. Try increasing your contributions or expected return.`}
-      </div>
+      <div className={`milestone ${goalData ? '' : 'warning'}`}>{goalBanner}</div>
 
       {/* Controls */}
       <div className="controls">
-        <h3 className="section-title">Parameters</h3>
+        <h3 className="section-title">{t('sim.params')}</h3>
         <div className="controls-grid">
           {controls.map(({ label, id, value, set, min, max, step, prefix, suffix, format }) => (
             <div key={id} className="control">
@@ -227,10 +230,10 @@ export default function Simulator({ preset }) {
                       type="text"
                       inputMode="numeric"
                       className="control-number"
-                      value={drafts[id] !== undefined ? drafts[id] : value.toLocaleString('en-US')}
+                      value={drafts[id] !== undefined ? drafts[id] : value.toLocaleString('es-ES')}
                       onChange={e => {
                         const raw = e.target.value.replace(/[^0-9]/g, '');
-                        setDrafts(d => ({ ...d, [id]: e.target.value.replace(/[^0-9,]/g, '') }));
+                        setDrafts(d => ({ ...d, [id]: e.target.value.replace(/[^0-9.,]/g, '') }));
                         const num = parseInt(raw, 10);
                         if (!isNaN(num)) set(num);
                       }}
@@ -279,7 +282,7 @@ export default function Simulator({ preset }) {
       {/* Chart */}
       <div className="chart">
         <div className="chart-header">
-          <h3 className="section-title">Wealth Projection</h3>
+          <h3 className="section-title">{t('sim.projection')}</h3>
           {pinnedScenarios.length > 0 && (
             <div className="compare-badges">
               {pinnedScenarios.map(ps => (
@@ -298,7 +301,7 @@ export default function Simulator({ preset }) {
               dataKey="age"
               stroke={themeColors.axis}
               tick={{ fill: themeColors.axis, fontSize: 12 }}
-              label={{ value: 'Age', position: 'insideBottomRight', offset: -10, fill: themeColors.axis, fontSize: 12 }}
+              label={{ value: t('sim.age'), position: 'insideBottomRight', offset: -10, fill: themeColors.axis, fontSize: 12 }}
             />
             <YAxis
               stroke={themeColors.axis}
@@ -316,8 +319,8 @@ export default function Simulator({ preset }) {
               }}
               labelStyle={{ color: themeColors.text, fontWeight: 600, marginBottom: 4 }}
               itemStyle={{ color: themeColors.text }}
-              labelFormatter={v => `Age ${v}`}
-              formatter={(v, name) => [`$${Number(v).toLocaleString()}`, name]}
+              labelFormatter={v => `${t('sim.ageLabel')} ${v}`}
+              formatter={(v, name) => [`€${Number(v).toLocaleString('es-ES')}`, name]}
             />
             <Legend wrapperStyle={{ paddingTop: 16, fontSize: 13 }} />
             <ReferenceLine
@@ -326,8 +329,8 @@ export default function Simulator({ preset }) {
               strokeDasharray="4 4"
               label={{ value: fmt(targetAmount), fill: '#22c55e', fontSize: 11, position: 'right' }}
             />
-            <Line type="monotone" dataKey="nominal" stroke="#3b82f6" name="Nominal" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="real" stroke="#22c55e" name="Real (inflation-adj.)" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="nominal" stroke="#3b82f6" name={t('sim.nominal')} strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="real" stroke="#22c55e" name={t('sim.real')} strokeWidth={2} dot={false} />
             {pinnedScenarios.map(ps => (
               <Line
                 key={ps.id}
@@ -348,9 +351,9 @@ export default function Simulator({ preset }) {
       {isLoggedIn && (
         <div className="scenarios-panel">
           <div className="scenarios-header">
-            <h3 className="section-title">Saved Scenarios</h3>
+            <h3 className="section-title">{t('sim.savedScenarios')}</h3>
             <button className="btn btn--secondary" onClick={() => setShowSave(s => !s)}>
-              {showSave ? 'Cancel' : '+ Save Current'}
+              {showSave ? t('sim.cancel') : t('sim.saveCurrent')}
             </button>
           </div>
 
@@ -358,19 +361,19 @@ export default function Simulator({ preset }) {
             <div className="save-form">
               <input
                 type="text"
-                placeholder="Name this scenario…"
+                placeholder={t('sim.nameScenario')}
                 value={scenarioName}
                 onChange={e => setScenarioName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && saveScenario()}
                 autoFocus
               />
-              <button className="btn btn--primary" onClick={saveScenario}>Save</button>
+              <button className="btn btn--primary" onClick={saveScenario}>{t('sim.save')}</button>
             </div>
           )}
 
           <div className="scenarios-list">
             {scenarios.length === 0 && (
-              <p className="scenarios-empty">No saved scenarios yet. Save your current inputs to compare later.</p>
+              <p className="scenarios-empty">{t('sim.noScenarios')}</p>
             )}
             {scenarios.map(s => {
               const pinned = pinnedScenarios.find(p => p.id === s.scenarioId);
@@ -379,7 +382,7 @@ export default function Simulator({ preset }) {
                   <div className="scenario-info">
                     <span className="scenario-name">{s.name}</span>
                     <span className="scenario-meta">
-                      Age {s.data.age} · ${s.data.monthlyInvestment.toLocaleString()}/mo · {s.data.annualReturn}% return
+                      {t('sim.ageLabel')} {s.data.age} · €{s.data.monthlyInvestment.toLocaleString('es-ES')}{t('sim.perMonth')} · {s.data.annualReturn}{t('sim.return')}
                     </span>
                   </div>
                   <div className="scenario-actions">
@@ -388,9 +391,9 @@ export default function Simulator({ preset }) {
                       style={pinned ? { borderColor: pinned.color, color: pinned.color, background: `${pinned.color}15` } : {}}
                       onClick={() => togglePin(s)}
                     >
-                      {pinned ? 'Comparing' : 'Compare'}
+                      {pinned ? t('sim.comparing') : t('sim.compare')}
                     </button>
-                    <button className="btn btn--ghost" onClick={() => loadScenario(s)}>Load</button>
+                    <button className="btn btn--ghost" onClick={() => loadScenario(s)}>{t('sim.load')}</button>
                     <button className="btn btn--danger" onClick={() => deleteScenario(s.scenarioId)}><Trash2 size={14} /></button>
                   </div>
                 </div>

@@ -308,20 +308,22 @@ The verdict: use them, but don't over-rely on them. Complement your plan with fl
 };
 
 const generateBlogContent = async (topic) => {
-  const prompt = `Write a 600-word blog post about "${topic}" for a Spanish wealth planning app aimed at investors living in Spain.
+  const prompt = `Escribe un artículo de blog de 600 palabras en español (castellano) sobre el tema: "${topic}". El artículo es para una app española de planificación financiera y patrimonio.
 
-Important context:
-- The audience is based in Spain. Focus on Spanish and European financial products, regulations, and tax rules (IRPF, retención, impuesto de sucesiones, etc.).
-- Do NOT mention US-specific products like 401(k), Roth IRA, HSA, 529 plans, or Social Security. Instead reference Spanish equivalents: Planes de Pensiones, PIAS, fondos de inversión, Seguridad Social, etc.
-- Where relevant, mention Spanish/European brokers and platforms: DEGIRO, Interactive Brokers, MyInvestor, Indexa Capital, Finizens, Scalable Capital.
-- Reference European ETFs and funds (UCITS-compliant, listed on Euronext, Xetra, or BME) rather than US-domiciled funds.
-- Use euros (€) not dollars ($) for all monetary examples.
-- Tax references should be to Spanish law: investment gains are taxed as "rendimientos del capital mobiliario" at 19-28% depending on the bracket.
+Comienza con un título atractivo en español como encabezado H1: # [Tu título en español]
 
-Make it practical, actionable, and engaging. Include specific examples and numbers.
-Structure: 6-8 short paragraphs (2-3 sentences each).
-End with 3-5 relevant hashtags.
-Do not include a title or image placeholders - just the content.`;
+Contexto importante:
+- El público reside en España. Céntrate en productos financieros, regulaciones y normas fiscales españolas y europeas (IRPF, retención, impuesto de sucesiones, etc.).
+- NO menciones productos específicos de EE.UU. como 401(k), Roth IRA, HSA, planes 529 ni la Seguridad Social americana. En su lugar, usa equivalentes españoles: Planes de Pensiones, PIAS, fondos de inversión, Seguridad Social, etc.
+- Cuando sea relevante, menciona brokers y plataformas españolas/europeas: DEGIRO, Interactive Brokers, MyInvestor, Indexa Capital, Finizens, Scalable Capital.
+- Referencia ETFs y fondos europeos (cumplimiento UCITS, cotizados en Euronext, Xetra o BME), no fondos domiciliados en EE.UU.
+- Usa euros (€) y no dólares ($) en todos los ejemplos monetarios.
+- Las referencias fiscales deben ser a la legislación española: las ganancias de inversión tributan como "rendimientos del capital mobiliario" al 19-28% según el tramo.
+
+El artículo debe ser práctico, accionable y atractivo. Incluye ejemplos y cifras concretas.
+Estructura: 6-8 párrafos cortos (2-3 frases cada uno).
+Termina con 3-5 hashtags relevantes en español.
+No incluyas marcadores de posición para imágenes, solo el contenido.`;
 
   const payload = {
     anthropic_version: "bedrock-2023-05-31",
@@ -347,9 +349,14 @@ const generateBlogPost = async (topic, postNumber) => {
 
   const aiContent = await generateBlogContent(topic);
 
+  // Extract Spanish title from first H1 and remove it from content body
+  const titleMatch = aiContent.match(/^#\s+(.+)/m);
+  const title = titleMatch ? titleMatch[1].trim() : topic;
+  const content = titleMatch ? aiContent.replace(/^#\s+.+\n?\n?/, '') : aiContent;
+
   return {
-    title: topic,
-    content: aiContent,
+    title,
+    content,
     image: heroImage,
     publishedDate: new Date().toISOString(),
     postNumber

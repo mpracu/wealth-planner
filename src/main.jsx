@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import ReactGA from 'react-ga4'
 import './index.css'
 import App from './App.jsx'
+import { LanguageProvider } from './LanguageContext.jsx'
 
 // Initialize Google Analytics
 // Replace 'G-XXXXXXXXXX' with your actual GA4 Measurement ID
@@ -11,6 +12,8 @@ ReactGA.initialize(GA_MEASUREMENT_ID)
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
   </StrictMode>,
 )
