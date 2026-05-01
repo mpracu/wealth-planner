@@ -37,7 +37,7 @@ export const T = {
   'land.f3.link':      { es: 'Configurar →', en: 'Set up →' },
 
   // ── Auth ───────────────────────────────────────────────────────
-  'auth.tagline':    { es: 'Controla tu patrimonio, planifica tu futuro', en: 'Track your net worth, plan your future' },
+  'auth.tagline':    { es: 'Haz fluir tu patrimonio', en: 'Let your wealth flow' },
   'auth.email':      { es: 'Correo electrónico', en: 'Email' },
   'auth.password':   { es: 'Contraseña', en: 'Password' },
   'auth.signingIn':  { es: 'Iniciando sesión...', en: 'Signing in...' },
@@ -198,7 +198,7 @@ export const T = {
   'blog.by':           { es: 'Por ', en: 'By ' },
   'blog.desc':         { es: 'Consejos y estrategias de expertos para construir un patrimonio duradero. Nuevos artículos cada 2 días.', en: 'Expert advice and strategies for building lasting wealth. New posts every 2 days.' },
   'blog.readTime':     { es: '8 min de lectura', en: '8 min read' },
-  'blog.author':       { es: 'Equipo Wealth Planner', en: 'Wealth Planner Team' },
+  'blog.author':       { es: 'Equipo Caudal', en: 'Caudal Team' },
 
   // ── Risk Profile ───────────────────────────────────────────────
   'rp.title':          { es: 'Cuestionario de perfil inversor', en: 'Investor Profile Quiz' },

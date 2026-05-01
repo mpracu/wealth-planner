@@ -98,7 +98,7 @@ export default function Auth({ onAuthSuccess }) {
       <div className="auth-box">
         <div className="auth-header">
           <ShieldLogo className="auth-logo" />
-          <h1>Wealth Planner</h1>
+          <h1>🌊 Caudal</h1>
           <p className="tagline">{t('auth.tagline')}</p>
         </div>
 
