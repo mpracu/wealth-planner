@@ -364,20 +364,23 @@ export default function NetWorth() {
   const forecastData = useMemo(() => {
     const monthlyRecurring = recurringItems.reduce((sum, r) => sum + r.amount, 0);
     const annualRecurring = monthlyRecurring * 12;
-    
+
     let currentValue = netWorth;
-    const data = [{ year: 0, nominal: currentValue, real: currentValue }];
-    
+    let currentNoDCA = netWorth;
+    const data = [{ year: 0, nominal: currentValue, real: currentValue, noDCA: currentValue }];
+
     for (let year = 1; year <= forecastYears; year++) {
       currentValue = (currentValue + annualRecurring) * (1 + forecastReturn / 100);
+      currentNoDCA = currentNoDCA * (1 + forecastReturn / 100);
       const realValue = currentValue / Math.pow(1 + forecastInflation / 100, year);
       data.push({
         year,
         nominal: Math.round(currentValue),
-        real: Math.round(realValue)
+        real: Math.round(realValue),
+        noDCA: Math.round(currentNoDCA)
       });
     }
-    
+
     return data;
   }, [netWorth, recurringItems, forecastYears, forecastReturn, forecastInflation]);
 
@@ -387,6 +390,7 @@ export default function NetWorth() {
   const netWorthChange = lastSnapshot ? netWorth - lastSnapshot.netWorth : null;
   const netWorthChangePct = lastSnapshot?.netWorth ? (netWorthChange / lastSnapshot.netWorth) * 100 : null;
   const monthlyDCA = recurringItems.reduce((s, r) => s + r.amount, 0);
+  const dcaBoost = (forecastData[forecastYears]?.nominal ?? 0) - (forecastData[forecastYears]?.noDCA ?? 0);
 
   const allocationData = useMemo(() => {
     const grouped = {};
@@ -549,6 +553,15 @@ export default function NetWorth() {
                 <label className="nw-fc-label"><span>{t('nw.inflPct')}</span><input type="number" step="0.1" value={forecastInflation} onChange={e => setForecastInflation(+e.target.value)} /></label>
               </div>
             </div>
+            {monthlyDCA > 0 ? (
+              <div className="nw-forecast-dca-note nw-forecast-dca-note--active">
+                {t('nw.forecastIncludes').replace('{n}', `${currency}${monthlyDCA.toLocaleString('es-ES')}`)}
+              </div>
+            ) : (
+              <div className="nw-forecast-dca-note nw-forecast-dca-note--empty">
+                {t('nw.forecastNoRecurring')}
+              </div>
+            )}
             <div className="nw-forecast-summary">
               <div className="nw-fc-stat">
                 <span>{t('nw.today')}</span>
@@ -563,6 +576,15 @@ export default function NetWorth() {
                 <span>{t('nw.realAdj')}</span>
                 <strong>{currency}{forecastData[forecastYears]?.real.toLocaleString('es-ES')}</strong>
               </div>
+              {monthlyDCA > 0 && (
+                <>
+                  <div className="nw-fc-sep" />
+                  <div className="nw-fc-stat nw-fc-stat--boost">
+                    <span>{t('nw.dcaBoost')}</span>
+                    <strong>+{currency}{dcaBoost.toLocaleString('es-ES',{maximumFractionDigits:0})}</strong>
+                  </div>
+                </>
+              )}
             </div>
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={forecastData} margin={{top:8,right:8,left:0,bottom:8}}>
@@ -572,6 +594,7 @@ export default function NetWorth() {
                 <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => `${currency}${v.toLocaleString('es-ES')}`} />
                 <Line type="monotone" dataKey="nominal" stroke="#6366f1" strokeWidth={2} name={t('sim.nominal')} dot={false} />
                 <Line type="monotone" dataKey="real" stroke="#10b981" strokeWidth={2} name={t('nw.realAdj')} dot={false} strokeDasharray="5 3" />
+                <Line type="monotone" dataKey="noDCA" stroke="#94a3b8" strokeWidth={1.5} name={t('nw.noDCA')} dot={false} strokeDasharray="3 3" hide={monthlyDCA === 0} />
                 <Legend iconType="plainline" wrapperStyle={{fontSize:'0.8rem', paddingTop:'8px'}} />
               </LineChart>
             </ResponsiveContainer>

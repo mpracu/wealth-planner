@@ -385,7 +385,31 @@
 
 .nw-fc-stat--highlight strong { color: var(--nw-accent); }
 
+.nw-fc-stat--boost strong { color: #10b981; }
+
+.nw-fc-sep { width: 1px; height: 2.5rem; background: var(--border-color); align-self: center; margin: 0 0.25rem; }
+
 .nw-fc-arrow { font-size: 1.25rem; color: var(--text-secondary); padding: 0 0.25rem; }
+
+.nw-forecast-dca-note {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: var(--nw-radius-sm);
+  margin-bottom: 1rem;
+}
+
+.nw-forecast-dca-note--active {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.nw-forecast-dca-note--empty {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
 
 /* ── Tab toolbar ────────────────────────────────────────── */
 .nw-tab-toolbar {
