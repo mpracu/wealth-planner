@@ -199,6 +199,9 @@ export const T = {
   'blog.desc':         { es: 'Consejos y estrategias de expertos para construir un patrimonio duradero. Nuevos artículos cada 2 días.', en: 'Expert advice and strategies for building lasting wealth. New posts every 2 days.' },
   'blog.readTime':     { es: '8 min de lectura', en: '8 min read' },
   'blog.author':       { es: 'Equipo Caudal', en: 'Caudal Team' },
+  'blog.share':        { es: 'Compartir:', en: 'Share:' },
+  'blog.copyLink':     { es: 'Copiar enlace', en: 'Copy link' },
+  'blog.copied':       { es: '¡Copiado!', en: 'Copied!' },
 
   // ── Risk Profile ───────────────────────────────────────────────
   'rp.title':          { es: 'Cuestionario de perfil inversor', en: 'Investor Profile Quiz' },

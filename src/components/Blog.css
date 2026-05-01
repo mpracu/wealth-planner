@@ -145,7 +145,67 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.share-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  margin-bottom: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.share-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.share-btn--whatsapp {
+  background: #25D366;
+  color: white;
+}
+
+.share-btn--whatsapp:hover {
+  background: #1ebe57;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+}
+
+.share-btn--copy {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.share-btn--copy:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.share-btn--copy.copied {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
 }
 
 
