@@ -101,6 +101,7 @@ export const T = {
   'sim.ageLabel':      { es: 'Edad', en: 'Age' },
   'sim.perMonth':      { es: '€/mes', en: '€/mo' },
   'sim.return':        { es: '% rentabilidad', en: '% return' },
+  'sim.shareText':     { es: 'Escenario Caudal: €{capital} inicial · €{monthly}/mes · {return}% anual', en: 'Caudal scenario: €{capital} initial · €{monthly}/mo · {return}% annual' },
 
   // ── NetWorth ───────────────────────────────────────────────────
   'nw.totalNW':        { es: 'Patrimonio neto total', en: 'Total Net Worth' },

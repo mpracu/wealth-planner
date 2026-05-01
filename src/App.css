@@ -301,6 +301,28 @@ body { margin: 0; min-height: 100vh; background: var(--bg-gradient); }
   box-shadow: var(--shadow-sm);
 }
 
+.controls-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.controls-title-row .section-title {
+  margin-bottom: 0;
+}
+
+.sim-share-btns {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.share-btn--sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+}
+
 .controls-grid {
   display: grid;
   grid-template-columns: 1fr;

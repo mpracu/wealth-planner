@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Link } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { post as apiPost, get as apiGet, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
@@ -50,10 +50,37 @@ export default function Simulator({ preset }) {
   const [annualReturn, setAnnualReturn] = useState(preset?.annualReturn ?? 7);
   const [inflation, setInflation] = useState(2.5);
   const [targetAmount, setTargetAmount] = useState(1000000);
+  const [copied, setCopied] = useState(false);
+
+  // Load params from shared URL on first mount
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    if (!p.has('sim')) return;
+    if (p.get('a')) setAge(+p.get('a'));
+    if (p.get('c')) setCurrentCapital(+p.get('c'));
+    if (p.get('m')) setMonthlyInvestment(+p.get('m'));
+    if (p.get('r')) setAnnualReturn(+p.get('r'));
+    if (p.get('i')) setInflation(+p.get('i'));
+    if (p.get('g')) setTargetAmount(+p.get('g'));
+  }, []);
 
   useEffect(() => {
     if (preset?.annualReturn != null) setAnnualReturn(preset.annualReturn);
   }, [preset]);
+
+  const getShareUrl = () => {
+    const p = new URLSearchParams({
+      sim: '1', a: age, c: currentCapital, m: monthlyInvestment,
+      r: annualReturn, i: inflation, g: targetAmount,
+    });
+    return `${window.location.origin}${window.location.pathname}?${p}`;
+  };
+
+  const copyShareLink = async () => {
+    await navigator.clipboard.writeText(getShareUrl());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
 
   const [drafts, setDrafts] = useState({});
   const [scenarios, setScenarios] = useState([]);
@@ -216,7 +243,23 @@ export default function Simulator({ preset }) {
 
       {/* Controls */}
       <div className="controls">
-        <h3 className="section-title">{t('sim.params')}</h3>
+        <div className="controls-title-row">
+          <h3 className="section-title">{t('sim.params')}</h3>
+          <div className="sim-share-btns">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(t('sim.shareText').replace('{capital}', currentCapital.toLocaleString('es-ES')).replace('{monthly}', monthlyInvestment.toLocaleString('es-ES')).replace('{return}', annualReturn) + '\n' + getShareUrl())}`}
+              target="_blank" rel="noopener noreferrer"
+              className="share-btn share-btn--whatsapp share-btn--sm"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp
+            </a>
+            <button className={`share-btn share-btn--copy share-btn--sm${copied ? ' copied' : ''}`} onClick={copyShareLink}>
+              <Link size={13} />
+              {copied ? t('blog.copied') : t('blog.copyLink')}
+            </button>
+          </div>
+        </div>
         <div className="controls-grid">
           {controls.map(({ label, id, value, set, min, max, step, prefix, suffix, format }) => (
             <div key={id} className="control">

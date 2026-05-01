@@ -19,6 +19,7 @@ function App() {
   const [view, setView] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('post')) return 'blog';
+    if (params.has('sim')) return 'simulator';
     return 'landing';
   });
   const [menuOpen, setMenuOpen] = useState(false);
