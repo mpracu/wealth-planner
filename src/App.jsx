@@ -16,7 +16,11 @@ function App() {
   const { t, lang, toggleLang } = useLanguage();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState('landing');
+  const [view, setView] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('post')) return 'blog';
+    return 'landing';
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const [simulatorPreset, setSimulatorPreset] = useState(null);
