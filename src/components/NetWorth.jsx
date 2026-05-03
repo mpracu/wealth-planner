@@ -41,6 +41,7 @@ export default function NetWorth() {
   const [forecastReturn, setForecastReturn] = useState(7);
   const [forecastInflation, setForecastInflation] = useState(2);
   const [forecastDCAOverride, setForecastDCAOverride] = useState(null);
+  const [fcDrafts, setFcDrafts] = useState({});
   const [themeColors, setThemeColors] = useState(getThemeColors());
 
   useEffect(() => {
@@ -550,13 +551,52 @@ export default function NetWorth() {
             <div className="nw-card-header">
               <h3>{t('nw.forecast')}</h3>
               <div className="nw-forecast-controls">
-                <label className="nw-fc-label"><span>{t('nw.years')}</span><input type="number" min="1" max="50" value={forecastYears} onChange={e => setForecastYears(+e.target.value)} /></label>
-                <label className="nw-fc-label"><span>{t('nw.returnPct')}</span><input type="number" step="0.1" value={forecastReturn} onChange={e => setForecastReturn(+e.target.value)} /></label>
-                <label className="nw-fc-label"><span>{t('nw.inflPct')}</span><input type="number" step="0.1" value={forecastInflation} onChange={e => setForecastInflation(+e.target.value)} /></label>
+                {[
+                  { id: 'years', label: t('nw.years'), value: forecastYears, set: setForecastYears, min: 1, max: 50 },
+                  { id: 'ret',   label: t('nw.returnPct'), value: forecastReturn, set: setForecastReturn, min: 0, max: 20 },
+                  { id: 'infl',  label: t('nw.inflPct'), value: forecastInflation, set: setForecastInflation, min: 0, max: 15 },
+                ].map(({ id, label, value, set, min, max }) => (
+                  <label key={id} className="nw-fc-label">
+                    <span>{label}</span>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={fcDrafts[id] !== undefined ? fcDrafts[id] : value.toLocaleString('en-US')}
+                      onChange={e => {
+                        setFcDrafts(d => ({ ...d, [id]: e.target.value }));
+                        const num = parseFloat(e.target.value.replace(/,/g, ''));
+                        if (!isNaN(num)) set(num);
+                      }}
+                      onFocus={e => { setFcDrafts(d => ({ ...d, [id]: String(value) })); setTimeout(() => e.target.select(), 0); }}
+                      onBlur={() => {
+                        const num = parseFloat((fcDrafts[id] ?? String(value)).replace(/,/g, ''));
+                        set(isNaN(num) ? value : Math.min(max, Math.max(min, num)));
+                        setFcDrafts(d => { const nd = { ...d }; delete nd[id]; return nd; });
+                      }}
+                    />
+                  </label>
+                ))}
                 <label className="nw-fc-label">
                   <span>{t('nw.dcaPerMonth')}</span>
                   <div className="nw-fc-dca-wrap">
-                    <input type="number" min="0" step="50" value={forecastDCA} onChange={e => setForecastDCAOverride(+e.target.value)} className="nw-fc-dca-input" />
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      className="nw-fc-dca-input"
+                      value={fcDrafts.dca !== undefined ? fcDrafts.dca : forecastDCA.toLocaleString('en-US')}
+                      onChange={e => {
+                        setFcDrafts(d => ({ ...d, dca: e.target.value }));
+                        const num = parseFloat(e.target.value.replace(/,/g, ''));
+                        if (!isNaN(num)) setForecastDCAOverride(num);
+                      }}
+                      onFocus={e => { setFcDrafts(d => ({ ...d, dca: String(forecastDCA) })); setTimeout(() => e.target.select(), 0); }}
+                      onBlur={() => {
+                        const num = parseFloat((fcDrafts.dca ?? String(forecastDCA)).replace(/,/g, ''));
+                        const clamped = isNaN(num) ? forecastDCA : Math.max(0, num);
+                        setForecastDCAOverride(clamped === monthlyDCA ? null : clamped);
+                        setFcDrafts(d => { const nd = { ...d }; delete nd.dca; return nd; });
+                      }}
+                    />
                     {forecastDCAOverride !== null && (
                       <button className="nw-fc-reset-btn" onClick={() => setForecastDCAOverride(null)} title={t('nw.forecastResetDCA')}>↺</button>
                     )}
