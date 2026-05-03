@@ -150,10 +150,11 @@ function App() {
         </div>
       </nav>
 
+      {view === 'landing' && (
+        <Landing onNavigate={navigate} isAuthenticated={!!user} />
+      )}
       <div className="container">
-        {view === 'landing' ? (
-          <Landing onNavigate={navigate} isAuthenticated={!!user} />
-        ) : view === 'login' && !user ? (
+        {view === 'landing' ? null : view === 'login' && !user ? (
           <Auth onAuthSuccess={() => { checkUser(); setView('networth'); }} />
         ) : view === 'risk' ? (
           <RiskProfile onLoadInSimulator={handleLoadInSimulator} />
