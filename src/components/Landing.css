@@ -319,8 +319,18 @@
 /* ── Footer ───────────────────────────────────────────── */
 .landing-footer {
   margin-top: auto;
-  background: var(--card-bg);
-  border-top: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  position: relative;
+}
+
+.landing-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--accent) 30%, var(--accent-green) 70%, transparent 100%);
 }
 
 .lf-inner {
@@ -336,8 +346,12 @@
 .lf-logo {
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--text-primary);
   margin-bottom: 0.6rem;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-green) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
 }
 
 .lf-tagline {
@@ -359,14 +373,15 @@
   align-items: center;
   transition: color 0.15s;
 }
-.lf-socials a:hover { color: var(--text-primary); }
+.lf-socials a:hover { color: var(--accent-green); }
 
 .lf-col-title {
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   margin: 0 0 1rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .lf-col ul {
@@ -388,7 +403,7 @@
   text-align: left;
   transition: color 0.15s;
 }
-.lf-col ul li button:hover { color: var(--text-primary); }
+.lf-col ul li button:hover { color: var(--accent); }
 
 .lf-bottom {
   display: flex;
@@ -398,9 +413,13 @@
   margin: 0 auto;
   padding: 1.25rem 4rem 1.5rem;
   box-sizing: border-box;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid rgba(255,255,255,0.06);
   flex-wrap: wrap;
   gap: 0.75rem;
+}
+
+[data-theme="light"] .lf-bottom {
+  border-top-color: rgba(0,0,0,0.07);
 }
 
 .lf-bottom > span {
@@ -423,11 +442,12 @@
   padding: 0;
   transition: color 0.15s;
 }
-.lf-legal-btn:hover { color: var(--text-primary); }
+.lf-legal-btn:hover { color: var(--accent); }
 
 .lf-legal-sep {
   font-size: 0.8rem;
-  color: var(--border-color);
+  color: var(--text-secondary);
+  opacity: 0.3;
 }
 
 /* ── Responsive ───────────────────────────────────────── */
