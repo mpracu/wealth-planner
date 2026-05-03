@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BarChart2, Wallet, RefreshCw, PenLine, TrendingUp, Landmark, Flame, Check } from 'lucide-react';
+import { BarChart2, Wallet, RefreshCw, PenLine, TrendingUp, Landmark, Flame, Check, ShieldCheck, Lock, Globe, EyeOff } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import Legal from './Legal';
 import './Landing.css';
@@ -56,6 +56,17 @@ function Landing({ onNavigate, isAuthenticated }) {
           </svg>
         </div>
       </section>
+
+      {/* ── Social proof ────────────────────────────────── */}
+      <div className="sp-band">
+        <div className="sp-inner">
+          <div className="sp-stat">{t('land.sp.users')}</div>
+          <div className="sp-sep" />
+          <div className="sp-stat">{t('land.sp.wealth')}</div>
+          <div className="sp-sep" />
+          <div className="sp-stat">{t('land.sp.privacy')}</div>
+        </div>
+      </div>
 
       <section className="features">
         <div className="feature" onClick={() => onNavigate('simulator')}>
@@ -133,6 +144,38 @@ function Landing({ onNavigate, isAuthenticated }) {
         </div>
       </section>
 
+      {/* ── Security ────────────────────────────────────── */}
+      <section className="sec-band">
+        <div className="sec-section">
+          <div className="section-header">
+            <h2>{t('land.sec.title')}</h2>
+            <p>{t('land.sec.sub')}</p>
+          </div>
+          <div className="sec-grid">
+            <div className="sec-card">
+              <div className="sec-icon"><ShieldCheck size={20} strokeWidth={1.5} /></div>
+              <h3>{t('land.sec.s1.title')}</h3>
+              <p>{t('land.sec.s1.desc')}</p>
+            </div>
+            <div className="sec-card">
+              <div className="sec-icon"><Lock size={20} strokeWidth={1.5} /></div>
+              <h3>{t('land.sec.s2.title')}</h3>
+              <p>{t('land.sec.s2.desc')}</p>
+            </div>
+            <div className="sec-card">
+              <div className="sec-icon"><Globe size={20} strokeWidth={1.5} /></div>
+              <h3>{t('land.sec.s3.title')}</h3>
+              <p>{t('land.sec.s3.desc')}</p>
+            </div>
+            <div className="sec-card">
+              <div className="sec-icon"><EyeOff size={20} strokeWidth={1.5} /></div>
+              <h3>{t('land.sec.s4.title')}</h3>
+              <p>{t('land.sec.s4.desc')}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Pricing ─────────────────────────────────────── */}
       <section className="pricing-section">
         <div className="section-header">
@@ -194,7 +237,7 @@ function Landing({ onNavigate, isAuthenticated }) {
             <h4 className="lf-col-title">{t('land.ft.col1')}</h4>
             <ul>
               <li><button onClick={() => onNavigate('brand')}>{t('land.ft.brand')}</button></li>
-              <li><button onClick={() => onNavigate('landing')}>{t('land.ft.what')}</button></li>
+              <li><button onClick={() => onNavigate('about')}>{t('land.ft.what')}</button></li>
             </ul>
           </div>
 

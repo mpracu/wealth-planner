@@ -9,6 +9,7 @@ import Blog from './components/Blog';
 import Landing from './components/Landing';
 import RiskProfile from './components/RiskProfile';
 import Brand from './components/Brand';
+import About from './components/About';
 import { useLanguage } from './LanguageContext';
 import './aws-config';
 import './App.css';
@@ -158,6 +159,8 @@ function App() {
             <Auth onAuthSuccess={() => { checkUser(); setView('networth'); }} />
           ) : view === 'risk' ? (
             <RiskProfile onLoadInSimulator={handleLoadInSimulator} />
+          ) : view === 'about' ? (
+            <About onNavigate={navigate} />
           ) : view === 'brand' ? (
             <Brand />
           ) : view === 'simulator' ? (

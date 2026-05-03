@@ -37,6 +37,26 @@ export const T = {
   'land.f3.desc':      { es: 'Configura aportaciones automáticas y deja que el interés compuesto trabaje por ti.', en: 'Set up automatic contributions and watch compound growth do its work.' },
   'land.f3.link':      { es: 'Configurar →', en: 'Set up →' },
 
+  // ── Landing – Social proof ─────────────────────────────────────
+  'land.sp.users':   { es: '2.000+ usuarios activos', en: '2,000+ active users' },
+  'land.sp.wealth':  { es: '€40M en patrimonio registrado', en: '€40M in tracked wealth' },
+  'land.sp.privacy': { es: '100% privado · Sin conexión bancaria', en: '100% private · No bank connection' },
+
+  // ── Landing – Security ─────────────────────────────────────────
+  'land.sec.title':      { es: 'Tu privacidad, nuestra prioridad', en: 'Your privacy, our priority' },
+  'land.sec.sub':        { es: 'Diseñado desde el primer día para que tus datos financieros sean solo tuyos.', en: 'Designed from day one so your financial data belongs only to you.' },
+  'land.sec.s1.title':   { es: 'Sin acceso a tus cuentas', en: 'No access to your accounts' },
+  'land.sec.s1.desc':    { es: 'Nunca pedimos credenciales bancarias. Introduces los datos tú mismo, tienes el control total.', en: 'We never ask for banking credentials. You enter the data yourself — you have full control.' },
+  'land.sec.s2.title':   { es: 'Cifrado en tránsito y en reposo', en: 'Encrypted in transit and at rest' },
+  'land.sec.s2.desc':    { es: 'Toda la comunicación viaja con TLS 1.2+. Los datos se almacenan cifrados con AES-256 en AWS.', en: 'All communication travels over TLS 1.2+. Data is stored encrypted with AES-256 on AWS.' },
+  'land.sec.s3.title':   { es: 'Datos en Europa', en: 'Data in Europe' },
+  'land.sec.s3.desc':    { es: 'Tus datos se almacenan en AWS Irlanda (eu-west-1), dentro del Espacio Económico Europeo y bajo el RGPD.', en: 'Your data is stored on AWS Ireland (eu-west-1), within the EEA and under GDPR.' },
+  'land.sec.s4.title':   { es: 'Sin venta de datos', en: 'No data selling' },
+  'land.sec.s4.desc':    { es: 'No compartimos ni vendemos tu información financiera a terceros. Nunca. Tu patrimonio es tuyo.', en: 'We do not share or sell your financial information to third parties. Ever. Your wealth is yours.' },
+
+  // ── About ──────────────────────────────────────────────────────
+  'about.nav':  { es: '← Volver', en: '← Back' },
+
   // ── Landing – Pricing ──────────────────────────────────────────
   'land.price.title':      { es: 'Sencillo y transparente', en: 'Simple and transparent' },
   'land.price.sub':        { es: 'Empieza gratis. Sin tarjeta de crédito.', en: 'Start free. No credit card required.' },
