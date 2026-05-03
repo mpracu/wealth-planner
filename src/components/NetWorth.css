@@ -741,3 +741,134 @@
 /* ── Colour tokens kept for legacy ─────────────────────── */
 .positive { color: var(--nw-green); }
 .negative { color: var(--nw-red);   }
+
+/* ── Onboarding overlay ─────────────────────────────────── */
+.nw-onb-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.nw-onb-modal {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.nw-onb-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nw-onb-emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.nw-onb-header h2 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.nw-onb-header p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 340px;
+  line-height: 1.55;
+}
+
+.nw-onb-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.nw-onb-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.nw-onb-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+.nw-onb-step div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.nw-onb-step strong {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nw-onb-step span {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.nw-onb-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.nw-onb-cta {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.nw-onb-cta:hover { background: #2563eb; }
+
+.nw-onb-skip {
+  width: 100%;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.nw-onb-skip:hover { color: var(--text-primary); }

@@ -43,6 +43,7 @@ export default function NetWorth() {
   const [forecastDCAOverride, setForecastDCAOverride] = useState(null);
   const [fcDrafts, setFcDrafts] = useState({});
   const [themeColors, setThemeColors] = useState(getThemeColors());
+  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem('caudal_onboarded'));
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -409,8 +410,58 @@ export default function NetWorth() {
     })).sort((a, b) => b.value - a.value);
   }, [items, totalAssets]);
 
+  const dismissOnboarding = (openForm = false) => {
+    localStorage.setItem('caudal_onboarded', '1');
+    setShowOnboarding(false);
+    if (openForm) setShowForm(true);
+  };
+
   return (
     <div className="networth">
+
+      {/* ── Onboarding ───────────────────────────────────── */}
+      {showOnboarding && (
+        <div className="nw-onb-backdrop" onClick={() => dismissOnboarding()}>
+          <div className="nw-onb-modal" onClick={e => e.stopPropagation()}>
+            <div className="nw-onb-header">
+              <span className="nw-onb-emoji">👋</span>
+              <h2>{t('nw.onb.title')}</h2>
+              <p>{t('nw.onb.sub')}</p>
+            </div>
+            <div className="nw-onb-steps">
+              <div className="nw-onb-step">
+                <div className="nw-onb-num">1</div>
+                <div>
+                  <strong>{t('nw.onb.s1t')}</strong>
+                  <span>{t('nw.onb.s1d')}</span>
+                </div>
+              </div>
+              <div className="nw-onb-step">
+                <div className="nw-onb-num">2</div>
+                <div>
+                  <strong>{t('nw.onb.s2t')}</strong>
+                  <span>{t('nw.onb.s2d')}</span>
+                </div>
+              </div>
+              <div className="nw-onb-step">
+                <div className="nw-onb-num">3</div>
+                <div>
+                  <strong>{t('nw.onb.s3t')}</strong>
+                  <span>{t('nw.onb.s3d')}</span>
+                </div>
+              </div>
+            </div>
+            <div className="nw-onb-actions">
+              <button className="nw-onb-cta" onClick={() => dismissOnboarding(true)}>
+                {t('nw.onb.cta')}
+              </button>
+              <button className="nw-onb-skip" onClick={() => dismissOnboarding()}>
+                {t('nw.onb.skip')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Premium Hero ─────────────────────────────────── */}
       <div className="nw-hero">

@@ -1,13 +1,17 @@
-import { BarChart2, Wallet, RefreshCw, PenLine, TrendingUp, Landmark, Flame } from 'lucide-react';
+import { useState } from 'react';
+import { BarChart2, Wallet, RefreshCw, PenLine, TrendingUp, Landmark, Flame, Check } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
+import Legal from './Legal';
 import './Landing.css';
 
 function Landing({ onNavigate, isAuthenticated }) {
   const { t } = useLanguage();
   const year = new Date().getFullYear();
+  const [legal, setLegal] = useState(null);
 
   return (
     <div className="landing">
+      {legal && <Legal type={legal} onClose={() => setLegal(null)} />}
       <section className="hero">
         <div className="hero-content">
           <h1>
@@ -129,6 +133,44 @@ function Landing({ onNavigate, isAuthenticated }) {
         </div>
       </section>
 
+      {/* ── Pricing ─────────────────────────────────────── */}
+      <section className="pricing-section">
+        <div className="section-header">
+          <h2>{t('land.price.title')}</h2>
+          <p>{t('land.price.sub')}</p>
+        </div>
+        <div className="pricing-grid">
+          <div className="plan-card">
+            <div className="plan-name">{t('land.price.free.name')}</div>
+            <div className="plan-price">€0<span>{t('land.price.mo')}</span></div>
+            <p className="plan-desc">{t('land.price.free.desc')}</p>
+            <ul className="plan-features">
+              {['f1','f2','f3','f4','f5','f6'].map(k => (
+                <li key={k}><Check size={14} strokeWidth={2.5} />{t(`land.price.${k}`)}</li>
+              ))}
+            </ul>
+            <button className="plan-cta plan-cta--free" onClick={() => onNavigate(isAuthenticated ? 'networth' : 'login')}>
+              {t('land.price.cta.free')}
+            </button>
+          </div>
+
+          <div className="plan-card plan-card--pro">
+            <div className="plan-badge">{t('land.price.pro.badge')}</div>
+            <div className="plan-name">{t('land.price.pro.name')}</div>
+            <div className="plan-price">€7<span>{t('land.price.mo')}</span></div>
+            <p className="plan-desc">{t('land.price.pro.desc')}</p>
+            <ul className="plan-features">
+              {['p1','p2','p3','p4','p5','p6','p7'].map(k => (
+                <li key={k}><Check size={14} strokeWidth={2.5} />{t(`land.price.${k}`)}</li>
+              ))}
+            </ul>
+            <button className="plan-cta plan-cta--pro" disabled>
+              {t('land.price.cta.wait')}
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* ── Footer ──────────────────────────────────────── */}
       <footer className="landing-footer">
         <div className="lf-inner">
@@ -185,9 +227,9 @@ function Landing({ onNavigate, isAuthenticated }) {
         <div className="lf-bottom">
           <span>{t('land.ft.copy').replace('{year}', year)}</span>
           <div className="lf-legal">
-            <button className="lf-legal-btn">{t('land.ft.terms')}</button>
+            <button className="lf-legal-btn" onClick={() => setLegal('terms')}>{t('land.ft.terms')}</button>
             <span className="lf-legal-sep">/</span>
-            <button className="lf-legal-btn">{t('land.ft.privacy')}</button>
+            <button className="lf-legal-btn" onClick={() => setLegal('privacy')}>{t('land.ft.privacy')}</button>
           </div>
         </div>
       </footer>
