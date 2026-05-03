@@ -166,6 +166,156 @@
   margin-top: 0.5rem;
 }
 
+/* ── Shared section header ────────────────────────────── */
+.section-header {
+  margin-bottom: 2.5rem;
+}
+
+.section-header h2 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.section-header p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+/* ── How it works ─────────────────────────────────────── */
+.how-section {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 0 4rem 4.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.how-step {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.how-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.how-step-icon {
+  color: var(--accent);
+  margin: 0.35rem 0 0.1rem;
+}
+
+.how-step h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.how-step p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* ── Goals ────────────────────────────────────────────── */
+.goals-band {
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.goals-section {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 4rem 4rem 4.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.goal-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.goal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.1rem;
+  flex-shrink: 0;
+}
+
+.goal-icon--blue {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--accent);
+}
+
+.goal-icon--amber {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--accent-warn);
+}
+
+.goal-icon--green {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--accent-green);
+}
+
+.goal-card h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.goal-card p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
 /* ── Footer ───────────────────────────────────────────── */
 .landing-footer {
   margin-top: auto;
@@ -297,6 +447,22 @@
     padding: 0 2rem 3rem;
   }
 
+  .how-section {
+    padding: 0 2rem 3.5rem;
+  }
+
+  .how-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .goals-section {
+    padding: 3rem 2rem 3.5rem;
+  }
+
+  .goals-grid {
+    grid-template-columns: 1fr;
+  }
+
   .lf-inner {
     grid-template-columns: 1fr 1fr;
     padding: 2.5rem 2rem 2rem;
@@ -323,6 +489,14 @@
 
   .features {
     padding: 0 1.25rem 2.5rem;
+  }
+
+  .how-section {
+    padding: 0 1.25rem 3rem;
+  }
+
+  .goals-section {
+    padding: 2.5rem 1.25rem 3rem;
   }
 
   .lf-inner {

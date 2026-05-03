@@ -1,4 +1,4 @@
-import { BarChart2, Wallet, RefreshCw } from 'lucide-react';
+import { BarChart2, Wallet, RefreshCw, PenLine, TrendingUp, Landmark, Flame } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import './Landing.css';
 
@@ -71,6 +71,61 @@ function Landing({ onNavigate, isAuthenticated }) {
           <h3>{t('land.f3.title')}</h3>
           <p>{t('land.f3.desc')}</p>
           <span className="feature-link">{t('land.f3.link')}</span>
+        </div>
+      </section>
+
+      {/* ── How it works ────────────────────────────────── */}
+      <section className="how-section">
+        <div className="section-header">
+          <h2>{t('land.how.title')}</h2>
+          <p>{t('land.how.sub')}</p>
+        </div>
+        <div className="how-steps">
+          <div className="how-step">
+            <div className="how-step-num">1</div>
+            <div className="how-step-icon"><PenLine size={18} strokeWidth={1.5} /></div>
+            <h3>{t('land.how.s1.title')}</h3>
+            <p>{t('land.how.s1.desc')}</p>
+          </div>
+          <div className="how-step">
+            <div className="how-step-num">2</div>
+            <div className="how-step-icon"><RefreshCw size={18} strokeWidth={1.5} /></div>
+            <h3>{t('land.how.s2.title')}</h3>
+            <p>{t('land.how.s2.desc')}</p>
+          </div>
+          <div className="how-step">
+            <div className="how-step-num">3</div>
+            <div className="how-step-icon"><TrendingUp size={18} strokeWidth={1.5} /></div>
+            <h3>{t('land.how.s3.title')}</h3>
+            <p>{t('land.how.s3.desc')}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Goals ───────────────────────────────────────── */}
+      <section className="goals-band">
+        <div className="goals-section">
+          <div className="section-header">
+            <h2>{t('land.why.title')}</h2>
+            <p>{t('land.why.sub')}</p>
+          </div>
+          <div className="goals-grid">
+            <div className="goal-card">
+              <div className="goal-icon goal-icon--blue"><Landmark size={20} strokeWidth={1.5} /></div>
+              <h3>{t('land.why.g1.title')}</h3>
+              <p>{t('land.why.g1.desc')}</p>
+            </div>
+            <div className="goal-card">
+              <div className="goal-icon goal-icon--amber"><Flame size={20} strokeWidth={1.5} /></div>
+              <h3>{t('land.why.g2.title')}</h3>
+              <p>{t('land.why.g2.desc')}</p>
+            </div>
+            <div className="goal-card">
+              <div className="goal-icon goal-icon--green"><BarChart2 size={20} strokeWidth={1.5} /></div>
+              <h3>{t('land.why.g3.title')}</h3>
+              <p>{t('land.why.g3.desc')}</p>
+            </div>
+          </div>
         </div>
       </section>
 

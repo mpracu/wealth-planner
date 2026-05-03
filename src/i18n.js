@@ -22,7 +22,7 @@ export const T = {
   'land.hero.line1':   { es: 'Construye tu', en: 'Build your' },
   'land.hero.accent':  { es: 'futuro financiero', en: 'financial future' },
   'land.hero.line3':   { es: 'con confianza', en: 'with confidence' },
-  'land.hero.sub':     { es: 'Controla tu patrimonio, simula el crecimiento de tu riqueza y planifica inversiones recurrentes, todo en un solo lugar.', en: 'Track net worth, simulate wealth growth, and plan recurring investments, all in one place.' },
+  'land.hero.sub':     { es: 'Sin conectar tus cuentas bancarias. Añade tus activos manualmente, los precios de los fondos se actualizan solos. Aprende a invertir a largo plazo y alcanza tus objetivos financieros.', en: 'No bank connections. Add your assets manually — fund prices update automatically. Learn to invest long-term and achieve your financial goals.' },
   'land.hero.sim':     { es: 'Probar simulador', en: 'Try simulator' },
   'land.hero.nw':      { es: 'Ver patrimonio', en: 'View net worth' },
   'land.card.label':   { es: 'Patrimonio total', en: 'Total net worth' },
@@ -31,11 +31,31 @@ export const T = {
   'land.f1.desc':      { es: 'Proyecta tu riqueza futura con escenarios de inversión personalizados y plazos a medida.', en: 'Project your future wealth with custom investment scenarios and timelines.' },
   'land.f1.link':      { es: 'Abrir simulador →', en: 'Open simulator →' },
   'land.f2.title':     { es: 'Seguimiento de patrimonio', en: 'Net worth tracker' },
-  'land.f2.desc':      { es: 'Conecta tus cuentas y obtén una visión en tiempo real de tu situación financiera completa.', en: 'Connect your accounts and get a real-time view of your full financial picture.' },
+  'land.f2.desc':      { es: 'Registra tus activos sin conectar tus cuentas bancarias. Los fondos indexados actualizan su precio automáticamente con solo añadir su ISIN.', en: 'Record your assets without linking your bank accounts. Index fund prices update automatically by simply adding their ISIN.' },
   'land.f2.link':      { es: 'Registrar ahora →', en: 'Track now →' },
   'land.f3.title':     { es: 'Inversiones recurrentes', en: 'Recurring investments' },
   'land.f3.desc':      { es: 'Configura aportaciones automáticas y deja que el interés compuesto trabaje por ti.', en: 'Set up automatic contributions and watch compound growth do its work.' },
   'land.f3.link':      { es: 'Configurar →', en: 'Set up →' },
+
+  // ── Landing – How it works ─────────────────────────────────────
+  'land.how.title':    { es: '¿Cómo funciona?', en: 'How it works' },
+  'land.how.sub':      { es: 'Tres pasos para tener el control total de tu dinero', en: 'Three steps to take full control of your money' },
+  'land.how.s1.title': { es: 'Introduces tus datos tú mismo', en: 'You enter your own data' },
+  'land.how.s1.desc':  { es: 'Sin conectar cuentas bancarias. Añade manualmente tus activos — fondos, acciones, inmuebles, cuentas — para tener el control total de tu privacidad.', en: 'No bank connections. Manually add your assets — funds, stocks, real estate, accounts — to maintain full control over your privacy.' },
+  'land.how.s2.title': { es: 'Los fondos se actualizan solos', en: 'Funds update automatically' },
+  'land.how.s2.desc':  { es: 'Añade el ISIN de cualquier fondo indexado y Caudal actualiza el precio automáticamente. Sin integraciones externas, sin permisos bancarios.', en: 'Add the ISIN of any index fund and Caudal updates the price automatically. No external integrations, no banking permissions.' },
+  'land.how.s3.title': { es: 'Proyecta y planifica tu futuro', en: 'Project and plan your future' },
+  'land.how.s3.desc':  { es: 'Simula distintos escenarios, descubre el poder del interés compuesto y toma decisiones informadas sobre tu futuro financiero a largo plazo.', en: 'Simulate different scenarios, discover the power of compound interest, and make informed decisions about your long-term financial future.' },
+
+  // ── Landing – Goals ────────────────────────────────────────────
+  'land.why.title':    { es: 'Diseñado para tus objetivos', en: 'Built for your goals' },
+  'land.why.sub':      { es: 'Caudal ayuda a quienes quieren construir riqueza a largo plazo, con independencia y sin depender de asesores.', en: 'Caudal helps those who want to build wealth for the long term, independently and without relying on advisors.' },
+  'land.why.g1.title': { es: 'Ahorra para la jubilación', en: 'Save for retirement' },
+  'land.why.g1.desc':  { es: 'Planifica cuánto necesitas ahorrar cada mes. Simula distintas edades de jubilación y escenarios de rentabilidad para llegar a tu número.', en: 'Plan how much you need to save each month. Simulate different retirement ages and return scenarios to reach your number.' },
+  'land.why.g2.title': { es: 'Independencia financiera (FIRE)', en: 'Financial independence (FIRE)' },
+  'land.why.g2.desc':  { es: 'Calcula cuándo podrías dejar de necesitar tu salario. El método FIRE al alcance de todos, sin tecnicismos ni complicaciones.', en: 'Calculate when you could stop relying on your salary. The FIRE method made accessible, without the jargon or complexity.' },
+  'land.why.g3.title': { es: 'Haz crecer tu patrimonio', en: 'Grow your wealth' },
+  'land.why.g3.desc':  { es: 'Entiende el poder del interés compuesto y construye riqueza con aportaciones recurrentes, diversificación y tiempo a tu favor.', en: 'Understand the power of compound interest and build wealth with recurring contributions, diversification, and time on your side.' },
 
   // ── Landing footer ─────────────────────────────────────────────
   'land.ft.tagline':   { es: 'Haz fluir tu patrimonio', en: 'Let your wealth flow' },
