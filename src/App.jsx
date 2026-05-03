@@ -150,30 +150,31 @@ function App() {
         </div>
       </nav>
 
-      {view === 'landing' && (
+      {view === 'landing' ? (
         <Landing onNavigate={navigate} isAuthenticated={!!user} />
+      ) : (
+        <div className="container">
+          {view === 'login' && !user ? (
+            <Auth onAuthSuccess={() => { checkUser(); setView('networth'); }} />
+          ) : view === 'risk' ? (
+            <RiskProfile onLoadInSimulator={handleLoadInSimulator} />
+          ) : view === 'brand' ? (
+            <Brand />
+          ) : view === 'simulator' ? (
+            <Simulator preset={simulatorPreset} />
+          ) : view === 'blog' ? (
+            <Blog />
+          ) : view === 'networth' && user ? (
+            <NetWorth />
+          ) : (
+            <div className="auth-required">
+              <h2>{t('auth.req.title')}</h2>
+              <p>{t('auth.req.text')}</p>
+              <button onClick={() => setView('login')}>{t('auth.req.btn')}</button>
+            </div>
+          )}
+        </div>
       )}
-      <div className="container">
-        {view === 'landing' ? null : view === 'login' && !user ? (
-          <Auth onAuthSuccess={() => { checkUser(); setView('networth'); }} />
-        ) : view === 'risk' ? (
-          <RiskProfile onLoadInSimulator={handleLoadInSimulator} />
-        ) : view === 'brand' ? (
-          <Brand />
-        ) : view === 'simulator' ? (
-          <Simulator preset={simulatorPreset} />
-        ) : view === 'blog' ? (
-          <Blog />
-        ) : view === 'networth' && user ? (
-          <NetWorth />
-        ) : (
-          <div className="auth-required">
-            <h2>{t('auth.req.title')}</h2>
-            <p>{t('auth.req.text')}</p>
-            <button onClick={() => setView('login')}>{t('auth.req.btn')}</button>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
