@@ -37,6 +37,23 @@ export const T = {
   'land.f3.desc':      { es: 'Configura aportaciones automáticas y deja que el interés compuesto trabaje por ti.', en: 'Set up automatic contributions and watch compound growth do its work.' },
   'land.f3.link':      { es: 'Configurar →', en: 'Set up →' },
 
+  // ── Landing footer ─────────────────────────────────────────────
+  'land.ft.tagline':   { es: 'Haz fluir tu patrimonio', en: 'Let your wealth flow' },
+  'land.ft.col1':      { es: 'Sobre Caudal', en: 'About Caudal' },
+  'land.ft.brand':     { es: 'Portal de marca', en: 'Brand portal' },
+  'land.ft.what':      { es: '¿Qué es Caudal?', en: 'What is Caudal?' },
+  'land.ft.col2':      { es: 'Herramientas', en: 'Tools' },
+  'land.ft.sim':       { es: 'Simulador', en: 'Simulator' },
+  'land.ft.risk':      { es: 'Perfil de riesgo', en: 'Risk profile' },
+  'land.ft.blog':      { es: 'Blog', en: 'Blog' },
+  'land.ft.nw':        { es: 'Mi patrimonio', en: 'My net worth' },
+  'land.ft.col3':      { es: 'Cuenta', en: 'Account' },
+  'land.ft.login':     { es: 'Iniciar sesión', en: 'Sign in' },
+  'land.ft.register':  { es: 'Crear cuenta', en: 'Create account' },
+  'land.ft.copy':      { es: '© {year} Caudal · Todos los derechos reservados', en: '© {year} Caudal · All rights reserved' },
+  'land.ft.terms':     { es: 'Términos y condiciones', en: 'Terms & conditions' },
+  'land.ft.privacy':   { es: 'Política de privacidad', en: 'Privacy policy' },
+
   // ── Auth ───────────────────────────────────────────────────────
   'auth.tagline':    { es: 'Haz fluir tu patrimonio', en: 'Let your wealth flow' },
   'auth.email':      { es: 'Correo electrónico', en: 'Email' },

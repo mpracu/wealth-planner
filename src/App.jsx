@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import ReactGA from 'react-ga4';
-import { BarChart2, Wallet, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X, Target, Paintbrush } from 'lucide-react';
+import { BarChart2, Wallet, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X, Target } from 'lucide-react';
 import Auth from './components/Auth';
 import Simulator from './components/Simulator';
 import NetWorth from './components/NetWorth';
@@ -90,13 +90,6 @@ function App() {
           >
             <Target size={15} />
             {t('nav.risk')}
-          </button>
-          <button
-            className={view === 'brand' ? 'active' : ''}
-            onClick={() => navigate('brand')}
-          >
-            <Paintbrush size={15} />
-            {t('nav.brand')}
           </button>
           {user ? (
             <>

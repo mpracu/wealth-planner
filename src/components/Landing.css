@@ -166,6 +166,120 @@
   margin-top: 0.5rem;
 }
 
+/* ── Footer ───────────────────────────────────────────── */
+.landing-footer {
+  margin-top: auto;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border-color);
+}
+
+.lf-inner {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 2.5rem;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 3.5rem 4rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.lf-logo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.6rem;
+}
+
+.lf-tagline {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0 0 1.25rem;
+  max-width: 220px;
+}
+
+.lf-socials {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.lf-socials a {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.lf-socials a:hover { color: var(--text-primary); }
+
+.lf-col-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 1rem;
+  letter-spacing: 0.02em;
+}
+
+.lf-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.lf-col ul li button {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.15s;
+}
+.lf-col ul li button:hover { color: var(--text-primary); }
+
+.lf-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 1.25rem 4rem 1.5rem;
+  box-sizing: border-box;
+  border-top: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.lf-bottom > span {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.lf-legal {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lf-legal-btn {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+.lf-legal-btn:hover { color: var(--text-primary); }
+
+.lf-legal-sep {
+  font-size: 0.8rem;
+  color: var(--border-color);
+}
+
 /* ── Responsive ───────────────────────────────────────── */
 @media (max-width: 860px) {
   .hero {
@@ -182,6 +296,16 @@
     grid-template-columns: 1fr;
     padding: 0 2rem 3rem;
   }
+
+  .lf-inner {
+    grid-template-columns: 1fr 1fr;
+    padding: 2.5rem 2rem 2rem;
+    gap: 2rem;
+  }
+
+  .lf-brand { grid-column: 1 / -1; }
+
+  .lf-bottom { padding: 1.25rem 2rem 1.5rem; }
 }
 
 @media (max-width: 480px) {
@@ -199,5 +323,16 @@
 
   .features {
     padding: 0 1.25rem 2.5rem;
+  }
+
+  .lf-inner {
+    grid-template-columns: 1fr;
+    padding: 2rem 1.25rem 1.5rem;
+  }
+
+  .lf-bottom {
+    padding: 1rem 1.25rem 1.25rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
