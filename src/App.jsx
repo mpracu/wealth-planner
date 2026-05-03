@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import ReactGA from 'react-ga4';
-import { BarChart2, Wallet, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X, Target } from 'lucide-react';
+import { BarChart2, Wallet, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X, Target, Paintbrush } from 'lucide-react';
 import Auth from './components/Auth';
 import Simulator from './components/Simulator';
 import NetWorth from './components/NetWorth';
 import Blog from './components/Blog';
 import Landing from './components/Landing';
 import RiskProfile from './components/RiskProfile';
+import Brand from './components/Brand';
 import { useLanguage } from './LanguageContext';
 import './aws-config';
 import './App.css';
@@ -20,6 +21,7 @@ function App() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('post')) return 'blog';
     if (params.has('sim')) return 'simulator';
+    if (params.has('brand')) return 'brand';
     return 'landing';
   });
   const [menuOpen, setMenuOpen] = useState(false);
@@ -89,6 +91,13 @@ function App() {
             <Target size={15} />
             {t('nav.risk')}
           </button>
+          <button
+            className={view === 'brand' ? 'active' : ''}
+            onClick={() => navigate('brand')}
+          >
+            <Paintbrush size={15} />
+            {t('nav.brand')}
+          </button>
           {user ? (
             <>
               <button
@@ -155,6 +164,8 @@ function App() {
           <Auth onAuthSuccess={() => { checkUser(); setView('networth'); }} />
         ) : view === 'risk' ? (
           <RiskProfile onLoadInSimulator={handleLoadInSimulator} />
+        ) : view === 'brand' ? (
+          <Brand />
         ) : view === 'simulator' ? (
           <Simulator preset={simulatorPreset} />
         ) : view === 'blog' ? (

@@ -11,6 +11,7 @@ export const T = {
   'nav.switchDark':  { es: 'Cambiar a modo oscuro', en: 'Switch to dark mode' },
   'nav.langToggle':  { es: 'EN', en: 'ES' },
   'nav.toggleMenu':  { es: 'Abrir menú', en: 'Toggle menu' },
+  'nav.brand':       { es: 'Marca', en: 'Brand' },
 
   // ── Auth Required ──────────────────────────────────────────────
   'auth.req.title':  { es: 'Acceso requerido', en: 'Login Required' },
