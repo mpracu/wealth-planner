@@ -113,24 +113,40 @@
 .sp-inner {
   max-width: 1060px;
   margin: 0 auto;
-  padding: 0.9rem 4rem;
+  padding: 1.5rem 4rem;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: center;
+  gap: 3.5rem;
   flex-wrap: wrap;
   box-sizing: border-box;
 }
 
-.sp-stat {
-  font-size: 0.83rem;
-  font-weight: 600;
+.sp-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  text-align: center;
+}
+
+.sp-value {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--accent-green);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.sp-label {
+  font-size: 0.78rem;
   color: var(--text-secondary);
-  white-space: nowrap;
+  font-weight: 500;
 }
 
 .sp-sep {
   width: 1px;
-  height: 16px;
+  height: 40px;
   background: var(--border-color);
   flex-shrink: 0;
 }
@@ -679,8 +695,8 @@
   }
 
   .sp-inner {
-    padding: 0.9rem 2rem;
-    gap: 1rem;
+    padding: 1.25rem 2rem;
+    gap: 2rem;
   }
 
   .sp-sep { display: none; }
@@ -749,7 +765,7 @@
     padding: 0 1.25rem 3rem;
   }
 
-  .sp-inner { padding: 0.75rem 1.25rem; }
+  .sp-inner { padding: 1rem 1.25rem; gap: 1.5rem; }
 
   .sec-section {
     padding: 2.5rem 1.25rem 3rem;

@@ -38,9 +38,12 @@ export const T = {
   'land.f3.link':      { es: 'Configurar →', en: 'Set up →' },
 
   // ── Landing – Social proof ─────────────────────────────────────
-  'land.sp.users':   { es: '2.000+ usuarios activos', en: '2,000+ active users' },
-  'land.sp.wealth':  { es: '€40M en patrimonio registrado', en: '€40M in tracked wealth' },
-  'land.sp.privacy': { es: '100% privado · Sin conexión bancaria', en: '100% private · No bank connection' },
+  'land.sp.u.val':   { es: '2.000+', en: '2,000+' },
+  'land.sp.u.lbl':   { es: 'usuarios activos', en: 'active users' },
+  'land.sp.w.val':   { es: '€40M', en: '€40M' },
+  'land.sp.w.lbl':   { es: 'en patrimonio registrado', en: 'in tracked wealth' },
+  'land.sp.p.val':   { es: '100%', en: '100%' },
+  'land.sp.p.lbl':   { es: 'privado · sin conexión bancaria', en: 'private · no bank connection' },
 
   // ── Landing – Security ─────────────────────────────────────────
   'land.sec.title':      { es: 'Tu privacidad, nuestra prioridad', en: 'Your privacy, our priority' },
