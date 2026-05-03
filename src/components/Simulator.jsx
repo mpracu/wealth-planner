@@ -195,12 +195,12 @@ export default function Simulator({ preset }) {
     ReactGA.event({ category: 'User Input', action: `Adjusted ${name}`, value: Math.round(value) });
 
   const controls = [
-    { label: t('sim.currentAge'), id: 'age', value: age, set: setAge, min: 18, max: 80, step: 1, suffix: t('sim.yrs') },
-    { label: t('sim.startCap'), id: 'currentCapital', value: currentCapital, set: setCurrentCapital, min: 0, max: 500000, step: 1000, prefix: '€', format: true },
-    { label: t('sim.monthlyInv'), id: 'monthlyInvestment', value: monthlyInvestment, set: setMonthlyInvestment, min: 0, max: 10000, step: 100, prefix: '€', format: true },
+    { label: t('sim.currentAge'), id: 'age', value: age, set: setAge, min: 0, max: 100, step: 1, suffix: t('sim.yrs') },
+    { label: t('sim.startCap'), id: 'currentCapital', value: currentCapital, set: setCurrentCapital, min: 0, max: 500000, step: 1000, prefix: '€' },
+    { label: t('sim.monthlyInv'), id: 'monthlyInvestment', value: monthlyInvestment, set: setMonthlyInvestment, min: 0, max: 10000, step: 100, prefix: '€' },
     { label: t('sim.annualReturn'), id: 'annualReturn', value: annualReturn, set: setAnnualReturn, min: 0, max: 15, step: 0.5, suffix: '%' },
     { label: t('sim.inflation'), id: 'inflation', value: inflation, set: setInflation, min: 0, max: 10, step: 0.5, suffix: '%' },
-    { label: t('sim.goalAmount'), id: 'targetAmount', value: targetAmount, set: setTargetAmount, min: 10000, max: 5000000, step: 10000, prefix: '€', format: true },
+    { label: t('sim.goalAmount'), id: 'targetAmount', value: targetAmount, set: setTargetAmount, min: 0, max: 5000000, step: 10000, prefix: '€' },
   ];
 
   const goalBanner = goalData
@@ -209,6 +209,10 @@ export default function Simulator({ preset }) {
         .replace('{age}', goalData.age)
         .replace('{year}', goalData.year)
     : t('sim.goalMissed');
+
+  const yAxisMin = currentCapital > 1000
+    ? Math.floor(currentCapital * 0.88 / 1000) * 1000
+    : 0;
 
   return (
     <div className="simulator">
@@ -261,51 +265,32 @@ export default function Simulator({ preset }) {
           </div>
         </div>
         <div className="controls-grid">
-          {controls.map(({ label, id, value, set, min, max, step, prefix, suffix, format }) => (
+          {controls.map(({ label, id, value, set, min, max, step, prefix, suffix }) => (
             <div key={id} className="control">
               <div className="control-header">
                 <label htmlFor={`input-${id}`}>{label}</label>
                 <div className="control-input-wrap">
                   {prefix && <span className="control-affix">{prefix}</span>}
-                  {format ? (
-                    <input
-                      id={`input-${id}`}
-                      type="text"
-                      inputMode="numeric"
-                      className="control-number"
-                      value={drafts[id] !== undefined ? drafts[id] : value.toLocaleString('es-ES')}
-                      onChange={e => {
-                        const raw = e.target.value.replace(/[^0-9]/g, '');
-                        setDrafts(d => ({ ...d, [id]: e.target.value.replace(/[^0-9.,]/g, '') }));
-                        const num = parseInt(raw, 10);
-                        if (!isNaN(num)) set(num);
-                      }}
-                      onBlur={() => {
-                        const v = Math.min(max, Math.max(min, value));
-                        set(v);
-                        setDrafts(d => { const nd = { ...d }; delete nd[id]; return nd; });
-                        track(label, v);
-                      }}
-                    />
-                  ) : (
-                    <input
-                      id={`input-${id}`}
-                      type="number"
-                      className="control-number"
-                      value={value}
-                      min={min}
-                      max={max}
-                      step={step}
-                      onChange={e => {
-                        if (!isNaN(e.target.valueAsNumber)) set(e.target.valueAsNumber);
-                      }}
-                      onBlur={e => {
-                        const v = Math.min(max, Math.max(min, isNaN(e.target.valueAsNumber) ? min : e.target.valueAsNumber));
-                        set(v);
-                        track(label, v);
-                      }}
-                    />
-                  )}
+                  <input
+                    id={`input-${id}`}
+                    type="number"
+                    inputMode="decimal"
+                    className="control-number"
+                    value={drafts[id] !== undefined ? drafts[id] : value}
+                    onChange={e => {
+                      setDrafts(d => ({ ...d, [id]: e.target.value }));
+                      const num = parseFloat(e.target.value);
+                      if (!isNaN(num)) set(num);
+                    }}
+                    onFocus={() => setDrafts(d => ({ ...d, [id]: String(value) }))}
+                    onBlur={() => {
+                      const num = parseFloat(drafts[id] ?? String(value));
+                      const clamped = isNaN(num) ? value : Math.min(max, Math.max(min, num));
+                      set(clamped);
+                      setDrafts(d => { const nd = { ...d }; delete nd[id]; return nd; });
+                      track(label, clamped);
+                    }}
+                  />
                   {suffix && <span className="control-affix">{suffix}</span>}
                 </div>
               </div>
@@ -347,6 +332,7 @@ export default function Simulator({ preset }) {
               label={{ value: t('sim.age'), position: 'insideBottomRight', offset: -10, fill: themeColors.axis, fontSize: 12 }}
             />
             <YAxis
+              domain={[yAxisMin, 'auto']}
               stroke={themeColors.axis}
               tick={{ fill: themeColors.axis, fontSize: 12 }}
               tickFormatter={fmt}
