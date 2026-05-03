@@ -273,18 +273,22 @@ export default function Simulator({ preset }) {
                   {prefix && <span className="control-affix">{prefix}</span>}
                   <input
                     id={`input-${id}`}
-                    type="number"
+                    type="text"
                     inputMode="decimal"
                     className="control-number"
-                    value={drafts[id] !== undefined ? drafts[id] : value}
+                    value={drafts[id] !== undefined ? drafts[id] : value.toLocaleString('en-US')}
                     onChange={e => {
                       setDrafts(d => ({ ...d, [id]: e.target.value }));
-                      const num = parseFloat(e.target.value);
+                      const num = parseFloat(e.target.value.replace(/,/g, ''));
                       if (!isNaN(num)) set(num);
                     }}
-                    onFocus={() => setDrafts(d => ({ ...d, [id]: String(value) }))}
+                    onFocus={e => {
+                      setDrafts(d => ({ ...d, [id]: String(value) }));
+                      setTimeout(() => e.target.select(), 0);
+                    }}
                     onBlur={() => {
-                      const num = parseFloat(drafts[id] ?? String(value));
+                      const raw = drafts[id] ?? String(value);
+                      const num = parseFloat(raw.replace(/,/g, ''));
                       const clamped = isNaN(num) ? value : Math.min(max, Math.max(min, num));
                       set(clamped);
                       setDrafts(d => { const nd = { ...d }; delete nd[id]; return nd; });
