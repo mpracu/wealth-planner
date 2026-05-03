@@ -221,7 +221,7 @@ export default function Simulator({ preset }) {
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-label">{t('sim.startCap')}</div>
-          <div className="stat-value">€{currentCapital.toLocaleString('es-ES')}</div>
+          <div className="stat-value">€{currentCapital.toLocaleString('en-US')}</div>
         </div>
         <div className={`stat-card ${goalData ? 'stat-card--success' : 'stat-card--warn'}`}>
           <div className="stat-label">{t('sim.goal')}</div>
@@ -237,7 +237,7 @@ export default function Simulator({ preset }) {
         </div>
         <div className="stat-card">
           <div className="stat-label">{t('sim.monthlyContrib')}</div>
-          <div className="stat-value">€{monthlyInvestment.toLocaleString('es-ES')}</div>
+          <div className="stat-value">€{monthlyInvestment.toLocaleString('en-US')}</div>
           <div className="stat-sub">{annualReturn}{t('sim.expectedRet')}</div>
         </div>
       </div>
@@ -251,7 +251,7 @@ export default function Simulator({ preset }) {
           <h3 className="section-title">{t('sim.params')}</h3>
           <div className="sim-share-btns">
             <a
-              href={`https://wa.me/?text=${encodeURIComponent(t('sim.shareText').replace('{capital}', currentCapital.toLocaleString('es-ES')).replace('{monthly}', monthlyInvestment.toLocaleString('es-ES')).replace('{return}', annualReturn) + '\n' + getShareUrl())}`}
+              href={`https://wa.me/?text=${encodeURIComponent(t('sim.shareText').replace('{capital}', currentCapital.toLocaleString('en-US')).replace('{monthly}', monthlyInvestment.toLocaleString('en-US')).replace('{return}', annualReturn) + '\n' + getShareUrl())}`}
               target="_blank" rel="noopener noreferrer"
               className="share-btn share-btn--whatsapp share-btn--sm"
             >
@@ -353,7 +353,7 @@ export default function Simulator({ preset }) {
               labelStyle={{ color: themeColors.text, fontWeight: 600, marginBottom: 4 }}
               itemStyle={{ color: themeColors.text }}
               labelFormatter={v => `${t('sim.ageLabel')} ${v}`}
-              formatter={(v, name) => [`€${Number(v).toLocaleString('es-ES')}`, name]}
+              formatter={(v, name) => [`€${Number(v).toLocaleString('en-US')}`, name]}
             />
             <Legend wrapperStyle={{ paddingTop: 16, fontSize: 13 }} />
             <ReferenceLine
@@ -415,7 +415,7 @@ export default function Simulator({ preset }) {
                   <div className="scenario-info">
                     <span className="scenario-name">{s.name}</span>
                     <span className="scenario-meta">
-                      {t('sim.ageLabel')} {s.data.age} · €{s.data.monthlyInvestment.toLocaleString('es-ES')}{t('sim.perMonth')} · {s.data.annualReturn}{t('sim.return')}
+                      {t('sim.ageLabel')} {s.data.age} · €{s.data.monthlyInvestment.toLocaleString('en-US')}{t('sim.perMonth')} · {s.data.annualReturn}{t('sim.return')}
                     </span>
                   </div>
                   <div className="scenario-actions">
