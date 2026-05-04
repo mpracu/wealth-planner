@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { signIn, signUp, confirmSignUp, signInWithRedirect, resetPassword, confirmResetPassword } from 'aws-amplify/auth';
-import ShieldLogo from './ShieldLogo';
+import { signIn, signUp, confirmSignUp, resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 import { useLanguage } from '../LanguageContext';
 import './Auth.css';
 
@@ -13,14 +12,6 @@ export default function Auth({ onAuthSuccess }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-
-  const handleGoogleSignIn = async () => {
-    try {
-      await signInWithRedirect({ provider: 'Google' });
-    } catch {
-      setError(t('auth.googleError'));
-    }
-  };
 
   const handleSignIn = async (e) => {
     e.preventDefault();
@@ -97,9 +88,8 @@ export default function Auth({ onAuthSuccess }) {
     <div className="auth-container">
       <div className="auth-box">
         <div className="auth-header">
-          <ShieldLogo className="auth-logo" />
-          <h1>💰 Caudal</h1>
-          <p className="tagline">{t('auth.tagline')}</p>
+          <div className="auth-logo-text">💰 Caudal</div>
+          <p className="auth-tagline">{t('auth.tagline')}</p>
         </div>
 
         {mode === 'signin' && (
