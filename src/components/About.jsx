@@ -79,10 +79,6 @@ function ContentES({ onNavigate }) {
               <span className="about-tech-label">Cifrado</span>
               <span className="about-tech-value">TLS 1.2+ en tránsito · AES-256 en reposo</span>
             </div>
-            <div className="about-tech-item">
-              <span className="about-tech-label">Código abierto</span>
-              <span className="about-tech-value">El código fuente está disponible en GitHub para que cualquiera pueda auditarlo</span>
-            </div>
           </div>
         </div>
       </section>
@@ -177,10 +173,6 @@ function ContentEN({ onNavigate }) {
             <div className="about-tech-item">
               <span className="about-tech-label">Encryption</span>
               <span className="about-tech-value">TLS 1.2+ in transit · AES-256 at rest</span>
-            </div>
-            <div className="about-tech-item">
-              <span className="about-tech-label">Open source</span>
-              <span className="about-tech-value">Source code is available on GitHub for anyone to audit</span>
             </div>
           </div>
         </div>
