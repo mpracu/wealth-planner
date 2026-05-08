@@ -295,6 +295,12 @@ export const T = {
   'nw.importFail':     { es: 'Error al importar. Revisa la consola para más detalles.', en: 'Import failed. Check console for details.' },
   'nw.netWorth':       { es: 'Patrimonio neto', en: 'Net Worth' },
   'nw.tagsEditPh':     { es: 'p.ej., Acciones, Fondo indexado', en: 'e.g., Stocks, Index Fund' },
+  'nw.stale.title':    { es: '{n} activo(s) sin actualizar', en: '{n} asset(s) need updating' },
+  'nw.stale.sub':      { es: 'Estos activos no tienen precio automático y llevan más de 30 días sin actualizar.', en: 'These assets have no automatic price and haven\'t been updated in over 30 days.' },
+  'nw.stale.update':   { es: 'Actualizar', en: 'Update' },
+  'nw.stale.days':     { es: 'hace {n} días', en: '{n} days ago' },
+  'nw.stale.today':    { es: 'actualizado hoy', en: 'updated today' },
+  'nw.stale.never':    { es: 'nunca actualizado', en: 'never updated' },
 
   // ── Blog ───────────────────────────────────────────────────────
   'blog.title':        { es: 'Artículos de finanzas e inversión', en: 'Wealth Building Insights' },

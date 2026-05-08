@@ -416,6 +416,21 @@ export default function NetWorth() {
     if (openForm) setShowForm(true);
   };
 
+  const STALE_DAYS = 30;
+  const daysSince = (isoDate) => {
+    if (!isoDate) return Infinity;
+    return Math.floor((Date.now() - new Date(isoDate).getTime()) / 86_400_000);
+  };
+  const isStale = (item) => !item.isin && daysSince(item.updatedAt) >= STALE_DAYS;
+  const staleItems = items.filter(i => i.type === 'asset' && isStale(i));
+
+  const staleDaysLabel = (item) => {
+    const d = daysSince(item.updatedAt);
+    if (d === Infinity) return t('nw.stale.never');
+    if (d === 0) return t('nw.stale.today');
+    return t('nw.stale.days').replace('{n}', d);
+  };
+
   return (
     <div className="networth">
 
@@ -801,6 +816,29 @@ export default function NetWorth() {
         </div>
       )}
 
+      {staleItems.length > 0 && activeTab === 'assets' && (
+        <div className="nw-stale-banner">
+          <div className="nw-stale-banner-header">
+            <span className="nw-stale-icon">⏰</span>
+            <div>
+              <strong>{t('nw.stale.title').replace('{n}', staleItems.length)}</strong>
+              <p>{t('nw.stale.sub')}</p>
+            </div>
+          </div>
+          <div className="nw-stale-list">
+            {staleItems.map(item => (
+              <div key={item.itemId} className="nw-stale-row">
+                <span className="nw-stale-name">{item.name}</span>
+                <span className="nw-stale-age">{staleDaysLabel(item)}</span>
+                <button className="nw-stale-btn" onClick={() => { editItem(item); setActiveTab('assets'); }}>
+                  {t('nw.stale.update')}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="items-list">
         <div className="items-section-header">
           <h3>{t('nw.assetsSection')}</h3>
@@ -811,7 +849,7 @@ export default function NetWorth() {
         )}
         {items.filter(i => i.type === 'asset').sort((a,b) => b.value - a.value).map(item => (
           <React.Fragment key={item.itemId}>
-            <div className={`item-row ${item.isin ? 'item-row--investment' : ''}`}>
+            <div className={`item-row ${item.isin ? 'item-row--investment' : ''} ${isStale(item) ? 'item-row--stale' : ''}`}>
               <div className="item-row-info">
                 <div className="item-row-name">{item.name}</div>
                 <div className="item-row-sub">
@@ -819,6 +857,7 @@ export default function NetWorth() {
                   {item.shares && item.pricePerShare && (
                     <span className="shares-detail">{parseFloat(item.shares).toLocaleString('es-ES', {maximumFractionDigits: 3})} shares · {currency}{parseFloat(item.pricePerShare).toFixed(2)}</span>
                   )}
+                  {isStale(item) && <span className="stale-badge">⏰ {staleDaysLabel(item)}</span>}
                   {item.tags && item.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => <span key={t} className="tag">{t}</span>)}
                 </div>
               </div>
