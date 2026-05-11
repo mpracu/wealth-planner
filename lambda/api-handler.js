@@ -6,7 +6,7 @@ const sesClient = new SESv2Client({ region: 'us-east-1' });
 const ALERT_EMAIL = 'manugvd@gmail.com';
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
-const NOTION_FEEDBACK_DB = 'fda7ee9da97642e287c4f5cd8a95aa23';
+const NOTION_FEEDBACK_DB = '35d223ca0881815ea0c0e35ce3d5f2f1';
 
 async function addFeedbackToNotion({ type, message, email, userId }) {
   if (!NOTION_TOKEN) return;
