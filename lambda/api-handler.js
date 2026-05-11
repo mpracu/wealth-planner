@@ -76,6 +76,39 @@ exports.handler = async (event) => {
     }
   }
 
+  // Public feedback endpoint (no auth required)
+  if (path === '/feedback' && method === 'POST') {
+    try {
+      const body = JSON.parse(event.body || '{}');
+      const { message, email, type, userId } = body;
+      if (!message?.trim()) return { statusCode: 400, headers, body: JSON.stringify({ error: 'empty' }) };
+
+      const ts = new Date().toISOString();
+      const label = type === 'bug' ? '🐛 Bug' : type === 'feature' ? '✨ Feature request' : '💬 Feedback';
+      const subject = `[Caudal] ${label} – ${email || userId || 'anonymous'}`;
+      const text = [
+        `Time:    ${ts}`,
+        `Type:    ${label}`,
+        `User:    ${userId || 'anonymous'}`,
+        `Email:   ${email || 'not provided'}`,
+        '',
+        message.trim()
+      ].join('\n');
+
+      await sesClient.send(new SendEmailCommand({
+        FromEmailAddress: ALERT_EMAIL,
+        Destination: { ToAddresses: [ALERT_EMAIL] },
+        Content: { Simple: { Subject: { Data: subject }, Body: { Text: { Data: text } } } }
+      }));
+
+      console.log(`Feedback received: type=${type} user=${userId || 'anon'}`);
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+    } catch (err) {
+      console.error('Feedback error:', err.message);
+      return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+    }
+  }
+
   // Public error reporting endpoint (no auth required)
   if (path === '/error-report' && method === 'POST') {
     try {

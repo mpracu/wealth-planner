@@ -314,6 +314,21 @@ export const T = {
   'blog.copyLink':     { es: 'Copiar enlace', en: 'Copy link' },
   'blog.copied':       { es: '¡Copiado!', en: 'Copied!' },
 
+  // ── Feedback widget ────────────────────────────────────────────
+  'fb.btn':          { es: 'Feedback', en: 'Feedback' },
+  'fb.title':        { es: '¿Qué mejorarías?', en: 'Help us improve' },
+  'fb.sub':          { es: 'Tu opinión nos ayuda a construir algo mejor. Responderemos si dejas tu email.', en: 'Your input helps us build something better. We\'ll reply if you leave your email.' },
+  'fb.type.general': { es: 'General', en: 'General' },
+  'fb.type.feature': { es: 'Función nueva', en: 'Feature' },
+  'fb.type.bug':     { es: 'Fallo', en: 'Bug' },
+  'fb.placeholder':  { es: 'Cuéntanos qué piensas o qué te gustaría ver…', en: 'Tell us what you think or what you\'d like to see…' },
+  'fb.emailPh':      { es: 'Tu email (opcional, para responderte)', en: 'Your email (optional, to reply to you)' },
+  'fb.send':         { es: 'Enviar', en: 'Send' },
+  'fb.sending':      { es: 'Enviando…', en: 'Sending…' },
+  'fb.thanks':       { es: '¡Gracias! Hemos recibido tu mensaje.', en: 'Thanks! We\'ve received your message.' },
+  'fb.close':        { es: 'Cerrar', en: 'Close' },
+  'fb.error':        { es: 'Error al enviar. Inténtalo de nuevo.', en: 'Failed to send. Please try again.' },
+
   // ── Risk Profile ───────────────────────────────────────────────
   'rp.title':          { es: 'Cuestionario de perfil inversor', en: 'Investor Profile Quiz' },
   'rp.subtitle':       { es: '7 preguntas · 2 minutos · Recomendación de cartera personalizada', en: '7 questions · 2 minutes · Personalised portfolio recommendation' },

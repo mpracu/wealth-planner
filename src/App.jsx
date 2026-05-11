@@ -12,6 +12,7 @@ import Brand from './components/Brand';
 import About from './components/About';
 import { useLanguage } from './LanguageContext';
 import { installGlobalErrorHandlers } from './errorReporter';
+import FeedbackWidget from './components/FeedbackWidget';
 import './aws-config';
 import './App.css';
 
@@ -180,6 +181,8 @@ function App() {
           )}
         </div>
       )}
+
+      <FeedbackWidget user={user} />
     </div>
   );
 }
