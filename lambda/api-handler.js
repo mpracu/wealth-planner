@@ -129,7 +129,7 @@ exports.handler = async (event) => {
         Content: { Simple: { Subject: { Data: subject }, Body: { Text: { Data: text } } } }
       }));
 
-      addFeedbackToNotion({ type, message: message.trim(), email, userId }).catch(e =>
+      await addFeedbackToNotion({ type, message: message.trim(), email, userId }).catch(e =>
         console.error('Notion feedback error:', e.message)
       );
 
