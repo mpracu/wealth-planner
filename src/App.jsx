@@ -11,6 +11,7 @@ import RiskProfile from './components/RiskProfile';
 import Brand from './components/Brand';
 import About from './components/About';
 import { useLanguage } from './LanguageContext';
+import { installGlobalErrorHandlers } from './errorReporter';
 import './aws-config';
 import './App.css';
 
@@ -37,6 +38,7 @@ function App() {
   useEffect(() => {
     checkUser();
     ReactGA.send({ hitType: 'pageview', page: window.location.pathname });
+    installGlobalErrorHandlers(() => user?.username);
   }, []);
 
   const checkUser = async () => {

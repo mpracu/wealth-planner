@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import ReactGA from 'react-ga4'
 import './index.css'
 import App from './App.jsx'
+import ErrorBoundary from './ErrorBoundary.jsx'
 import { LanguageProvider } from './LanguageContext.jsx'
 
 // Initialize Google Analytics
@@ -13,7 +14,9 @@ ReactGA.initialize(GA_MEASUREMENT_ID)
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <LanguageProvider>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </LanguageProvider>
   </StrictMode>,
 )

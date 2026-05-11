@@ -1,5 +1,9 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient, PutCommand, QueryCommand, DeleteCommand, GetCommand, ScanCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
+const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2');
+
+const sesClient = new SESv2Client({ region: 'us-east-1' });
+const ALERT_EMAIL = 'manugvd@gmail.com';
 
 const YF_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -69,6 +73,41 @@ exports.handler = async (event) => {
     } catch (error) {
       console.error(error);
       return { statusCode: 500, headers, body: JSON.stringify({ error: error.message }) };
+    }
+  }
+
+  // Public error reporting endpoint (no auth required)
+  if (path === '/error-report' && method === 'POST') {
+    try {
+      const body = JSON.parse(event.body || '{}');
+      const { type, message, stack, url, userId: reportUserId, userAgent } = body;
+      const ts = new Date().toISOString();
+
+      console.error(`[FRONTEND ERROR] type=${type} user=${reportUserId || 'anon'} url=${url}\n${message}\n${stack || ''}`);
+
+      const subject = `[Caudal] 🔴 Frontend error – ${type || 'unknown'} (${reportUserId || 'anon'})`;
+      const text = [
+        `Time:      ${ts}`,
+        `Type:      ${type || 'unknown'}`,
+        `User:      ${reportUserId || 'anonymous'}`,
+        `URL:       ${url || 'n/a'}`,
+        `Browser:   ${userAgent || 'n/a'}`,
+        '',
+        `Message:   ${message}`,
+        '',
+        stack ? `Stack:\n${stack}` : ''
+      ].join('\n');
+
+      await sesClient.send(new SendEmailCommand({
+        FromEmailAddress: ALERT_EMAIL,
+        Destination: { ToAddresses: [ALERT_EMAIL] },
+        Content: { Simple: { Subject: { Data: subject }, Body: { Text: { Data: text } } } }
+      }));
+
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+    } catch (err) {
+      console.error('Failed to process error report:', err.message);
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: false }) };
     }
   }
 
