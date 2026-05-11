@@ -5,6 +5,34 @@ const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2');
 const sesClient = new SESv2Client({ region: 'us-east-1' });
 const ALERT_EMAIL = 'manugvd@gmail.com';
 
+const NOTION_TOKEN = process.env.NOTION_TOKEN;
+const NOTION_FEEDBACK_DB = 'fda7ee9da97642e287c4f5cd8a95aa23';
+
+async function addFeedbackToNotion({ type, message, email, userId }) {
+  if (!NOTION_TOKEN) return;
+  const label = type === 'bug' ? 'Bug' : type === 'feature' ? 'Feature Request' : 'Feedback';
+  const title = `${label} – ${email || userId || 'anonymous'}`;
+  await fetchWithTimeout('https://api.notion.com/v1/pages', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${NOTION_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Notion-Version': '2022-06-28',
+    },
+    body: JSON.stringify({
+      parent: { database_id: NOTION_FEEDBACK_DB },
+      properties: {
+        Name:    { title: [{ text: { content: title } }] },
+        Type:    { select: { name: label } },
+        Message: { rich_text: [{ text: { content: message } }] },
+        Email:   email ? { email } : { email: null },
+        'User ID': { rich_text: userId ? [{ text: { content: userId } }] : [] },
+        Status:  { select: { name: 'New' } },
+      },
+    }),
+  });
+}
+
 const YF_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
   'Accept': 'application/json',
@@ -100,6 +128,10 @@ exports.handler = async (event) => {
         Destination: { ToAddresses: [ALERT_EMAIL] },
         Content: { Simple: { Subject: { Data: subject }, Body: { Text: { Data: text } } } }
       }));
+
+      addFeedbackToNotion({ type, message: message.trim(), email, userId }).catch(e =>
+        console.error('Notion feedback error:', e.message)
+      );
 
       console.log(`Feedback received: type=${type} user=${userId || 'anon'}`);
       return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
