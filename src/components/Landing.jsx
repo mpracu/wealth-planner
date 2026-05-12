@@ -185,43 +185,6 @@ function Landing({ onNavigate, isAuthenticated }) {
         </div>
       </section>
 
-      {/* ── Pricing ─────────────────────────────────────── */}
-      <section className="pricing-section">
-        <div className="section-header">
-          <h2>{t('land.price.title')}</h2>
-          <p>{t('land.price.sub')}</p>
-        </div>
-        <div className="pricing-grid">
-          <div className="plan-card">
-            <div className="plan-name">{t('land.price.free.name')}</div>
-            <div className="plan-price">€0<span>{t('land.price.mo')}</span></div>
-            <p className="plan-desc">{t('land.price.free.desc')}</p>
-            <ul className="plan-features">
-              {['f1','f2','f3','f4','f5','f6'].map(k => (
-                <li key={k}><Check size={14} strokeWidth={2.5} />{t(`land.price.${k}`)}</li>
-              ))}
-            </ul>
-            <button className="plan-cta plan-cta--free" onClick={() => onNavigate(isAuthenticated ? 'networth' : 'login')}>
-              {t('land.price.cta.free')}
-            </button>
-          </div>
-
-          <div className="plan-card plan-card--pro">
-            <div className="plan-badge">{t('land.price.pro.badge')}</div>
-            <div className="plan-name">{t('land.price.pro.name')}</div>
-            <div className="plan-price">€7<span>{t('land.price.mo')}</span></div>
-            <p className="plan-desc">{t('land.price.pro.desc')}</p>
-            <ul className="plan-features">
-              {['p1','p2','p3','p4','p5','p6','p7'].map(k => (
-                <li key={k}><Check size={14} strokeWidth={2.5} />{t(`land.price.${k}`)}</li>
-              ))}
-            </ul>
-            <button className="plan-cta plan-cta--pro" disabled>
-              {t('land.price.cta.wait')}
-            </button>
-          </div>
-        </div>
-      </section>
 
       {/* ── Footer ──────────────────────────────────────── */}
       <footer className="landing-footer">
