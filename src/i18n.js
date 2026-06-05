@@ -302,6 +302,16 @@ export const T = {
   'nw.stale.today':    { es: 'actualizado hoy', en: 'updated today' },
   'nw.stale.never':    { es: 'nunca actualizado', en: 'never updated' },
 
+  // ── Net Worth – Growth Attribution ────────────────────────────
+  'nw.ga.title':         { es: 'Origen del crecimiento', en: 'Growth Attribution' },
+  'nw.ga.sub':           { es: 'desde {date}', en: 'since {date}' },
+  'nw.ga.initial':       { es: 'Patrimonio inicial', en: 'Starting value' },
+  'nw.ga.contributed':   { es: 'Aportado', en: 'Contributed' },
+  'nw.ga.returns':       { es: 'Rentabilidad', en: 'Market returns' },
+  'nw.ga.contributions': { es: 'Aportaciones', en: 'Contributions' },
+  'nw.ga.disclaimer':    { es: 'Estimación basada en aportaciones recurrentes actuales ({n}/mes). Las aportaciones manuales no se incluyen.', en: 'Estimate based on current recurring contributions ({n}/mo). Manual contributions are not included.' },
+  'nw.ga.noRecurring':   { es: 'Sin aportaciones recurrentes configuradas. Añade inversiones recurrentes para ver cómo contribuyen a tu crecimiento.', en: 'No recurring contributions set up. Add recurring investments to see how they contribute to your growth.' },
+
   // ── Blog ───────────────────────────────────────────────────────
   'blog.title':        { es: 'Artículos de finanzas e inversión', en: 'Wealth Building Insights' },
   'blog.loading':      { es: 'Cargando últimos artículos...', en: 'Loading latest articles...' },

@@ -410,6 +410,31 @@ export default function NetWorth() {
     })).sort((a, b) => b.value - a.value);
   }, [items, totalAssets]);
 
+  const growthAttribution = useMemo(() => {
+    if (history.length < 2) return null;
+    const sorted = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const first = sorted[0];
+    let totalContributions = 0;
+    for (let i = 1; i < sorted.length; i++) {
+      const monthsElapsed = (new Date(sorted[i].date) - new Date(sorted[i - 1].date)) / (1000 * 60 * 60 * 24 * 30.44);
+      totalContributions += monthlyDCA * monthsElapsed;
+    }
+    const last = sorted[sorted.length - 1];
+    const monthsToNow = (Date.now() - new Date(last.date).getTime()) / (1000 * 60 * 60 * 24 * 30.44);
+    totalContributions += monthlyDCA * monthsToNow;
+    const totalGrowth = netWorth - first.netWorth;
+    const interestGrowth = totalGrowth - totalContributions;
+    const positiveTotal = Math.max(totalContributions, 0) + Math.max(interestGrowth, 0);
+    return {
+      startNetWorth: first.netWorth,
+      totalContributions: Math.round(totalContributions),
+      interestGrowth: Math.round(interestGrowth),
+      contributionPct: positiveTotal > 0 ? Math.round((Math.max(totalContributions, 0) / positiveTotal) * 100) : 0,
+      returnPct: positiveTotal > 0 ? Math.round((Math.max(interestGrowth, 0) / positiveTotal) * 100) : 0,
+      sinceDate: first.date,
+    };
+  }, [history, netWorth, monthlyDCA]);
+
   const dismissOnboarding = (openForm = false) => {
     localStorage.setItem('caudal_onboarded', '1');
     setShowOnboarding(false);
@@ -609,6 +634,66 @@ export default function NetWorth() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Growth Attribution */}
+          {growthAttribution && (
+            <div className="nw-card" style={{marginBottom:'1.25rem'}}>
+              <div className="nw-card-header">
+                <div>
+                  <h3>{t('nw.ga.title')}</h3>
+                  <span className="nw-card-sub">
+                    {t('nw.ga.sub').replace('{date}', new Date(growthAttribution.sinceDate).toLocaleDateString(undefined, {month:'short', year:'numeric'}))}
+                  </span>
+                </div>
+              </div>
+
+              {monthlyDCA === 0 ? (
+                <p style={{fontSize:'0.85rem', color:'var(--text-secondary)', padding:'0.25rem 0'}}>{t('nw.ga.noRecurring')}</p>
+              ) : (
+                <>
+                  <div className="nw-ga-bar-wrap">
+                    <div className="nw-ga-bar-track">
+                      <div className="nw-ga-bar-contrib" style={{width:`${growthAttribution.contributionPct}%`}} />
+                      <div className="nw-ga-bar-return" style={{width:`${growthAttribution.returnPct}%`}} />
+                    </div>
+                    <div className="nw-ga-legend">
+                      <span className="nw-ga-legend-item" style={{color:'var(--nw-accent)'}}>
+                        <span className="nw-ga-dot" style={{background:'var(--nw-accent)'}} />
+                        {t('nw.ga.contributions')} · {growthAttribution.contributionPct}%
+                      </span>
+                      <span className="nw-ga-legend-item" style={{color: growthAttribution.interestGrowth >= 0 ? 'var(--nw-green)' : 'var(--nw-red)'}}>
+                        <span className="nw-ga-dot" style={{background: growthAttribution.interestGrowth >= 0 ? 'var(--nw-green)' : 'var(--nw-red)'}} />
+                        {t('nw.ga.returns')} · {growthAttribution.returnPct}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="nw-forecast-summary">
+                    <div className="nw-fc-stat">
+                      <span>{t('nw.ga.initial')}</span>
+                      <strong>{currency}{growthAttribution.startNetWorth.toLocaleString('es-ES',{maximumFractionDigits:0})}</strong>
+                    </div>
+                    <div className="nw-fc-arrow">→</div>
+                    <div className="nw-fc-stat nw-fc-stat--highlight">
+                      <span>{t('nw.ga.contributed')}</span>
+                      <strong>+{currency}{growthAttribution.totalContributions.toLocaleString('es-ES',{maximumFractionDigits:0})}</strong>
+                    </div>
+                    <div className="nw-fc-sep" />
+                    <div className="nw-fc-stat">
+                      <span>{t('nw.ga.returns')}</span>
+                      <strong style={{color: growthAttribution.interestGrowth >= 0 ? 'var(--nw-green)' : 'var(--nw-red)'}}>
+                        {growthAttribution.interestGrowth >= 0 ? '+' : ''}{currency}{growthAttribution.interestGrowth.toLocaleString('es-ES',{maximumFractionDigits:0})}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <p className="nw-ga-disclaimer">
+                    {t('nw.ga.disclaimer').replace('{n}', `${currency}${monthlyDCA.toLocaleString('es-ES')}`)}
+                  </p>
+                </>
+              )}
             </div>
           )}
 
