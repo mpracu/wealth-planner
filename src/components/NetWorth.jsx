@@ -718,7 +718,7 @@ export default function NetWorth() {
                         const num = parseFloat(e.target.value.replace(/,/g, ''));
                         if (!isNaN(num)) set(num);
                       }}
-                      onFocus={e => { setFcDrafts(d => ({ ...d, [id]: String(value) })); setTimeout(() => e.target.select(), 0); }}
+                      onFocus={e => e.target.select()}
                       onBlur={() => {
                         const num = parseFloat((fcDrafts[id] ?? String(value)).replace(/,/g, ''));
                         set(isNaN(num) ? value : Math.min(max, Math.max(min, num)));
@@ -740,7 +740,7 @@ export default function NetWorth() {
                         const num = parseFloat(e.target.value.replace(/,/g, ''));
                         if (!isNaN(num)) setForecastDCAOverride(num);
                       }}
-                      onFocus={e => { setFcDrafts(d => ({ ...d, dca: String(forecastDCA) })); setTimeout(() => e.target.select(), 0); }}
+                      onFocus={e => e.target.select()}
                       onBlur={() => {
                         const num = parseFloat((fcDrafts.dca ?? String(forecastDCA)).replace(/,/g, ''));
                         const clamped = isNaN(num) ? forecastDCA : Math.max(0, num);
@@ -842,7 +842,7 @@ export default function NetWorth() {
                   type="number" step="0.01" placeholder="0.00"
                   value={formData.shares && formData.pricePerShare
                     ? (parseFloat(formData.shares) * parseFloat(formData.pricePerShare)).toFixed(2)
-                    : formData.value}
+                    : (formData.value || '')}
                   readOnly={!!(formData.shares && formData.pricePerShare)}
                   onChange={e => setFormData({...formData, value: +e.target.value})}
                   style={formData.shares && formData.pricePerShare ? {opacity: 0.7, cursor: 'default'} : {}}
@@ -889,7 +889,7 @@ export default function NetWorth() {
                 <option key={name} value={name}>{name}</option>
               ))}
             </select>
-            <input type="number" placeholder={t('nw.amount')} value={recurringFormData.amount} onChange={e => setRecurringFormData({...recurringFormData, amount: +e.target.value})} required />
+            <input type="number" placeholder={t('nw.amount')} value={recurringFormData.amount || ''} onChange={e => setRecurringFormData({...recurringFormData, amount: +e.target.value})} required />
             <input type="number" min="1" max="28" placeholder={t('nw.dayOfMonthPh')} value={recurringFormData.dayOfMonth} onChange={e => setRecurringFormData({...recurringFormData, dayOfMonth: +e.target.value})} required />
             <input placeholder={t('nw.tagsPh2')} value={recurringFormData.tags} onChange={e => setRecurringFormData({...recurringFormData, tags: e.target.value})} />
 
@@ -977,7 +977,7 @@ export default function NetWorth() {
                         type="number" step="0.01"
                         value={formData.shares && formData.pricePerShare
                           ? (parseFloat(formData.shares) * parseFloat(formData.pricePerShare)).toFixed(2)
-                          : formData.value}
+                          : (formData.value || '')}
                         readOnly={!!(formData.shares && formData.pricePerShare)}
                         onChange={e => setFormData({...formData, value: +e.target.value})}
                         style={formData.shares && formData.pricePerShare ? {opacity: 0.7, cursor: 'default'} : {}}
@@ -1051,7 +1051,7 @@ export default function NetWorth() {
                     </label>
                     <label className="form-field">
                       <span>{t('nw.value')} ({currency})</span>
-                      <input type="number" step="0.01" value={formData.value} onChange={e => setFormData({...formData, value: +e.target.value})} required />
+                      <input type="number" step="0.01" value={formData.value || ''} onChange={e => setFormData({...formData, value: +e.target.value})} required />
                     </label>
                     <label className="form-field form-field--wide">
                       <span>{t('nw.tags')} <span className="field-hint">{t('nw.optional')}</span></span>

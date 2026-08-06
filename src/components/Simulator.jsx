@@ -282,10 +282,7 @@ export default function Simulator({ preset }) {
                       const num = parseFloat(e.target.value.replace(/,/g, ''));
                       if (!isNaN(num)) set(num);
                     }}
-                    onFocus={e => {
-                      setDrafts(d => ({ ...d, [id]: String(value) }));
-                      setTimeout(() => e.target.select(), 0);
-                    }}
+                    onFocus={e => e.target.select()}
                     onBlur={() => {
                       const raw = drafts[id] ?? String(value);
                       const num = parseFloat(raw.replace(/,/g, ''));
