@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import ReactGA from 'react-ga4';
-import { BarChart2, Wallet, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X, Target } from 'lucide-react';
+import { BarChart2, Wallet, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X } from 'lucide-react';
 import Auth from './components/Auth';
 import Simulator from './components/Simulator';
 import NetWorth from './components/NetWorth';
 import Blog from './components/Blog';
 import Landing from './components/Landing';
-import RiskProfile from './components/RiskProfile';
 import Brand from './components/Brand';
 import About from './components/About';
 import { useLanguage } from './LanguageContext';
@@ -29,7 +28,6 @@ function App() {
   });
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
-  const [simulatorPreset, setSimulatorPreset] = useState(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -63,12 +61,6 @@ function App() {
     setMenuOpen(false);
   };
 
-  const handleLoadInSimulator = (profileKey) => {
-    const returnMap = { conservative: 4, moderate: 6.5, aggressive: 9 };
-    setSimulatorPreset({ annualReturn: returnMap[profileKey] });
-    navigate('simulator');
-  };
-
   if (loading) {
     return <div className="loading">{t('loading')}</div>;
   }
@@ -87,13 +79,6 @@ function App() {
           >
             <BarChart2 size={15} />
             {t('nav.simulator')}
-          </button>
-          <button
-            className={view === 'risk' ? 'active' : ''}
-            onClick={() => navigate('risk')}
-          >
-            <Target size={15} />
-            {t('nav.risk')}
           </button>
           {user ? (
             <>
@@ -160,14 +145,12 @@ function App() {
         <div className="container">
           {view === 'login' && !user ? (
             <Auth onAuthSuccess={() => { checkUser(); setView('networth'); }} />
-          ) : view === 'risk' ? (
-            <RiskProfile onLoadInSimulator={handleLoadInSimulator} />
           ) : view === 'about' ? (
             <About onNavigate={navigate} />
           ) : view === 'brand' ? (
             <Brand />
           ) : view === 'simulator' ? (
-            <Simulator preset={simulatorPreset} />
+            <Simulator />
           ) : view === 'blog' ? (
             <Blog />
           ) : view === 'networth' && user ? (

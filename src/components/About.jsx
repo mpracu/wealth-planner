@@ -46,7 +46,7 @@ function ContentES({ onNavigate }) {
             <div className="about-value-card">
               <div className="about-value-icon about-value-icon--green"><BookOpen size={20} strokeWidth={1.5} /></div>
               <h3>Educación, no consejo</h3>
-              <p>Caudal no te dice qué hacer con tu dinero — te da las herramientas para entenderlo tú mismo. Simuladores, proyecciones, perfil de riesgo. La decisión final siempre es tuya.</p>
+              <p>Caudal no te dice qué hacer con tu dinero — te da las herramientas para entenderlo tú mismo. Simuladores, proyecciones. La decisión final siempre es tuya.</p>
             </div>
             <div className="about-value-card">
               <div className="about-value-icon about-value-icon--amber"><Eye size={20} strokeWidth={1.5} /></div>
@@ -141,7 +141,7 @@ function ContentEN({ onNavigate }) {
             <div className="about-value-card">
               <div className="about-value-icon about-value-icon--green"><BookOpen size={20} strokeWidth={1.5} /></div>
               <h3>Education, not advice</h3>
-              <p>Caudal doesn't tell you what to do with your money — it gives you the tools to understand it yourself. Simulators, projections, risk profiles. The final decision is always yours.</p>
+              <p>Caudal doesn't tell you what to do with your money — it gives you the tools to understand it yourself. Simulators, projections. The final decision is always yours.</p>
             </div>
             <div className="about-value-card">
               <div className="about-value-icon about-value-icon--amber"><Eye size={20} strokeWidth={1.5} /></div>

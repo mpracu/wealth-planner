@@ -211,7 +211,6 @@ function Landing({ onNavigate, isAuthenticated }) {
             <h4 className="lf-col-title">{t('land.ft.col2')}</h4>
             <ul>
               <li><button onClick={() => onNavigate('simulator')}>{t('land.ft.sim')}</button></li>
-              <li><button onClick={() => onNavigate('risk')}>{t('land.ft.risk')}</button></li>
               <li><button onClick={() => onNavigate('blog')}>{t('land.ft.blog')}</button></li>
               <li><button onClick={() => onNavigate(isAuthenticated ? 'networth' : 'login')}>{t('land.ft.nw')}</button></li>
             </ul>

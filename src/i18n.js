@@ -2,7 +2,6 @@ export const T = {
   // ── App / Navbar ───────────────────────────────────────────────
   loading:           { es: 'Cargando...', en: 'Loading...' },
   'nav.simulator':   { es: 'Simulador', en: 'Simulator' },
-  'nav.risk':        { es: 'Perfil de riesgo', en: 'Risk Profile' },
   'nav.networth':    { es: 'Patrimonio', en: 'Net Worth' },
   'nav.blog':        { es: 'Blog', en: 'Blog' },
   'nav.signout':     { es: 'Cerrar sesión', en: 'Sign Out' },
@@ -60,31 +59,6 @@ export const T = {
   // ── About ──────────────────────────────────────────────────────
   'about.nav':  { es: '← Volver', en: '← Back' },
 
-  // ── Landing – Pricing ──────────────────────────────────────────
-  'land.price.title':      { es: 'Sencillo y transparente', en: 'Simple and transparent' },
-  'land.price.sub':        { es: 'Empieza gratis. Sin tarjeta de crédito.', en: 'Start free. No credit card required.' },
-  'land.price.free.name':  { es: 'Gratis', en: 'Free' },
-  'land.price.free.desc':  { es: 'Para empezar a tomar el control de tu dinero', en: 'To start taking control of your money' },
-  'land.price.pro.name':   { es: 'Pro', en: 'Pro' },
-  'land.price.pro.badge':  { es: 'Próximamente', en: 'Coming soon' },
-  'land.price.pro.desc':   { es: 'Para quienes se toman en serio su futuro financiero', en: 'For those serious about their financial future' },
-  'land.price.mo':         { es: '/mes', en: '/mo' },
-  'land.price.cta.free':   { es: 'Empezar gratis', en: 'Start for free' },
-  'land.price.cta.wait':   { es: 'Unirse a la lista de espera', en: 'Join the waitlist' },
-  'land.price.f1':  { es: 'Simulador ilimitado', en: 'Unlimited simulator' },
-  'land.price.f2':  { es: 'Perfil de riesgo inversor', en: 'Investor risk profile' },
-  'land.price.f3':  { es: 'Hasta 15 activos en cartera', en: 'Up to 15 portfolio assets' },
-  'land.price.f4':  { es: 'Inversiones recurrentes', en: 'Recurring investments' },
-  'land.price.f5':  { es: 'Previsión de patrimonio', en: 'Wealth forecast' },
-  'land.price.f6':  { es: 'Actualización de precios vía ISIN', en: 'Automatic price updates via ISIN' },
-  'land.price.p1':  { es: 'Todo lo del plan Gratis', en: 'Everything in Free' },
-  'land.price.p2':  { es: 'Activos ilimitados', en: 'Unlimited assets' },
-  'land.price.p3':  { es: 'Exportación CSV y PDF', en: 'CSV & PDF export' },
-  'land.price.p4':  { es: 'Importación de brokers (MyInvestor, DEGIRO…)', en: 'Broker import (MyInvestor, DEGIRO…)' },
-  'land.price.p5':  { es: 'Resumen semanal por email', en: 'Weekly email summary' },
-  'land.price.p6':  { es: 'Informe fiscal anual (España)', en: 'Annual tax report (Spain)' },
-  'land.price.p7':  { es: 'Soporte prioritario', en: 'Priority support' },
-
   // ── Onboarding ─────────────────────────────────────────────────
   'nw.onb.title':  { es: '¡Bienvenido a Caudal!', en: 'Welcome to Caudal!' },
   'nw.onb.sub':    { es: 'Tu panel está listo. En menos de 2 minutos puedes registrar todo tu patrimonio.', en: 'Your dashboard is ready. In under 2 minutes you can record all your wealth.' },
@@ -124,7 +98,6 @@ export const T = {
   'land.ft.what':      { es: '¿Qué es Caudal?', en: 'What is Caudal?' },
   'land.ft.col2':      { es: 'Herramientas', en: 'Tools' },
   'land.ft.sim':       { es: 'Simulador', en: 'Simulator' },
-  'land.ft.risk':      { es: 'Perfil de riesgo', en: 'Risk profile' },
   'land.ft.blog':      { es: 'Blog', en: 'Blog' },
   'land.ft.nw':        { es: 'Mi patrimonio', en: 'My net worth' },
   'land.ft.col3':      { es: 'Cuenta', en: 'Account' },
@@ -339,19 +312,4 @@ export const T = {
   'fb.thanks':       { es: '¡Gracias! Hemos recibido tu mensaje.', en: 'Thanks! We\'ve received your message.' },
   'fb.close':        { es: 'Cerrar', en: 'Close' },
   'fb.error':        { es: 'Error al enviar. Inténtalo de nuevo.', en: 'Failed to send. Please try again.' },
-
-  // ── Risk Profile ───────────────────────────────────────────────
-  'rp.title':          { es: 'Cuestionario de perfil inversor', en: 'Investor Profile Quiz' },
-  'rp.subtitle':       { es: '7 preguntas · 2 minutos · Recomendación de cartera personalizada', en: '7 questions · 2 minutes · Personalised portfolio recommendation' },
-  'rp.desc':           { es: 'Responde con honestidad. No hay respuestas correctas o incorrectas. Te asignaremos un perfil de riesgo y recomendaremos una asignación concreta de fondos adaptada a tus objetivos, horizonte temporal y tolerancia a la volatilidad.', en: "Answer honestly. There are no right or wrong answers. We'll match you with a risk profile and recommend a concrete ETF allocation suited to your goals, timeline, and comfort with volatility." },
-  'rp.start':          { es: 'Comenzar el cuestionario', en: 'Start the quiz' },
-  'rp.question':       { es: 'Pregunta', en: 'Question' },
-  'rp.of':             { es: 'de', en: 'of' },
-  'rp.back':           { es: 'Atrás', en: 'Back' },
-  'rp.score':          { es: 'Puntuación: {score} / 28 · Rentabilidad esperada: {range} anual', en: 'Score: {score} / 28 · Expected return: {range} p.a.' },
-  'rp.allocTitle':     { es: 'Asignación recomendada', en: 'Recommended Allocation' },
-  'rp.fundsTitle':     { es: 'Fondos indexados recomendados (cotizados en Europa)', en: 'Recommended Index Funds (European-listed)' },
-  'rp.fundsNote':      { es: 'Estos fondos están disponibles a través de MyInvestor, Indexa Capital, Fidelity Direct y la mayoría de plataformas de inversión europeas. Consulta siempre el DFI y el tratamiento fiscal en tu comunidad autónoma antes de invertir.', en: 'These index funds are available through MyInvestor, Indexa Capital, Fidelity Direct, and most European investment platforms. Always check the KIID and your local tax treatment before investing.' },
-  'rp.loadSim':        { es: 'Cargar en el simulador', en: 'Load into Simulator' },
-  'rp.retake':         { es: 'Repetir cuestionario', en: 'Retake quiz' },
 };
