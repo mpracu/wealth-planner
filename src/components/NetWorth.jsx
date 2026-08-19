@@ -333,7 +333,8 @@ export default function NetWorth() {
       tags: item.tags || '',
       isin: item.isin || '',
       shares: item.shares || '',
-      pricePerShare: item.pricePerShare || ''
+      pricePerShare: item.pricePerShare || '',
+      currency: item.currency || ''
     });
     setEditingId(item.itemId);
     setShowForm(true);
@@ -939,6 +940,7 @@ export default function NetWorth() {
                 <div className="item-row-name">{item.name}</div>
                 <div className="item-row-sub">
                   {item.isin && <span className="isin-badge">{item.isin}</span>}
+                  {item.currency && item.currency !== 'EUR' && <span className="currency-badge" title={t('nw.convertedFromCurrency').replace('{currency}', item.currency)}>{item.currency}→EUR</span>}
                   {item.shares && item.pricePerShare && (
                     <span className="shares-detail">{parseFloat(item.shares).toLocaleString('es-ES', {maximumFractionDigits: 3})} shares · {currency}{parseFloat(item.pricePerShare).toFixed(2)}</span>
                   )}

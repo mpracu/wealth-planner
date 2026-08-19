@@ -67,6 +67,19 @@ async function getPriceForTicker(ticker) {
     { headers: YF_HEADERS }
   );
   const data = await res.json();
+  const meta = data?.chart?.result?.[0]?.meta;
+  if (!meta || meta.regularMarketPrice == null) return null;
+  return { price: meta.regularMarketPrice, currency: meta.currency || 'EUR' };
+}
+
+// Returns the value of 1 unit of `currency` in EUR, e.g. getExchangeRateToEUR('USD') ≈ 0.86
+async function getExchangeRateToEUR(currency) {
+  if (!currency || currency === 'EUR') return 1;
+  const res = await fetchWithTimeout(
+    `https://query2.finance.yahoo.com/v8/finance/chart/${currency}EUR=X?interval=1d&range=1d`,
+    { headers: YF_HEADERS }
+  );
+  const data = await res.json();
   return data?.chart?.result?.[0]?.meta?.regularMarketPrice || null;
 }
 
@@ -364,6 +377,7 @@ exports.handler = async (event) => {
       console.log(`Found ${items.length} items with ISIN for user ${userId}`);
 
       const priceCache = {};
+      const fxCache = {};
       let updatedCount = 0;
       const errors = [];
 
@@ -375,12 +389,20 @@ exports.handler = async (event) => {
             const ticker = await getTickerFromISIN(isin);
             if (!ticker) { errors.push(`${isin}: no ticker found`); continue; }
             console.log(`${isin} → ${ticker}`);
-            const price = await getPriceForTicker(ticker);
-            if (!price) { errors.push(`${isin}: no price for ${ticker}`); continue; }
-            priceCache[isin] = { ticker, price };
+            const quote = await getPriceForTicker(ticker);
+            if (!quote) { errors.push(`${isin}: no price for ${ticker}`); continue; }
+            priceCache[isin] = { ticker, ...quote };
           }
 
-          const { price } = priceCache[isin];
+          const { price, currency } = priceCache[isin];
+
+          if (!(currency in fxCache)) {
+            fxCache[currency] = await getExchangeRateToEUR(currency);
+          }
+          const fxRate = fxCache[currency];
+          if (!fxRate) { errors.push(`${isin}: no EUR exchange rate for ${currency}`); continue; }
+
+          const priceEUR = price * fxRate;
           const shares = parseFloat(item.shares);
           const hasShares = !isNaN(shares) && shares > 0;
 
@@ -388,19 +410,19 @@ exports.handler = async (event) => {
             await docClient.send(new UpdateCommand({
               TableName: 'wealth-planner-networth-items',
               Key: { userId: item.userId, itemId: item.itemId },
-              UpdateExpression: 'SET pricePerShare = :price, #val = :value, updatedAt = :updatedAt',
+              UpdateExpression: 'SET pricePerShare = :price, currency = :currency, #val = :value, updatedAt = :updatedAt',
               ExpressionAttributeNames: { '#val': 'value' },
-              ExpressionAttributeValues: { ':price': price, ':value': shares * price, ':updatedAt': new Date().toISOString() }
+              ExpressionAttributeValues: { ':price': priceEUR, ':currency': currency, ':value': shares * priceEUR, ':updatedAt': new Date().toISOString() }
             }));
-            console.log(`Updated ${item.name}: ${shares} × ${price} = ${shares * price}`);
+            console.log(`Updated ${item.name}: ${shares} × ${priceEUR} EUR (${price} ${currency}) = ${shares * priceEUR}`);
           } else {
             await docClient.send(new UpdateCommand({
               TableName: 'wealth-planner-networth-items',
               Key: { userId: item.userId, itemId: item.itemId },
-              UpdateExpression: 'SET pricePerShare = :price, updatedAt = :updatedAt',
-              ExpressionAttributeValues: { ':price': price, ':updatedAt': new Date().toISOString() }
+              UpdateExpression: 'SET pricePerShare = :price, currency = :currency, updatedAt = :updatedAt',
+              ExpressionAttributeValues: { ':price': priceEUR, ':currency': currency, ':updatedAt': new Date().toISOString() }
             }));
-            console.log(`Updated price only for ${item.name}: ${price} (no shares set)`);
+            console.log(`Updated price only for ${item.name}: ${priceEUR} EUR (no shares set)`);
           }
           updatedCount++;
         } catch (err) {

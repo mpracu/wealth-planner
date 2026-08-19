@@ -670,6 +670,18 @@
   letter-spacing: 0.04em;
 }
 
+.currency-badge {
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  letter-spacing: 0.03em;
+}
+
 .shares-detail { font-size: 0.75rem; color: var(--text-secondary); }
 
 .tag {

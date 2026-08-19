@@ -21,6 +21,19 @@ async function getPriceForTicker(ticker) {
     { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }
   );
   const data = await response.json();
+  const meta = data?.chart?.result?.[0]?.meta;
+  if (!meta || meta.regularMarketPrice == null) return null;
+  return { price: meta.regularMarketPrice, currency: meta.currency || 'EUR' };
+}
+
+// Returns the value of 1 unit of `currency` in EUR, e.g. getExchangeRateToEUR('USD') ≈ 0.86
+async function getExchangeRateToEUR(currency) {
+  if (!currency || currency === 'EUR') return 1;
+  const response = await fetch(
+    `https://query1.finance.yahoo.com/v8/finance/chart/${currency}EUR=X?interval=1d&range=1d`,
+    { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }
+  );
+  const data = await response.json();
   return data?.chart?.result?.[0]?.meta?.regularMarketPrice || null;
 }
 
@@ -34,8 +47,9 @@ exports.handler = async (event) => {
     const items = result.Items || [];
     console.log(`Found ${items.length} items with ISIN and shares`);
 
-    // Cache ISIN -> { ticker, price } to avoid duplicate lookups
+    // Cache ISIN -> { ticker, price, currency } to avoid duplicate lookups
     const priceCache = {};
+    const fxCache = {};
     let updatedCount = 0;
 
     for (const item of items) {
@@ -50,30 +64,42 @@ exports.handler = async (event) => {
           }
           console.log(`ISIN ${isin} -> ticker ${ticker}`);
 
-          const price = await getPriceForTicker(ticker);
-          if (!price) {
+          const quote = await getPriceForTicker(ticker);
+          if (!quote) {
             console.log(`No price found for ticker ${ticker}`);
             continue;
           }
-          priceCache[isin] = { ticker, price };
+          priceCache[isin] = { ticker, ...quote };
         }
 
-        const { price } = priceCache[isin];
-        const newValue = parseFloat(item.shares) * price;
+        const { price, currency } = priceCache[isin];
+
+        if (!(currency in fxCache)) {
+          fxCache[currency] = await getExchangeRateToEUR(currency);
+        }
+        const fxRate = fxCache[currency];
+        if (!fxRate) {
+          console.log(`No EUR exchange rate found for ${currency}`);
+          continue;
+        }
+
+        const priceEUR = price * fxRate;
+        const newValue = parseFloat(item.shares) * priceEUR;
 
         await docClient.send(new UpdateCommand({
           TableName: 'wealth-planner-networth-items',
           Key: { userId: item.userId, itemId: item.itemId },
-          UpdateExpression: 'SET pricePerShare = :price, #val = :value, updatedAt = :updatedAt',
+          UpdateExpression: 'SET pricePerShare = :price, currency = :currency, #val = :value, updatedAt = :updatedAt',
           ExpressionAttributeNames: { '#val': 'value' },
           ExpressionAttributeValues: {
-            ':price': price,
+            ':price': priceEUR,
+            ':currency': currency,
             ':value': newValue,
             ':updatedAt': new Date().toISOString()
           }
         }));
 
-        console.log(`Updated ${item.name} (${isin}): ${item.shares} shares @ ${price} = ${newValue}`);
+        console.log(`Updated ${item.name} (${isin}): ${item.shares} shares @ ${priceEUR} EUR (${price} ${currency}) = ${newValue}`);
         updatedCount++;
 
         // Polite delay between requests

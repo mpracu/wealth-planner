@@ -256,6 +256,7 @@ export const T = {
   'nw.sharesPh':       { es: 'p.ej., 1000', en: 'e.g., 1000' },
   'nw.pricePerShare':  { es: 'Precio por participación', en: 'Price per Share' },
   'nw.pricePh':        { es: 'p.ej., 14,49', en: 'e.g., 14.49' },
+  'nw.convertedFromCurrency': { es: 'Cotiza en {currency}, convertido a EUR al tipo de cambio actual', en: 'Trades in {currency}, converted to EUR at the current exchange rate' },
   'nw.saveBtn':        { es: '💾 Guardar', en: '💾 Save' },
   'nw.cancel':         { es: 'Cancelar', en: 'Cancel' },
   'nw.recurringTitle': { es: 'Inversión mensual recurrente', en: 'Recurring Monthly Investment' },
