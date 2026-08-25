@@ -1,0 +1,383 @@
+/* ═══════════════════════════════════════════════════════════
+   Budget
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --bud-accent:      #6366f1;
+  --bud-accent-soft: rgba(99, 102, 241, 0.12);
+  --bud-accent-glow: rgba(99, 102, 241, 0.18);
+  --bud-green:       #10b981;
+  --bud-green-soft:  rgba(16, 185, 129, 0.12);
+  --bud-red:         #ef4444;
+  --bud-red-soft:    rgba(239, 68, 68, 0.12);
+  --bud-amber:       #f59e0b;
+  --bud-radius:      12px;
+  --bud-radius-sm:   8px;
+  --bud-transition:  all 0.18s ease;
+}
+
+.budget {
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) { .budget { padding: 0; } }
+
+/* ── Hero ───────────────────────────────────────────────── */
+.bud-hero {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.bud-hero-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+}
+
+.bud-hero-sub {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.bud-month-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 99px;
+  padding: 0.35rem 0.5rem;
+}
+
+.bud-month-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  line-height: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: var(--bud-transition);
+}
+.bud-month-btn:hover { background: var(--bud-accent-soft); color: var(--bud-accent); }
+
+.bud-month-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: capitalize;
+  min-width: 9rem;
+  text-align: center;
+}
+
+/* ── Summary ────────────────────────────────────────────── */
+.bud-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.bud-stat {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--bud-radius);
+  padding: 0.9rem 1.1rem;
+}
+
+.bud-stat span {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.bud-stat strong {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.bud-stat--positive strong { color: var(--bud-green); }
+.bud-stat--negative { border-color: var(--bud-red); }
+.bud-stat--negative span { color: var(--bud-red); }
+
+/* ── Section headers ────────────────────────────────────── */
+.bud-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.bud-section-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.bud-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 1rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--bud-radius-sm);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--bud-transition);
+  white-space: nowrap;
+}
+.bud-btn:hover { border-color: var(--bud-accent); background: var(--bud-accent-soft); color: var(--bud-accent); }
+.bud-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.bud-btn:disabled:hover { border-color: var(--border-color); background: var(--bg-primary); color: var(--text-primary); }
+
+.bud-btn--primary {
+  background: var(--bud-accent);
+  border-color: var(--bud-accent);
+  color: #fff;
+}
+.bud-btn--primary:hover { background: #4f52d3; border-color: #4f52d3; color: #fff; }
+.bud-btn--primary:disabled { background: var(--bud-accent); }
+
+/* ── Forms ──────────────────────────────────────────────── */
+.bud-form {
+  background: var(--card-bg);
+  border: 1px solid var(--bud-accent);
+  border-radius: var(--bud-radius);
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 0 0 3px var(--bud-accent-soft);
+}
+
+.bud-form h4 {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--bud-accent);
+}
+
+.bud-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 560px) {
+  .bud-form-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.bud-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.bud-field--wide { grid-column: 1 / -1; }
+
+.bud-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.bud-field-hint { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--text-secondary); opacity: 0.7; }
+
+.bud-form input,
+.bud-form select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--bud-radius-sm);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  transition: var(--bud-transition);
+}
+
+.bud-form input:focus,
+.bud-form select:focus {
+  outline: none;
+  border-color: var(--bud-accent);
+  box-shadow: 0 0 0 3px var(--bud-accent-soft);
+}
+
+.bud-form-actions { display: flex; gap: 0.5rem; }
+
+.bud-form-actions button {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: var(--bud-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--bud-transition);
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.bud-form-actions button[type="submit"] {
+  background: var(--bud-accent);
+  border-color: var(--bud-accent);
+  color: #fff;
+}
+.bud-form-actions button[type="submit"]:hover { background: #4f52d3; }
+.bud-form-actions button[type="button"]:hover { border-color: var(--bud-red); color: var(--bud-red); }
+
+/* ── Empty state ────────────────────────────────────────── */
+.bud-empty {
+  padding: 1.25rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  background: var(--bg-primary);
+  border-radius: var(--bud-radius-sm);
+  border: 1px dashed var(--border-color);
+  margin-bottom: 0.5rem;
+}
+
+/* ── Category rows ──────────────────────────────────────── */
+.bud-categories { display: flex; flex-direction: column; }
+
+.bud-cat-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--bud-radius-sm);
+  margin-bottom: 0.375rem;
+  transition: var(--bud-transition);
+}
+.bud-cat-row:hover { border-color: var(--bud-accent); }
+
+.bud-cat-info { flex: 1; min-width: 0; }
+
+.bud-cat-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.bud-cat-amounts {
+  font-size: 0.8rem;
+  margin: 0.15rem 0 0.5rem;
+  color: var(--text-secondary);
+}
+
+.bud-cat-spent { font-weight: 700; color: var(--text-primary); }
+.bud-cat-spent--over { font-weight: 700; color: var(--bud-red); }
+.bud-cat-sep { opacity: 0.6; }
+.bud-cat-budgeted { color: var(--text-secondary); }
+
+.bud-progress-track {
+  height: 6px;
+  border-radius: 99px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.bud-progress-fill {
+  height: 100%;
+  background: var(--bud-green);
+  border-radius: 99px;
+  transition: width 0.25s ease;
+}
+.bud-progress-fill--over { background: var(--bud-red); }
+
+.bud-cat-actions { display: flex; gap: 0.25rem; flex-shrink: 0; }
+
+.bud-btn-icon {
+  padding: 0.25rem 0.45rem;
+  font-size: 0.75rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--bud-transition);
+  line-height: 1;
+  color: var(--text-secondary);
+}
+.bud-btn-icon:hover { background: var(--bg-primary); border-color: var(--bud-accent); color: var(--bud-accent); }
+.bud-btn-icon--danger:hover { border-color: var(--bud-red); background: var(--bud-red-soft); color: var(--bud-red); }
+
+/* ── Expense rows ───────────────────────────────────────── */
+.bud-expenses { display: flex; flex-direction: column; }
+
+.bud-exp-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--bud-radius-sm);
+  margin-bottom: 0.375rem;
+  transition: var(--bud-transition);
+}
+.bud-exp-row:hover { border-color: var(--bud-accent); background: var(--bg-primary); }
+
+.bud-exp-info { flex: 1; min-width: 0; }
+
+.bud-exp-cat {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.bud-exp-sub {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.bud-exp-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.bud-exp-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.bud-exp-amount {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bud-accent);
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: right;
+}

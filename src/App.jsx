@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import ReactGA from 'react-ga4';
-import { BarChart2, Wallet, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X } from 'lucide-react';
+import { BarChart2, Wallet, PiggyBank, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X } from 'lucide-react';
 import Auth from './components/Auth';
 import Simulator from './components/Simulator';
 import NetWorth from './components/NetWorth';
+import Budget from './components/Budget';
 import Blog from './components/Blog';
 import Landing from './components/Landing';
 import Brand from './components/Brand';
@@ -90,6 +91,13 @@ function App() {
                 {t('nav.networth')}
               </button>
               <button
+                className={view === 'budget' ? 'active' : ''}
+                onClick={() => navigate('budget')}
+              >
+                <PiggyBank size={15} />
+                {t('nav.budget')}
+              </button>
+              <button
                 className={view === 'blog' ? 'active' : ''}
                 onClick={() => navigate('blog')}
               >
@@ -155,6 +163,8 @@ function App() {
             <Blog />
           ) : view === 'networth' && user ? (
             <NetWorth />
+          ) : view === 'budget' && user ? (
+            <Budget />
           ) : (
             <div className="auth-required">
               <h2>{t('auth.req.title')}</h2>

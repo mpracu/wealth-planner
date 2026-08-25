@@ -364,6 +364,94 @@ exports.handler = async (event) => {
       return { statusCode: 204, headers, body: '' };
     }
 
+    // Budget category endpoints
+    if (path === '/budget-categories' && method === 'GET') {
+      const result = await docClient.send(new QueryCommand({
+        TableName: 'wealth-planner-budget-categories',
+        KeyConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: { ':userId': userId }
+      }));
+      return { statusCode: 200, headers, body: JSON.stringify(result.Items || []) };
+    }
+
+    if (path === '/budget-categories' && method === 'POST') {
+      const body = JSON.parse(event.body);
+      const categoryId = Date.now().toString();
+      await docClient.send(new PutCommand({
+        TableName: 'wealth-planner-budget-categories',
+        Item: {
+          userId,
+          categoryId,
+          ...body,
+          createdAt: new Date().toISOString()
+        }
+      }));
+      return { statusCode: 201, headers, body: JSON.stringify({ categoryId }) };
+    }
+
+    if (path.startsWith('/budget-categories/') && method === 'PUT') {
+      const categoryId = path.split('/')[2];
+      const body = JSON.parse(event.body);
+      await docClient.send(new PutCommand({
+        TableName: 'wealth-planner-budget-categories',
+        Item: { userId, categoryId, ...body, updatedAt: new Date().toISOString() }
+      }));
+      return { statusCode: 200, headers, body: '' };
+    }
+
+    if (path.startsWith('/budget-categories/') && method === 'DELETE') {
+      const categoryId = path.split('/')[2];
+      await docClient.send(new DeleteCommand({
+        TableName: 'wealth-planner-budget-categories',
+        Key: { userId, categoryId }
+      }));
+      return { statusCode: 204, headers, body: '' };
+    }
+
+    // Budget expense endpoints
+    if (path === '/budget-expenses' && method === 'GET') {
+      const result = await docClient.send(new QueryCommand({
+        TableName: 'wealth-planner-budget-expenses',
+        KeyConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: { ':userId': userId }
+      }));
+      return { statusCode: 200, headers, body: JSON.stringify(result.Items || []) };
+    }
+
+    if (path === '/budget-expenses' && method === 'POST') {
+      const body = JSON.parse(event.body);
+      const expenseId = Date.now().toString();
+      await docClient.send(new PutCommand({
+        TableName: 'wealth-planner-budget-expenses',
+        Item: {
+          userId,
+          expenseId,
+          ...body,
+          createdAt: new Date().toISOString()
+        }
+      }));
+      return { statusCode: 201, headers, body: JSON.stringify({ expenseId }) };
+    }
+
+    if (path.startsWith('/budget-expenses/') && method === 'PUT') {
+      const expenseId = path.split('/')[2];
+      const body = JSON.parse(event.body);
+      await docClient.send(new PutCommand({
+        TableName: 'wealth-planner-budget-expenses',
+        Item: { userId, expenseId, ...body, updatedAt: new Date().toISOString() }
+      }));
+      return { statusCode: 200, headers, body: '' };
+    }
+
+    if (path.startsWith('/budget-expenses/') && method === 'DELETE') {
+      const expenseId = path.split('/')[2];
+      await docClient.send(new DeleteCommand({
+        TableName: 'wealth-planner-budget-expenses',
+        Key: { userId, expenseId }
+      }));
+      return { statusCode: 204, headers, body: '' };
+    }
+
     // Refresh stock prices for the authenticated user
     if (path === '/refresh-prices' && method === 'POST') {
       const itemsResult = await docClient.send(new QueryCommand({
