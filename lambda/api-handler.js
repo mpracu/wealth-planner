@@ -86,6 +86,25 @@ async function getExchangeRateToEUR(currency) {
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
+// Upserts today's net worth history point so the graph reflects manual edits
+// immediately instead of waiting for the nightly recurring-processor snapshot.
+async function snapshotNetWorth(userId) {
+  const itemsResult = await docClient.send(new QueryCommand({
+    TableName: 'wealth-planner-networth-items',
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: { ':userId': userId }
+  }));
+  const items = itemsResult.Items || [];
+  const totalAssets = items.filter(i => i.type === 'asset').reduce((sum, i) => sum + (Number(i.value) || 0), 0);
+  const totalLiabilities = items.filter(i => i.type === 'liability').reduce((sum, i) => sum + (Number(i.value) || 0), 0);
+  const dateStr = new Date().toISOString().split('T')[0];
+
+  await docClient.send(new PutCommand({
+    TableName: 'wealth-planner-networth-history',
+    Item: { userId, date: dateStr, netWorth: totalAssets - totalLiabilities, assets: totalAssets, liabilities: totalLiabilities }
+  }));
+}
+
 exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -259,6 +278,7 @@ exports.handler = async (event) => {
           updatedAt: new Date().toISOString()
         }
       }));
+      await snapshotNetWorth(userId);
       return { statusCode: 201, headers, body: JSON.stringify({ itemId }) };
     }
 
@@ -274,6 +294,7 @@ exports.handler = async (event) => {
           updatedAt: new Date().toISOString()
         }
       }));
+      await snapshotNetWorth(userId);
       return { statusCode: 200, headers, body: '' };
     }
 
@@ -283,6 +304,7 @@ exports.handler = async (event) => {
         TableName: 'wealth-planner-networth-items',
         Key: { userId, itemId }
       }));
+      await snapshotNetWorth(userId);
       return { statusCode: 204, headers, body: '' };
     }
 
@@ -519,6 +541,9 @@ exports.handler = async (event) => {
         }
       }
 
+      if (updatedCount > 0) {
+        await snapshotNetWorth(userId);
+      }
       return { statusCode: 200, headers, body: JSON.stringify({ updated: updatedCount, total: items.length, errors }) };
     }
 

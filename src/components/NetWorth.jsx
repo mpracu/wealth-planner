@@ -145,6 +145,7 @@ export default function NetWorth() {
       }
       resetForm();
       loadItems();
+      loadHistory();
     } catch (err) {
       console.error('Error saving item:', err);
     }
@@ -201,6 +202,7 @@ export default function NetWorth() {
         }
       }).response;
       loadItems();
+      loadHistory();
     } catch (err) {
       console.error('Error deleting item:', err);
     }
@@ -239,6 +241,7 @@ export default function NetWorth() {
       console.log('Refresh result:', result);
       if (result.errors?.length) console.warn('Refresh errors:', result.errors);
       await loadItems();
+      if (result.updated > 0) loadHistory();
       const msg = result.updated > 0
         ? `${t('nw.refresh')}: ${result.updated}/${result.total}`
         : `${t('nw.tracked')}: ${result.total} ISINs${result.errors?.length ? ` (${result.errors.length} errores)` : ''}`;
@@ -316,6 +319,7 @@ export default function NetWorth() {
       }
       
       loadItems();
+      loadHistory();
       alert(t('nw.importOk'));
     } catch (err) {
       console.error('Error importing:', err);
