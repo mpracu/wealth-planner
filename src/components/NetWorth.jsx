@@ -418,13 +418,24 @@ export default function NetWorth() {
   const growthAttribution = useMemo(() => {
     if (history.length < 2) return null;
     const sorted = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
-    const first = sorted[0];
+
+    // monthlyDCA is today's recurring total — it's only a valid stand-in for
+    // past months if the recurring amounts haven't changed since. Anchor the
+    // attribution window to the most recent recurring add/edit so we don't
+    // apply today's rate to months that had a different one.
+    const rateEffectiveSince = recurringItems.reduce((latest, r) => {
+      const t = new Date(r.updatedAt || r.createdAt || 0).getTime();
+      return isNaN(t) ? latest : Math.max(latest, t);
+    }, 0);
+    const first = sorted.find(s => new Date(s.date).getTime() >= rateEffectiveSince) || sorted[sorted.length - 1];
+    const relevant = sorted.slice(sorted.indexOf(first));
+
     let totalContributions = 0;
-    for (let i = 1; i < sorted.length; i++) {
-      const monthsElapsed = (new Date(sorted[i].date) - new Date(sorted[i - 1].date)) / (1000 * 60 * 60 * 24 * 30.44);
+    for (let i = 1; i < relevant.length; i++) {
+      const monthsElapsed = (new Date(relevant[i].date) - new Date(relevant[i - 1].date)) / (1000 * 60 * 60 * 24 * 30.44);
       totalContributions += monthlyDCA * monthsElapsed;
     }
-    const last = sorted[sorted.length - 1];
+    const last = relevant[relevant.length - 1];
     const monthsToNow = (Date.now() - new Date(last.date).getTime()) / (1000 * 60 * 60 * 24 * 30.44);
     totalContributions += monthlyDCA * monthsToNow;
     const totalGrowth = netWorth - first.netWorth;
@@ -438,7 +449,7 @@ export default function NetWorth() {
       returnPct: positiveTotal > 0 ? Math.round((Math.max(interestGrowth, 0) / positiveTotal) * 100) : 0,
       sinceDate: first.date,
     };
-  }, [history, netWorth, monthlyDCA]);
+  }, [history, netWorth, monthlyDCA, recurringItems]);
 
   const dismissOnboarding = (openForm = false) => {
     localStorage.setItem('caudal_onboarded', '1');
