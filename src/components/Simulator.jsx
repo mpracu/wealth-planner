@@ -185,7 +185,7 @@ export default function Simulator({ preset }) {
   }, [age, currentCapital, monthlyInvestment, annualReturn, inflation, pinnedScenarios]);
 
   const goalData = useMemo(() => {
-    const hit = data.find(d => d.nominal >= targetAmount);
+    const hit = data.find(d => d.real >= targetAmount);
     return hit ? { age: hit.age, year: hit.year } : null;
   }, [data, targetAmount]);
 
