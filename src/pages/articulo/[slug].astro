@@ -1,0 +1,62 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import '../../App.css';
+import '../../components/Blog.css';
+import { extractTags, cleanExcerpt, renderPostHtml } from '../../lib/renderPost.js';
+
+export async function getStaticPaths() {
+  const apiBase = import.meta.env.VITE_API_ENDPOINT;
+  const res = await fetch(`${apiBase}/blog-posts`);
+  const posts = await res.json();
+
+  return posts
+    .filter((post) => post.slug)
+    .map((post) => ({
+      params: { slug: post.slug },
+      props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+const canonical = `https://caudalfinanzas.com/articulo/${post.slug}/`;
+const description = cleanExcerpt(post.content, 160);
+const tags = extractTags(post.content);
+const date = new Date(post.publishedDate).toISOString().split('T')[0];
+const contentHtml = renderPostHtml(post.content);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.title,
+  image: [post.image],
+  datePublished: post.publishedDate,
+  author: { '@type': 'Organization', name: 'Equipo Caudal' },
+  publisher: { '@type': 'Organization', name: 'Caudal' },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+};
+---
+
+<Layout title={post.title} description={description} image={post.image} canonical={canonical} type="article">
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
+
+  <div class="blog">
+    <a class="back-btn" href="/blog/">← Volver a todos los artículos</a>
+    <article class="blog-post-full">
+      <img src={post.image} alt={post.title} class="post-hero-image" />
+      <div class="post-header">
+        <h1>{post.title}</h1>
+        <div class="post-meta">
+          <span>Por Equipo Caudal</span>
+          <span>•</span>
+          <span>{date}</span>
+          <span>•</span>
+          <span>8 min de lectura</span>
+        </div>
+        <div class="post-tags">
+          {tags.map((tag) => <span class="tag">{tag}</span>)}
+        </div>
+      </div>
+      <div class="post-content" set:html={contentHtml} />
+    </article>
+  </div>
+</Layout>

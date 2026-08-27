@@ -338,7 +338,7 @@ export const T = {
   'blog.loading':      { es: 'Cargando últimos artículos...', en: 'Loading latest articles...' },
   'blog.back':         { es: 'Volver a todos los artículos', en: 'Back to all posts' },
   'blog.by':           { es: 'Por ', en: 'By ' },
-  'blog.desc':         { es: 'Consejos y estrategias de expertos para construir un patrimonio duradero. Nuevos artículos cada 2 días.', en: 'Expert advice and strategies for building lasting wealth. New posts every 2 days.' },
+  'blog.desc':         { es: 'Consejos y estrategias de expertos para construir un patrimonio duradero. Nuevos artículos cada semana.', en: 'Expert advice and strategies for building lasting wealth. New posts every week.' },
   'blog.readTime':     { es: '8 min de lectura', en: '8 min read' },
   'blog.author':       { es: 'Equipo Caudal', en: 'Caudal Team' },
   'blog.share':        { es: 'Compartir:', en: 'Share:' },

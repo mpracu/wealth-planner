@@ -1,0 +1,52 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import '../../App.css';
+import '../../components/Blog.css';
+import { extractTags, cleanExcerpt } from '../../lib/renderPost.js';
+
+const apiBase = import.meta.env.VITE_API_ENDPOINT;
+const res = await fetch(`${apiBase}/blog-posts`);
+const rawPosts = await res.json();
+
+const posts = rawPosts
+  .filter((post) => post.slug)
+  .map((post) => ({
+    ...post,
+    tags: extractTags(post.content),
+    excerpt: cleanExcerpt(post.content, 180),
+    date: new Date(post.publishedDate).toISOString().split('T')[0],
+  }));
+---
+
+<Layout
+  title="Artículos de finanzas e inversión - Caudal"
+  description="Consejos y estrategias de expertos para construir un patrimonio duradero. Nuevos artículos cada semana."
+  canonical="https://caudalfinanzas.com/blog/"
+>
+  <div class="blog">
+    <div class="blog-header">
+      <h1>Artículos de finanzas e inversión</h1>
+      <p>Consejos y estrategias de expertos para construir un patrimonio duradero. Nuevos artículos cada semana.</p>
+    </div>
+
+    <div class="blog-grid">
+      {posts.map((post) => (
+        <a class="blog-card" href={`/articulo/${post.slug}/`}>
+          <img src={post.image} alt={post.title} />
+          <div class="blog-card-content">
+            <div class="blog-card-tags">
+              {post.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
+            </div>
+            <h2>{post.title}</h2>
+            <p class="excerpt">{post.excerpt}</p>
+            <div class="blog-card-meta">
+              <span>{post.date}</span>
+              <span>•</span>
+              <span>8 min de lectura</span>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</Layout>
