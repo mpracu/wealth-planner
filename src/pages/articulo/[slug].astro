@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import StaticHeader from '../../components/StaticHeader.astro';
 import '../../App.css';
 import '../../components/Blog.css';
 import { extractTags, cleanExcerpt, renderPostHtml } from '../../lib/renderPost.js';
@@ -39,6 +40,7 @@ const jsonLd = {
 <Layout title={post.title} description={description} image={post.image} canonical={canonical} type="article">
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
 
+  <StaticHeader />
   <div class="blog">
     <a class="back-btn" href="/blog/">← Volver a todos los artículos</a>
     <article class="blog-post-full">

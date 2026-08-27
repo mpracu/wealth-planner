@@ -1,0 +1,47 @@
+---
+const { active = '' } = Astro.props;
+---
+
+<nav class="navbar static-navbar">
+  <a href="/" class="navbar-logo-link">
+    <h1 class="navbar-logo">💰 Caudal</h1>
+  </a>
+  <div class="static-nav-links">
+    <a href="/" class={active === 'home' ? 'active' : ''}>Inicio</a>
+    <a href="/?sim=1">Simulador</a>
+    <a href="/blog/" class={active === 'blog' ? 'active' : ''}>Blog</a>
+  </div>
+</nav>
+
+<style>
+  .static-navbar {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .navbar-logo-link {
+    text-decoration: none;
+  }
+  .static-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .static-nav-links a {
+    padding: 0.42rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.83rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+  .static-nav-links a:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+  .static-nav-links a.active {
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--accent);
+  }
+</style>

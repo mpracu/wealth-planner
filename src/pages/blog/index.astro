@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import StaticHeader from '../../components/StaticHeader.astro';
 import '../../App.css';
 import '../../components/Blog.css';
 import { extractTags, cleanExcerpt } from '../../lib/renderPost.js';
@@ -23,6 +24,7 @@ const posts = rawPosts
   description="Consejos y estrategias de expertos para construir un patrimonio duradero. Nuevos artículos cada semana."
   canonical="https://caudalfinanzas.com/blog/"
 >
+  <StaticHeader active="blog" />
   <div class="blog">
     <div class="blog-header">
       <h1>Artículos de finanzas e inversión</h1>
