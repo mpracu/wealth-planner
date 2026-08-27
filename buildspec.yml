@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+      - npm ci
+  build:
+    commands:
+      - npm run build
+  post_build:
+    commands:
+      - aws s3 sync dist/ s3://wealth-planner-app --delete
+      - aws cloudfront create-invalidation --distribution-id E3RXLLVE8CC0XQ --paths '/*'
