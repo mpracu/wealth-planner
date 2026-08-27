@@ -6,6 +6,15 @@ const client = new DynamoDBClient({ region: 'us-east-1' });
 const docClient = DynamoDBDocumentClient.from(client);
 const bedrock = new BedrockRuntimeClient({ region: 'us-east-1' });
 
+const slugify = (title) => {
+  const stripped = title.normalize('NFKD').replace(/[̀-ͯ]/g, '');
+  return stripped
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-{2,}/g, '-');
+};
+
 const BLOG_TOPICS = [
   // Mindset & fundamentals
   'The Psychology of Wealth Building',
@@ -387,6 +396,7 @@ const generateBlogPost = async (topic, postNumber) => {
 
   return {
     title,
+    slug: slugify(title),
     content,
     image: heroImage,
     publishedDate: new Date().toISOString(),
