@@ -3,7 +3,7 @@ import { Trash2, Link } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { post as apiPost, get as apiGet, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
-import ReactGA from 'react-ga4';
+import ReactGA from '../reactGA.js';
 import { useLanguage } from '../LanguageContext';
 
 const COMPARE_COLORS = ['#f59e0b', '#ef4444', '#a855f7', '#ec4899', '#14b8a6'];

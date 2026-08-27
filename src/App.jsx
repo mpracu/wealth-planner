@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
-import ReactGA from 'react-ga4';
+import ReactGA from './reactGA.js';
 import { BarChart2, Wallet, PiggyBank, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X } from 'lucide-react';
 import Auth from './components/Auth';
 import Simulator from './components/Simulator';

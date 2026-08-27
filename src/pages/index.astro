@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AppIsland from '../AppIsland.jsx';
+import '../index.css';
+---
+
+<Layout>
+  <div id="root">
+    <AppIsland client:only="react" />
+  </div>
+</Layout>
