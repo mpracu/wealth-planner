@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import StaticHeader from '../../components/StaticHeader.astro';
+import DisclaimerBanner from '../../components/DisclaimerBanner.astro';
 import '../../App.css';
 import '../../components/Blog.css';
 import { extractTags, cleanExcerpt } from '../../lib/renderPost.js';
@@ -21,34 +22,48 @@ const posts = rawPosts
 
 <Layout
   title="Artículos de finanzas e inversión - Caudal"
-  description="Consejos y estrategias de expertos para construir un patrimonio duradero. Nuevos artículos cada semana."
+  description="Consejos y estrategias sobre patrimonio e inversión. Contenido informativo y educativo, no asesoramiento financiero."
   canonical="https://caudalfinanzas.com/blog/"
 >
   <StaticHeader active="blog" />
   <div class="blog">
     <div class="blog-header">
       <h1>Artículos de finanzas e inversión</h1>
-      <p>Consejos y estrategias de expertos para construir un patrimonio duradero. Nuevos artículos cada semana.</p>
+      <p>Consejos y estrategias sobre patrimonio e inversión.</p>
     </div>
 
-    <div class="blog-grid">
-      {posts.map((post) => (
-        <a class="blog-card" href={`/articulo/${post.slug}/`}>
-          <img src={post.image} alt={post.title} />
-          <div class="blog-card-content">
-            <div class="blog-card-tags">
-              {post.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
+    <DisclaimerBanner />
+
+    {posts.length === 0 ? (
+      <p class="blog-empty">Todavía no hay artículos publicados. Vuelve pronto.</p>
+    ) : (
+      <div class="blog-grid">
+        {posts.map((post) => (
+          <a class="blog-card" href={`/articulo/${post.slug}/`}>
+            <img src={post.image} alt={post.title} />
+            <div class="blog-card-content">
+              <div class="blog-card-tags">
+                {post.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
+              </div>
+              <h2>{post.title}</h2>
+              <p class="excerpt">{post.excerpt}</p>
+              <div class="blog-card-meta">
+                <span>{post.date}</span>
+                <span>•</span>
+                <span>8 min de lectura</span>
+              </div>
             </div>
-            <h2>{post.title}</h2>
-            <p class="excerpt">{post.excerpt}</p>
-            <div class="blog-card-meta">
-              <span>{post.date}</span>
-              <span>•</span>
-              <span>8 min de lectura</span>
-            </div>
-          </div>
-        </a>
-      ))}
-    </div>
+          </a>
+        ))}
+      </div>
+    )}
   </div>
 </Layout>
+
+<style>
+  .blog-empty {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 2rem 0;
+  }
+</style>

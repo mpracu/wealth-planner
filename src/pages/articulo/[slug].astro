@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import StaticHeader from '../../components/StaticHeader.astro';
+import DisclaimerBanner from '../../components/DisclaimerBanner.astro';
 import '../../App.css';
 import '../../components/Blog.css';
 import { extractTags, cleanExcerpt, renderPostHtml } from '../../lib/renderPost.js';
@@ -59,6 +60,7 @@ const jsonLd = {
         </div>
       </div>
       <div class="post-content" set:html={contentHtml} />
+      <DisclaimerBanner />
     </article>
   </div>
 </Layout>

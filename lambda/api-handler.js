@@ -128,6 +128,7 @@ exports.handler = async (event) => {
       }));
       const posts = (result.Items || [])
         .filter(item => !['COUNTER', 'USED_IMAGES', 'USED_TOPICS'].includes(item.postId))
+        .filter(item => item.published !== false)
         .sort((a, b) => new Date(b.publishedDate) - new Date(a.publishedDate));
       return { statusCode: 200, headers, body: JSON.stringify(posts) };
     } catch (error) {
