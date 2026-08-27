@@ -353,7 +353,8 @@ Contexto importante:
 El artículo debe ser práctico, accionable y atractivo. Incluye ejemplos y cifras concretas.
 Estructura: 6-8 párrafos cortos (2-3 frases cada uno).
 Termina con 3-5 hashtags relevantes en español.
-No incluyas marcadores de posición para imágenes, solo el contenido.`;
+No incluyas marcadores de posición para imágenes, solo el contenido.
+No uses la raya (—) en ningún momento del texto; usa comas, puntos o reformula la frase.`;
 
   const payload = {
     anthropic_version: "bedrock-2023-05-31",
