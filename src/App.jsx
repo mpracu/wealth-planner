@@ -6,7 +6,6 @@ import Auth from './components/Auth';
 import Simulator from './components/Simulator';
 import NetWorth from './components/NetWorth';
 import Budget from './components/Budget';
-import Blog from './components/Blog';
 import Landing from './components/Landing';
 import Brand from './components/Brand';
 import About from './components/About';
@@ -22,7 +21,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('post')) return 'blog';
     if (params.has('sim')) return 'simulator';
     if (params.has('brand')) return 'brand';
     return 'landing';
@@ -97,13 +95,10 @@ function App() {
                 <PiggyBank size={15} />
                 {t('nav.budget')}
               </button>
-              <button
-                className={view === 'blog' ? 'active' : ''}
-                onClick={() => navigate('blog')}
-              >
+              <a href="/blog/">
                 <BookOpen size={15} />
                 {t('nav.blog')}
-              </button>
+              </a>
               <button
                 className="theme-toggle"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -121,13 +116,10 @@ function App() {
             </>
           ) : (
             <>
-              <button
-                className={view === 'blog' ? 'active' : ''}
-                onClick={() => navigate('blog')}
-              >
+              <a href="/blog/">
                 <BookOpen size={15} />
                 {t('nav.blog')}
-              </button>
+              </a>
               <button
                 className="theme-toggle"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -159,8 +151,6 @@ function App() {
             <Brand />
           ) : view === 'simulator' ? (
             <Simulator />
-          ) : view === 'blog' ? (
-            <Blog />
           ) : view === 'networth' && user ? (
             <NetWorth />
           ) : view === 'budget' && user ? (

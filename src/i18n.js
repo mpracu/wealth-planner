@@ -333,15 +333,7 @@ export const T = {
   'bud.cancel':         { es: 'Cancelar', en: 'Cancel' },
   'bud.needCategoryFirst': { es: 'Añade primero una categoría para poder registrar gastos.', en: 'Add a category first before logging expenses.' },
 
-  // ── Blog ───────────────────────────────────────────────────────
-  'blog.title':        { es: 'Artículos de finanzas e inversión', en: 'Wealth Building Insights' },
-  'blog.loading':      { es: 'Cargando últimos artículos...', en: 'Loading latest articles...' },
-  'blog.back':         { es: 'Volver a todos los artículos', en: 'Back to all posts' },
-  'blog.by':           { es: 'Por ', en: 'By ' },
-  'blog.desc':         { es: 'Consejos y estrategias de expertos para construir un patrimonio duradero. Nuevos artículos cada semana.', en: 'Expert advice and strategies for building lasting wealth. New posts every week.' },
-  'blog.readTime':     { es: '8 min de lectura', en: '8 min read' },
-  'blog.author':       { es: 'Equipo Caudal', en: 'Caudal Team' },
-  'blog.share':        { es: 'Compartir:', en: 'Share:' },
+  // ── Blog (share-link copy, reused by Simulator) ─────────────────
   'blog.copyLink':     { es: 'Copiar enlace', en: 'Copy link' },
   'blog.copied':       { es: '¡Copiado!', en: 'Copied!' },
 
