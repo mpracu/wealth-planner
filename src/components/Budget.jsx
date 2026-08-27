@@ -10,9 +10,14 @@ export default function Budget() {
   const { t, lang } = useLanguage();
   const currency = '€';
 
+  const [incomeSources, setIncomeSources] = useState([]);
   const [categories, setCategories] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [monthOffset, setMonthOffset] = useState(0);
+
+  const [showIncomeForm, setShowIncomeForm] = useState(false);
+  const [editingIncomeId, setEditingIncomeId] = useState(null);
+  const [incomeFormData, setIncomeFormData] = useState({ name: '', amount: '' });
 
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
@@ -23,9 +28,26 @@ export default function Budget() {
   const [expenseFormData, setExpenseFormData] = useState({ categoryId: '', amount: '', date: todayISO(), note: '' });
 
   useEffect(() => {
+    loadIncome();
     loadCategories();
     loadExpenses();
   }, []);
+
+  const loadIncome = async () => {
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      const response = await apiGet({
+        apiName: 'WealthPlannerAPI',
+        path: '/budget-income',
+        options: { headers: { Authorization: `Bearer ${token}` } }
+      }).response;
+      const data = await response.body.json();
+      setIncomeSources(data);
+    } catch (err) {
+      console.error('Error loading budget income:', err);
+    }
+  };
 
   const loadCategories = async () => {
     try {
@@ -67,7 +89,8 @@ export default function Budget() {
   }, [monthOffset]);
 
   const monthKey = `${viewedDate.getFullYear()}-${String(viewedDate.getMonth() + 1).padStart(2, '0')}`;
-  const monthLabel = viewedDate.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { month: 'long', year: 'numeric' });
+  const monthName = viewedDate.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { month: 'long' });
+  const monthLabel = `${monthName.charAt(0).toUpperCase()}${monthName.slice(1)} ${viewedDate.getFullYear()}`;
 
   const expensesThisMonth = useMemo(
     () => expenses.filter(e => e.date && e.date.startsWith(monthKey)),
@@ -82,11 +105,69 @@ export default function Budget() {
     return map;
   }, [expensesThisMonth]);
 
+  const totalIncome = incomeSources.reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
   const totalBudgeted = categories.reduce((sum, c) => sum + parseFloat(c.budgetedAmount || 0), 0);
   const totalSpent = expensesThisMonth.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
   const remaining = totalBudgeted - totalSpent;
+  const savings = totalIncome - totalSpent;
+  const savingsPct = totalIncome > 0 ? Math.round((savings / totalIncome) * 100) : null;
 
   const categoryName = (categoryId) => categories.find(c => c.categoryId === categoryId)?.name || '';
+
+  // ── Income ─────────────────────────────────────────────────
+  const resetIncomeForm = () => {
+    setIncomeFormData({ name: '', amount: '' });
+    setEditingIncomeId(null);
+    setShowIncomeForm(false);
+  };
+
+  const editIncome = (inc) => {
+    setIncomeFormData({ name: inc.name, amount: inc.amount });
+    setEditingIncomeId(inc.incomeId);
+    setShowIncomeForm(true);
+  };
+
+  const saveIncome = async (e) => {
+    e.preventDefault();
+    if (!incomeFormData.name || !incomeFormData.amount) return;
+    const body = { name: incomeFormData.name, amount: +incomeFormData.amount };
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      if (editingIncomeId) {
+        await apiPut({
+          apiName: 'WealthPlannerAPI',
+          path: `/budget-income/${editingIncomeId}`,
+          options: { body, headers: { Authorization: `Bearer ${token}` } }
+        }).response;
+      } else {
+        await apiPost({
+          apiName: 'WealthPlannerAPI',
+          path: '/budget-income',
+          options: { body, headers: { Authorization: `Bearer ${token}` } }
+        }).response;
+      }
+      resetIncomeForm();
+      loadIncome();
+    } catch (err) {
+      console.error('Error saving budget income:', err);
+    }
+  };
+
+  const deleteIncome = async (incomeId) => {
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      await apiDel({
+        apiName: 'WealthPlannerAPI',
+        path: `/budget-income/${incomeId}`,
+        options: { headers: { Authorization: `Bearer ${token}` } }
+      }).response;
+      loadIncome();
+    } catch (err) {
+      console.error('Error deleting budget income:', err);
+    }
+  };
 
   // ── Categories ─────────────────────────────────────────────
   const resetCategoryForm = () => {
@@ -219,6 +300,10 @@ export default function Budget() {
 
       <div className="bud-summary">
         <div className="bud-stat">
+          <span>{t('bud.totalIncome')}</span>
+          <strong>{currency}{totalIncome.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
+        </div>
+        <div className="bud-stat">
           <span>{t('bud.totalBudgeted')}</span>
           <strong>{currency}{totalBudgeted.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
         </div>
@@ -226,10 +311,66 @@ export default function Budget() {
           <span>{t('bud.totalSpent')}</span>
           <strong>{currency}{totalSpent.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
         </div>
-        <div className={`bud-stat ${remaining < 0 ? 'bud-stat--negative' : 'bud-stat--positive'}`}>
-          <span>{remaining < 0 ? t('bud.overBy').replace('{amount}', `${currency}${Math.abs(remaining).toLocaleString('es-ES', { maximumFractionDigits: 0 })}`) : t('bud.remaining')}</span>
-          {remaining >= 0 && <strong>{currency}{remaining.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>}
+        {totalIncome > 0 ? (
+          <div className={`bud-stat ${savings < 0 ? 'bud-stat--negative' : 'bud-stat--positive'}`}>
+            <span>{savings < 0 ? t('bud.negativeSavings') : t('bud.savings')}</span>
+            <strong>{currency}{savings.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
+            {savingsPct !== null && <span className="bud-stat-sub">{t('bud.savingsPct').replace('{pct}', savingsPct)}</span>}
+          </div>
+        ) : (
+          <div className={`bud-stat ${remaining < 0 ? 'bud-stat--negative' : 'bud-stat--positive'}`}>
+            <span>{remaining < 0 ? t('bud.overBy').replace('{amount}', `${currency}${Math.abs(remaining).toLocaleString('es-ES', { maximumFractionDigits: 0 })}`) : t('bud.remaining')}</span>
+            {remaining >= 0 && <strong>{currency}{remaining.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>}
+          </div>
+        )}
+      </div>
+
+      <div className="bud-section-header">
+        <h3>{t('bud.incomeSection')}</h3>
+        <button className="bud-btn bud-btn--primary" onClick={() => { resetIncomeForm(); setShowIncomeForm(s => !s); }}>
+          {t('bud.addIncome')}
+        </button>
+      </div>
+
+      {showIncomeForm && (
+        <div className="bud-form">
+          <h4>{editingIncomeId ? t('bud.editIncome') : t('bud.newIncome')}</h4>
+          <form onSubmit={saveIncome}>
+            <div className="bud-form-grid">
+              <label className="bud-field">
+                <span>{t('bud.incomeName')}</span>
+                <input placeholder={t('bud.incomeNamePh')} value={incomeFormData.name} onChange={e => setIncomeFormData({ ...incomeFormData, name: e.target.value })} required />
+              </label>
+              <label className="bud-field">
+                <span>{t('bud.monthlyIncome')} ({currency})</span>
+                <input type="number" step="0.01" placeholder="0.00" value={incomeFormData.amount || ''} onChange={e => setIncomeFormData({ ...incomeFormData, amount: e.target.value })} required />
+              </label>
+            </div>
+            <div className="bud-form-actions">
+              <button type="submit">{t('bud.saveBtn')}</button>
+              <button type="button" onClick={resetIncomeForm}>{t('bud.cancel')}</button>
+            </div>
+          </form>
         </div>
+      )}
+
+      <div className="bud-categories">
+        {incomeSources.length === 0 && <div className="bud-empty">{t('bud.noIncome')}</div>}
+        {incomeSources.map(inc => (
+          <div key={inc.incomeId} className="bud-cat-row">
+            <div className="bud-cat-info">
+              <div className="bud-cat-name">{inc.name}</div>
+              <div className="bud-cat-amounts">
+                <span className="bud-cat-spent">{currency}{parseFloat(inc.amount || 0).toLocaleString('es-ES', { maximumFractionDigits: 2 })}</span>
+                <span className="bud-cat-sep"> {t('bud.perMonth')}</span>
+              </div>
+            </div>
+            <div className="bud-cat-actions">
+              <button className="bud-btn-icon" onClick={() => editIncome(inc)} title="Edit">✏️</button>
+              <button className="bud-btn-icon bud-btn-icon--danger" onClick={() => deleteIncome(inc.incomeId)} title="Delete">🗑️</button>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="bud-section-header">

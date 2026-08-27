@@ -82,7 +82,6 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-primary);
-  text-transform: capitalize;
   min-width: 9rem;
   text-align: center;
 }
@@ -119,6 +118,14 @@
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+.bud-stat span.bud-stat-sub {
+  font-size: 0.75rem;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+  color: var(--text-secondary);
 }
 
 .bud-stat--positive strong { color: var(--bud-green); }

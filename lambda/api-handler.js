@@ -430,6 +430,50 @@ exports.handler = async (event) => {
       return { statusCode: 204, headers, body: '' };
     }
 
+    // Budget income endpoints
+    if (path === '/budget-income' && method === 'GET') {
+      const result = await docClient.send(new QueryCommand({
+        TableName: 'wealth-planner-budget-income',
+        KeyConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: { ':userId': userId }
+      }));
+      return { statusCode: 200, headers, body: JSON.stringify(result.Items || []) };
+    }
+
+    if (path === '/budget-income' && method === 'POST') {
+      const body = JSON.parse(event.body);
+      const incomeId = Date.now().toString();
+      await docClient.send(new PutCommand({
+        TableName: 'wealth-planner-budget-income',
+        Item: {
+          userId,
+          incomeId,
+          ...body,
+          createdAt: new Date().toISOString()
+        }
+      }));
+      return { statusCode: 201, headers, body: JSON.stringify({ incomeId }) };
+    }
+
+    if (path.startsWith('/budget-income/') && method === 'PUT') {
+      const incomeId = path.split('/')[2];
+      const body = JSON.parse(event.body);
+      await docClient.send(new PutCommand({
+        TableName: 'wealth-planner-budget-income',
+        Item: { userId, incomeId, ...body, updatedAt: new Date().toISOString() }
+      }));
+      return { statusCode: 200, headers, body: '' };
+    }
+
+    if (path.startsWith('/budget-income/') && method === 'DELETE') {
+      const incomeId = path.split('/')[2];
+      await docClient.send(new DeleteCommand({
+        TableName: 'wealth-planner-budget-income',
+        Key: { userId, incomeId }
+      }));
+      return { statusCode: 204, headers, body: '' };
+    }
+
     // Budget expense endpoints
     if (path === '/budget-expenses' && method === 'GET') {
       const result = await docClient.send(new QueryCommand({
