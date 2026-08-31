@@ -67,7 +67,10 @@ function App() {
   return (
     <div className="app">
       <nav className="navbar">
-        <h1 className="navbar-logo" onClick={() => navigate('landing')}>💰 Caudal</h1>
+        <h1 className="navbar-logo" onClick={() => navigate('landing')}>
+          <img src="/logo-symbol.png" alt="" className="navbar-logo-icon" />
+          Caudal
+        </h1>
         <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label={t('nav.toggleMenu')}>
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>

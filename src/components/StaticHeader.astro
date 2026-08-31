@@ -4,7 +4,10 @@ const { active = '' } = Astro.props;
 
 <nav class="navbar static-navbar">
   <a href="/" class="navbar-logo-link">
-    <h1 class="navbar-logo">💰 Caudal</h1>
+    <h1 class="navbar-logo">
+      <img src="/logo-symbol.png" alt="" class="navbar-logo-icon" />
+      Caudal
+    </h1>
   </a>
   <div class="static-nav-links">
     <a href="/" class={active === 'home' ? 'active' : ''}>Inicio</a>
