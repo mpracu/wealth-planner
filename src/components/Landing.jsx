@@ -190,7 +190,10 @@ function Landing({ onNavigate, isAuthenticated }) {
       <footer className="landing-footer">
         <div className="lf-inner">
           <div className="lf-brand">
-            <div className="lf-logo">💰 Caudal</div>
+            <div className="lf-logo">
+              <img src="/logo-symbol.png" alt="" className="lf-logo-icon" />
+              Caudal
+            </div>
             <p className="lf-tagline">{t('land.ft.tagline')}</p>
             <div className="lf-socials">
               <a href="https://x.com/caudalfinanzas" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X">

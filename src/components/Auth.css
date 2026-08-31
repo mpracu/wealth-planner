@@ -23,6 +23,9 @@
 }
 
 .auth-logo-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 1.5rem;
   font-weight: 800;
   margin: 0 0 0.35rem;
@@ -30,8 +33,13 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  display: inline-block;
   letter-spacing: -0.02em;
+}
+
+.auth-logo-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
 }
 
 .auth-tagline {

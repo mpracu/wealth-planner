@@ -88,7 +88,10 @@ export default function Auth({ onAuthSuccess }) {
     <div className="auth-container">
       <div className="auth-box">
         <div className="auth-header">
-          <div className="auth-logo-text">💰 Caudal</div>
+          <div className="auth-logo-text">
+            <img src="/logo-symbol.png" alt="" className="auth-logo-icon" />
+            Caudal
+          </div>
           <p className="auth-tagline">{t('auth.tagline')}</p>
         </div>
 

@@ -251,15 +251,15 @@ export default function Brand() {
 
         <div className="brand-logo-showcase">
           <div className="brand-logo-variant brand-logo-variant--dark">
-            <span className="brand-logo-symbol">💰</span>
+            <img src="/logo-symbol.png" alt="" className="brand-logo-symbol" />
             <span className="brand-logo-wordmark">Caudal</span>
           </div>
           <div className="brand-logo-variant brand-logo-variant--light">
-            <span className="brand-logo-symbol">💰</span>
+            <img src="/logo-symbol.png" alt="" className="brand-logo-symbol" />
             <span className="brand-logo-wordmark brand-logo-wordmark--dark">Caudal</span>
           </div>
           <div className="brand-logo-variant brand-logo-variant--indigo">
-            <span className="brand-logo-symbol">💰</span>
+            <img src="/logo-symbol.png" alt="" className="brand-logo-symbol" />
             <span className="brand-logo-wordmark">Caudal</span>
           </div>
         </div>
@@ -567,7 +567,10 @@ export default function Brand() {
 
       {/* ── Footer ────────────────────────────────────────── */}
       <div className="brand-footer">
-        <div className="brand-footer-logo">💰 Caudal</div>
+        <div className="brand-footer-logo">
+          <img src="/logo-symbol.png" alt="" className="brand-footer-logo-icon" />
+          Caudal
+        </div>
         <p>Portal de marca · {new Date().getFullYear()} · Todos los derechos reservados</p>
       </div>
 

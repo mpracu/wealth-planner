@@ -280,7 +280,7 @@
 .brand-logo-variant--light  { background: #f8fafc; border-color: #e5e7eb; }
 .brand-logo-variant--indigo { background: #6366f1; }
 
-.brand-logo-symbol { font-size: 1.75rem; line-height: 1; }
+.brand-logo-symbol { width: 32px; height: 32px; }
 .brand-logo-wordmark { font-size: 1.5rem; font-weight: 700; color: #e6edf3; letter-spacing: -0.01em; }
 .brand-logo-wordmark--dark { color: #1f2937; }
 
@@ -556,10 +556,18 @@
   font-size: 0.85rem;
 }
 .brand-footer-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
+}
+.brand-footer-logo-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }
 
 /* ── Responsive ───────────────────────────────────────────── */

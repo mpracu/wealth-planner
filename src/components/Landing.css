@@ -571,6 +571,9 @@
 }
 
 .lf-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 1.2rem;
   font-weight: 700;
   margin-bottom: 0.6rem;
@@ -578,7 +581,12 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  display: inline-block;
+}
+
+.lf-logo-icon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
 }
 
 .lf-tagline {
