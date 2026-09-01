@@ -20,6 +20,7 @@ export default function NetWorth() {
   const [history, setHistory] = useState([]);
   const [itemHistory, setItemHistory] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -65,6 +66,17 @@ export default function NetWorth() {
     loadItemHistory();
     loadCategories();
   }, []);
+
+  // One-time migration: if a user already tagged assets with the old
+  // free-text field but has never used the categories panel, seed it from
+  // whatever tags they already have instead of starting empty.
+  useEffect(() => {
+    if (!categoriesLoaded || categories.length > 0 || items.length === 0) return;
+    const existingTags = [...new Set(
+      items.flatMap(i => (i.tags || '').split(',').map(s => s.trim()).filter(Boolean))
+    )];
+    if (existingTags.length > 0) saveCategories(existingTags);
+  }, [categoriesLoaded, categories, items]);
 
   const loadItems = async () => {
     try {
@@ -163,6 +175,8 @@ export default function NetWorth() {
       setCategories(data.categories || []);
     } catch (err) {
       console.error('Error loading categories:', err);
+    } finally {
+      setCategoriesLoaded(true);
     }
   };
 
