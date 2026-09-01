@@ -143,6 +143,27 @@ exports.handler = async (event) => {
           Item: { userId, date: dateStr, netWorth, assets: totalAssets, liabilities: totalLiabilities }
         }));
 
+        // Per-item monthly snapshot: upserts today's value for each item under
+        // this month's key, so it ends up holding that item's latest value of
+        // the month. Next month's report diffs against this row.
+        const month = dateStr.slice(0, 7);
+        for (const item of itemsResult.Items) {
+          await docClient.send(new PutCommand({
+            TableName: 'wealth-planner-networth-item-history',
+            Item: {
+              userId,
+              sk: `${month}#${item.itemId}`,
+              itemId: item.itemId,
+              month,
+              name: item.name,
+              type: item.type,
+              value: Number(item.value) || 0,
+              isin: item.isin || null,
+              capturedAt: new Date().toISOString()
+            }
+          }));
+        }
+
         console.log(`Snapshotted net worth for user ${userId}: €${netWorth.toFixed(2)}`);
       } catch (snapError) {
         const msg = `Failed to snapshot net worth for user ${userId}: ${snapError.message}`;

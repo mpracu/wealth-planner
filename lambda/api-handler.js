@@ -258,6 +258,15 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify(result.Items) };
     }
 
+    if (path === '/networth-item-history' && method === 'GET') {
+      const result = await docClient.send(new QueryCommand({
+        TableName: 'wealth-planner-networth-item-history',
+        KeyConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: { ':userId': userId }
+      }));
+      return { statusCode: 200, headers, body: JSON.stringify(result.Items || []) };
+    }
+
     if (path === '/networth' && method === 'GET') {
       const result = await docClient.send(new QueryCommand({
         TableName: 'wealth-planner-networth-items',

@@ -13,11 +13,12 @@ const getThemeColors = () => {
 };
 
 export default function NetWorth() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const formRef = useRef(null);
   const [items, setItems] = useState([]);
   const [recurringItems, setRecurringItems] = useState([]);
   const [history, setHistory] = useState([]);
+  const [itemHistory, setItemHistory] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showRecurringForm, setShowRecurringForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -57,6 +58,7 @@ export default function NetWorth() {
     loadItems();
     loadRecurringItems();
     loadHistory();
+    loadItemHistory();
   }, []);
 
   const loadItems = async () => {
@@ -116,6 +118,26 @@ export default function NetWorth() {
       setHistory(data);
     } catch (err) {
       console.error('Error loading history:', err);
+    }
+  };
+
+  const loadItemHistory = async () => {
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      const response = await apiGet({
+        apiName: 'WealthPlannerAPI',
+        path: '/networth-item-history',
+        options: {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      }).response;
+      const data = await response.body.json();
+      setItemHistory(data);
+    } catch (err) {
+      console.error('Error loading item history:', err);
     }
   };
 
@@ -451,6 +473,70 @@ export default function NetWorth() {
     };
   }, [history, netWorth, monthlyDCA, recurringItems]);
 
+  const monthlyReport = useMemo(() => {
+    const now = new Date();
+    const monthKey = now.toISOString().slice(0, 7);
+    const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevMonthKey = prevDate.toISOString().slice(0, 7);
+
+    // Baseline net worth: last known point strictly before this month, else
+    // the earliest point we have this month (so month 1 shows "no change" instead of garbage).
+    const sortedHistory = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const beforeThisMonth = sortedHistory.filter(h => h.date.slice(0, 7) < monthKey);
+    const thisMonthPoints = sortedHistory.filter(h => h.date.slice(0, 7) === monthKey);
+    const baseline = beforeThisMonth.length > 0
+      ? beforeThisMonth[beforeThisMonth.length - 1]
+      : thisMonthPoints[0];
+    const startNetWorth = baseline ? baseline.netWorth : netWorth;
+    const netWorthChange = netWorth - startNetWorth;
+    const netWorthChangePct = startNetWorth ? (netWorthChange / Math.abs(startNetWorth)) * 100 : 0;
+
+    // Recurring contributions already executed this month (dayOfMonth has passed or is today).
+    const today = now.getDate();
+    const contributions = recurringItems
+      .filter(r => Number(r.dayOfMonth) <= today)
+      .reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+
+    const marketGrowth = netWorthChange - contributions;
+
+    // Per-asset movers: compare this month's latest snapshot to last month's.
+    const byItemThisMonth = {};
+    const byItemPrevMonth = {};
+    itemHistory.forEach(row => {
+      if (row.month === monthKey) byItemThisMonth[row.itemId] = row;
+      else if (row.month === prevMonthKey) byItemPrevMonth[row.itemId] = row;
+    });
+
+    const movers = items
+      .filter(i => i.type === 'asset')
+      .map(item => {
+        const prev = byItemPrevMonth[item.itemId];
+        if (!prev || !prev.value) return null;
+        const current = Number(item.value) || 0;
+        const delta = current - prev.value;
+        const deltaPct = (delta / Math.abs(prev.value)) * 100;
+        return { id: item.itemId, name: item.name, isin: item.isin, current, delta, deltaPct };
+      })
+      .filter(Boolean)
+      .filter(m => Math.abs(m.deltaPct) >= 0.01);
+
+    const gainers = movers.filter(m => m.delta > 0).sort((a, b) => b.deltaPct - a.deltaPct).slice(0, 5);
+    const losers = movers.filter(m => m.delta < 0).sort((a, b) => a.deltaPct - b.deltaPct).slice(0, 5);
+    const hasMoversData = Object.keys(byItemPrevMonth).length > 0;
+
+    return {
+      monthKey,
+      startNetWorth,
+      netWorthChange,
+      netWorthChangePct,
+      contributions,
+      marketGrowth,
+      gainers,
+      losers,
+      hasMoversData,
+    };
+  }, [history, itemHistory, items, recurringItems, netWorth]);
+
   const dismissOnboarding = (openForm = false) => {
     localStorage.setItem('caudal_onboarded', '1');
     setShowOnboarding(false);
@@ -581,6 +667,7 @@ export default function NetWorth() {
           { id: 'assets',    label: t('nw.tab.holdings')  },
           { id: 'recurring', label: t('nw.tab.recurring') },
           { id: 'history',   label: t('nw.tab.history')   },
+          { id: 'report',    label: t('nw.tab.report')    },
         ].map(({ id, label }) => (
           <button key={id} className={`nw-tab ${activeTab === id ? 'nw-tab--active' : ''}`} onClick={() => setActiveTab(id)}>
             {label}
@@ -1215,6 +1302,80 @@ export default function NetWorth() {
               </div>
             </div>
           )}
+        </>
+      )}
+
+      {activeTab === 'report' && (
+        <>
+          <div className="nw-tab-toolbar">
+            <div className="nw-tab-toolbar-left"><h2>{t('nw.report.title')}</h2></div>
+          </div>
+          <p className="nw-report-hint">{t('nw.report.hint')}</p>
+
+          <div className="nw-report-card">
+            <div className="nw-report-brand">
+              <img src="/logo-symbol.png" alt="" className="nw-report-logo" />
+              <span>Caudal</span>
+            </div>
+            <div className="nw-report-month">
+              {(() => {
+                const label = new Date().toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { month: 'long', year: 'numeric' });
+                return label.charAt(0).toUpperCase() + label.slice(1);
+              })()}
+            </div>
+
+            <div className="nw-report-total">
+              <span className="nw-report-total-label">{t('nw.report.total')}</span>
+              <span className="nw-report-total-value">{currency}{netWorth.toLocaleString('es-ES', {minimumFractionDigits: 2})}</span>
+              <span className={`nw-report-chip ${monthlyReport.netWorthChange >= 0 ? 'nw-report-chip--up' : 'nw-report-chip--down'}`}>
+                {monthlyReport.netWorthChange >= 0 ? '▲' : '▼'} {currency}{Math.abs(monthlyReport.netWorthChange).toLocaleString('es-ES', {minimumFractionDigits: 2})} ({monthlyReport.netWorthChangePct >= 0 ? '+' : ''}{monthlyReport.netWorthChangePct.toFixed(1)}%)
+              </span>
+            </div>
+
+            <div className="nw-report-stats">
+              <div className="nw-report-stat">
+                <span className="nw-report-stat-label">{t('nw.report.contributed')}</span>
+                <span className="nw-report-stat-value">{currency}{monthlyReport.contributions.toLocaleString('es-ES', {minimumFractionDigits: 2})}</span>
+              </div>
+              <div className="nw-report-stat">
+                <span className="nw-report-stat-label">{t('nw.report.marketGrowth')}</span>
+                <span className={`nw-report-stat-value ${monthlyReport.marketGrowth >= 0 ? 'nw-report-stat-value--up' : 'nw-report-stat-value--down'}`}>
+                  {monthlyReport.marketGrowth >= 0 ? '+' : ''}{currency}{monthlyReport.marketGrowth.toLocaleString('es-ES', {minimumFractionDigits: 2})}
+                </span>
+              </div>
+            </div>
+
+            {monthlyReport.hasMoversData ? (
+              <div className="nw-report-movers">
+                <div className="nw-report-movers-col">
+                  <h4>{t('nw.report.gainers')}</h4>
+                  {monthlyReport.gainers.length === 0 ? (
+                    <p className="nw-report-movers-empty">{t('nw.report.noGainers')}</p>
+                  ) : monthlyReport.gainers.map(m => (
+                    <div key={m.id} className="nw-report-mover">
+                      <span className="nw-report-mover-name">{m.name}</span>
+                      <span className="nw-report-mover-pct nw-report-mover-pct--up">+{m.deltaPct.toFixed(1)}%</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="nw-report-movers-col">
+                  <h4>{t('nw.report.losers')}</h4>
+                  {monthlyReport.losers.length === 0 ? (
+                    <p className="nw-report-movers-empty">{t('nw.report.noLosers')}</p>
+                  ) : monthlyReport.losers.map(m => (
+                    <div key={m.id} className="nw-report-mover">
+                      <span className="nw-report-mover-name">{m.name}</span>
+                      <span className="nw-report-mover-pct nw-report-mover-pct--down">{m.deltaPct.toFixed(1)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="nw-report-movers-pending">{t('nw.report.moversPending')}</p>
+            )}
+
+            <div className="nw-report-footer">caudalfinanzas.com</div>
+          </div>
         </>
       )}
     </div>
