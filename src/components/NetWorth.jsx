@@ -1039,9 +1039,9 @@ export default function NetWorth() {
               </label>
 
               <label className="form-field form-field--wide">
-                <span>{t('nw.tags')} <span className="field-hint">{t('nw.tagsHint')}</span></span>
-                <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})}>
-                  <option value="">{t('nw.selectCategoryPh')}</option>
+                <span>{t('nw.tags')}</span>
+                <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} required>
+                  <option value="" disabled hidden>{t('nw.selectCategoryPh')}</option>
                   {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
               </label>
@@ -1156,9 +1156,9 @@ export default function NetWorth() {
                       />
                     </label>
                     <label className="form-field form-field--wide">
-                      <span>{t('nw.tags')} <span className="field-hint">{t('nw.optional')}</span></span>
-                      <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})}>
-                        <option value="">{t('nw.selectCategoryPh')}</option>
+                      <span>{t('nw.tags')}</span>
+                      <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} required>
+                        <option value="" disabled hidden>{t('nw.selectCategoryPh')}</option>
                         {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                       </select>
                     </label>
@@ -1229,9 +1229,9 @@ export default function NetWorth() {
                       <input type="number" step="0.01" value={formData.value || ''} onChange={e => setFormData({...formData, value: +e.target.value})} onFocus={e => e.target.select()} required />
                     </label>
                     <label className="form-field form-field--wide">
-                      <span>{t('nw.tags')} <span className="field-hint">{t('nw.optional')}</span></span>
-                      <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})}>
-                        <option value="">{t('nw.selectCategoryPh')}</option>
+                      <span>{t('nw.tags')}</span>
+                      <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} required>
+                        <option value="" disabled hidden>{t('nw.selectCategoryPh')}</option>
                         {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                       </select>
                     </label>
