@@ -1041,7 +1041,7 @@ export default function NetWorth() {
               <label className="form-field form-field--wide">
                 <span>{t('nw.tags')}</span>
                 <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} required>
-                  <option value="" disabled hidden>{t('nw.selectCategoryPh')}</option>
+                  <option value="" disabled hidden={categories.length > 0}>{categories.length > 0 ? t('nw.selectCategoryPh') : t('nw.noCategoriesYetPh')}</option>
                   {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
               </label>
@@ -1158,7 +1158,7 @@ export default function NetWorth() {
                     <label className="form-field form-field--wide">
                       <span>{t('nw.tags')}</span>
                       <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} required>
-                        <option value="" disabled hidden>{t('nw.selectCategoryPh')}</option>
+                        <option value="" disabled hidden={categories.length > 0}>{categories.length > 0 ? t('nw.selectCategoryPh') : t('nw.noCategoriesYetPh')}</option>
                         {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                       </select>
                     </label>
@@ -1231,7 +1231,7 @@ export default function NetWorth() {
                     <label className="form-field form-field--wide">
                       <span>{t('nw.tags')}</span>
                       <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} required>
-                        <option value="" disabled hidden>{t('nw.selectCategoryPh')}</option>
+                        <option value="" disabled hidden={categories.length > 0}>{categories.length > 0 ? t('nw.selectCategoryPh') : t('nw.noCategoriesYetPh')}</option>
                         {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                       </select>
                     </label>

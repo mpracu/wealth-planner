@@ -229,6 +229,7 @@ export const T = {
   'nw.newCategoryPh':    { es: 'Nueva categoría, p.ej. Renta variable', en: 'New category, e.g. Stocks' },
   'nw.addCategory':      { es: 'Añadir', en: 'Add' },
   'nw.selectCategoryPh': { es: 'Selecciona una categoría', en: 'Select a category' },
+  'nw.noCategoriesYetPh': { es: 'Primero crea una categoría arriba en "Categorías"', en: 'Create a category above in "Categories" first' },
   'nw.tagsPh':         { es: 'p.ej., Acciones, Inmuebles, Fondo indexado', en: 'e.g., Stocks, Real Estate, Index Fund' },
   'nw.isin':           { es: 'ISIN', en: 'ISIN' },
   'nw.optional':       { es: '(opcional)', en: '(optional)' },
