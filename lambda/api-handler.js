@@ -99,9 +99,19 @@ async function snapshotNetWorth(userId) {
   const totalLiabilities = items.filter(i => i.type === 'liability').reduce((sum, i) => sum + (Number(i.value) || 0), 0);
   const dateStr = new Date().toISOString().split('T')[0];
 
+  // Record today's actual recurring-DCA rate alongside the net worth point so
+  // the growth-attribution chart can sum real historical rates instead of
+  // extrapolating today's rate backward over months that had a different one.
+  const recurringResult = await docClient.send(new QueryCommand({
+    TableName: 'wealth-planner-recurring',
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: { ':userId': userId }
+  }));
+  const monthlyDCA = (recurringResult.Items || []).reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+
   await docClient.send(new PutCommand({
     TableName: 'wealth-planner-networth-history',
-    Item: { userId, date: dateStr, netWorth: totalAssets - totalLiabilities, assets: totalAssets, liabilities: totalLiabilities }
+    Item: { userId, date: dateStr, netWorth: totalAssets - totalLiabilities, assets: totalAssets, liabilities: totalLiabilities, monthlyDCA }
   }));
 }
 
@@ -256,6 +266,24 @@ exports.handler = async (event) => {
         ScanIndexForward: true
       }));
       return { statusCode: 200, headers, body: JSON.stringify(result.Items) };
+    }
+
+    if (path === '/networth-categories' && method === 'GET') {
+      const result = await docClient.send(new GetCommand({
+        TableName: 'wealth-planner-networth-categories',
+        Key: { userId }
+      }));
+      return { statusCode: 200, headers, body: JSON.stringify({ categories: result.Item?.categories || [] }) };
+    }
+
+    if (path === '/networth-categories' && method === 'PUT') {
+      const body = JSON.parse(event.body);
+      const categories = Array.isArray(body.categories) ? body.categories : [];
+      await docClient.send(new PutCommand({
+        TableName: 'wealth-planner-networth-categories',
+        Item: { userId, categories, updatedAt: new Date().toISOString() }
+      }));
+      return { statusCode: 200, headers, body: JSON.stringify({ categories }) };
     }
 
     if (path === '/networth-item-history' && method === 'GET') {

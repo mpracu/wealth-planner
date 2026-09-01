@@ -1,5 +1,5 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, ScanCommand, QueryCommand, PutCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, ScanCommand, QueryCommand, GetCommand, PutCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
 const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2');
 
 const client = new DynamoDBClient({});
@@ -49,15 +49,26 @@ exports.handler = async (event) => {
           throw new Error(`Invalid amount "${recurring.amount}" for asset "${recurring.assetName}"`);
         }
 
-        const existingResult = await docClient.send(new QueryCommand({
-          TableName: 'wealth-planner-networth-items',
-          KeyConditionExpression: 'userId = :userId',
-          FilterExpression: '#name = :name',
-          ExpressionAttributeNames: { '#name': 'name' },
-          ExpressionAttributeValues: { ':userId': recurring.userId, ':name': recurring.assetName }
-        }));
-
-        const existing = existingResult.Items?.[0];
+        // Prefer the exact item picked in the UI (assetItemId) — matching by
+        // name alone is ambiguous when two items share the same name.
+        let existing = null;
+        if (recurring.assetItemId) {
+          const getResult = await docClient.send(new GetCommand({
+            TableName: 'wealth-planner-networth-items',
+            Key: { userId: recurring.userId, itemId: recurring.assetItemId }
+          }));
+          existing = getResult.Item || null;
+        }
+        if (!existing) {
+          const existingResult = await docClient.send(new QueryCommand({
+            TableName: 'wealth-planner-networth-items',
+            KeyConditionExpression: 'userId = :userId',
+            FilterExpression: '#name = :name',
+            ExpressionAttributeNames: { '#name': 'name' },
+            ExpressionAttributeValues: { ':userId': recurring.userId, ':name': recurring.assetName }
+          }));
+          existing = existingResult.Items?.[0] || null;
+        }
 
         if (existing) {
           const currentValue = Number(existing.value) || 0;
@@ -138,9 +149,19 @@ exports.handler = async (event) => {
           .reduce((sum, i) => sum + (Number(i.value) || 0), 0);
         const netWorth = totalAssets - totalLiabilities;
 
+        // Record today's actual recurring-DCA rate alongside the net worth
+        // point so growth-attribution can sum real historical rates instead
+        // of extrapolating today's rate backward over months with a different one.
+        const userRecurringResult = await docClient.send(new QueryCommand({
+          TableName: 'wealth-planner-recurring',
+          KeyConditionExpression: 'userId = :userId',
+          ExpressionAttributeValues: { ':userId': userId }
+        }));
+        const monthlyDCA = (userRecurringResult.Items || []).reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+
         await docClient.send(new PutCommand({
           TableName: 'wealth-planner-networth-history',
-          Item: { userId, date: dateStr, netWorth, assets: totalAssets, liabilities: totalLiabilities }
+          Item: { userId, date: dateStr, netWorth, assets: totalAssets, liabilities: totalLiabilities, monthlyDCA }
         }));
 
         // Per-item monthly snapshot: upserts today's value for each item under

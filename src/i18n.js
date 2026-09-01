@@ -222,7 +222,13 @@ export const T = {
   'nw.value':          { es: 'Valor', en: 'Value' },
   'nw.autoCalc':       { es: '(calculado automáticamente)', en: '(auto-calculated)' },
   'nw.tags':           { es: 'Etiquetas', en: 'Tags' },
-  'nw.tagsHint':       { es: '(opcional, separadas por comas)', en: '(optional, comma separated)' },
+  'nw.tagsHint':       { es: '(opcional)', en: '(optional)' },
+  'nw.manageCategories': { es: 'Categorías', en: 'Categories' },
+  'nw.categoriesHint':   { es: 'Crea tus categorías aquí una vez y luego asígnalas a cada activo.', en: 'Create your categories here once, then assign them to each asset.' },
+  'nw.removeCategory':   { es: 'Eliminar categoría', en: 'Remove category' },
+  'nw.newCategoryPh':    { es: 'Nueva categoría, p.ej. Renta variable', en: 'New category, e.g. Stocks' },
+  'nw.addCategory':      { es: 'Añadir', en: 'Add' },
+  'nw.selectCategoryPh': { es: 'Selecciona una categoría', en: 'Select a category' },
   'nw.tagsPh':         { es: 'p.ej., Acciones, Inmuebles, Fondo indexado', en: 'e.g., Stocks, Real Estate, Index Fund' },
   'nw.isin':           { es: 'ISIN', en: 'ISIN' },
   'nw.optional':       { es: '(opcional)', en: '(optional)' },
@@ -295,7 +301,7 @@ export const T = {
   'nw.ga.contributed':   { es: 'Aportado', en: 'Contributed' },
   'nw.ga.returns':       { es: 'Rentabilidad', en: 'Market returns' },
   'nw.ga.contributions': { es: 'Aportaciones', en: 'Contributions' },
-  'nw.ga.disclaimer':    { es: 'Estimación basada en aportaciones recurrentes actuales ({n}/mes). Las aportaciones manuales no se incluyen.', en: 'Estimate based on current recurring contributions ({n}/mo). Manual contributions are not included.' },
+  'nw.ga.disclaimer':    { es: 'Calculado con tu tasa de aportación recurrente real registrada cada día (ahora {n}/mes). Las aportaciones manuales no se incluyen.', en: 'Calculated from your actual recurring contribution rate recorded each day (currently {n}/mo). Manual contributions are not included.' },
   'nw.ga.noRecurring':   { es: 'Sin aportaciones recurrentes configuradas. Añade inversiones recurrentes para ver cómo contribuyen a tu crecimiento.', en: 'No recurring contributions set up. Add recurring investments to see how they contribute to your growth.' },
 
   // ── Budget ─────────────────────────────────────────────────────

@@ -19,6 +19,9 @@ export default function NetWorth() {
   const [recurringItems, setRecurringItems] = useState([]);
   const [history, setHistory] = useState([]);
   const [itemHistory, setItemHistory] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [showRecurringForm, setShowRecurringForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -31,6 +34,7 @@ export default function NetWorth() {
   });
   const [recurringFormData, setRecurringFormData] = useState({
     assetName: '',
+    assetItemId: '',
     amount: 0,
     dayOfMonth: 1,
     tags: ''
@@ -59,6 +63,7 @@ export default function NetWorth() {
     loadRecurringItems();
     loadHistory();
     loadItemHistory();
+    loadCategories();
   }, []);
 
   const loadItems = async () => {
@@ -141,6 +146,57 @@ export default function NetWorth() {
     }
   };
 
+  const loadCategories = async () => {
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      const response = await apiGet({
+        apiName: 'WealthPlannerAPI',
+        path: '/networth-categories',
+        options: {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      }).response;
+      const data = await response.body.json();
+      setCategories(data.categories || []);
+    } catch (err) {
+      console.error('Error loading categories:', err);
+    }
+  };
+
+  const saveCategories = async (next) => {
+    setCategories(next);
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      await apiPut({
+        apiName: 'WealthPlannerAPI',
+        path: '/networth-categories',
+        options: {
+          body: { categories: next },
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      }).response;
+    } catch (err) {
+      console.error('Error saving categories:', err);
+    }
+  };
+
+  const addCategory = () => {
+    const name = newCategoryName.trim();
+    if (!name || categories.includes(name)) return;
+    saveCategories([...categories, name]);
+    setNewCategoryName('');
+  };
+
+  const removeCategory = (name) => {
+    saveCategories(categories.filter(c => c !== name));
+  };
+
   const saveItem = async (e) => {
     e.preventDefault();
     const itemData = { ...formData };
@@ -202,6 +258,7 @@ export default function NetWorth() {
   const editRecurringItem = (item) => {
     setRecurringFormData({
       assetName: item.assetName,
+      assetItemId: item.assetItemId || '',
       amount: item.amount,
       dayOfMonth: item.dayOfMonth,
       tags: item.tags || ''
@@ -373,12 +430,12 @@ export default function NetWorth() {
   };
 
   const resetRecurringForm = () => {
-    setRecurringFormData({ assetName: '', amount: 0, dayOfMonth: 1, tags: '' });
+    setRecurringFormData({ assetName: '', assetItemId: '', amount: 0, dayOfMonth: 1, tags: '' });
     setEditingRecurringId(null);
     setShowRecurringForm(false);
   };
 
-  const assetNames = [...new Set(items.filter(i => i.type === 'asset').map(i => i.name))];
+  const assetOptions = items.filter(i => i.type === 'asset');
 
   const totalAssets = items.filter(i => i.type === 'asset').reduce((sum, i) => sum + i.value, 0);
   const totalLiabilities = items.filter(i => i.type === 'liability').reduce((sum, i) => sum + i.value, 0);
@@ -438,28 +495,25 @@ export default function NetWorth() {
   }, [items, totalAssets]);
 
   const growthAttribution = useMemo(() => {
-    if (history.length < 2) return null;
     const sorted = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    // monthlyDCA is today's recurring total — it's only a valid stand-in for
-    // past months if the recurring amounts haven't changed since. Anchor the
-    // attribution window to the most recent recurring add/edit so we don't
-    // apply today's rate to months that had a different one.
-    const rateEffectiveSince = recurringItems.reduce((latest, r) => {
-      const t = new Date(r.updatedAt || r.createdAt || 0).getTime();
-      return isNaN(t) ? latest : Math.max(latest, t);
-    }, 0);
-    const first = sorted.find(s => new Date(s.date).getTime() >= rateEffectiveSince) || sorted[sorted.length - 1];
-    const relevant = sorted.slice(sorted.indexOf(first));
+    // Only use points where we actually recorded that day's recurring rate.
+    // Extrapolating today's rate backward over months that had a different
+    // rate (e.g. after lowering your monthly contribution) misattributes
+    // past contributions as investment return, so we don't guess anymore:
+    // each historical point carries the rate that was really in effect then.
+    const tracked = sorted.filter(h => h.monthlyDCA !== undefined && h.monthlyDCA !== null);
+    if (tracked.length < 2) return null;
 
+    const first = tracked[0];
     let totalContributions = 0;
-    for (let i = 1; i < relevant.length; i++) {
-      const monthsElapsed = (new Date(relevant[i].date) - new Date(relevant[i - 1].date)) / (1000 * 60 * 60 * 24 * 30.44);
-      totalContributions += monthlyDCA * monthsElapsed;
+    for (let i = 1; i < tracked.length; i++) {
+      const daysElapsed = (new Date(tracked[i].date) - new Date(tracked[i - 1].date)) / (1000 * 60 * 60 * 24);
+      totalContributions += (tracked[i - 1].monthlyDCA / 30.44) * daysElapsed;
     }
-    const last = relevant[relevant.length - 1];
-    const monthsToNow = (Date.now() - new Date(last.date).getTime()) / (1000 * 60 * 60 * 24 * 30.44);
-    totalContributions += monthlyDCA * monthsToNow;
+    const last = tracked[tracked.length - 1];
+    const daysToNow = (Date.now() - new Date(last.date).getTime()) / (1000 * 60 * 60 * 24);
+    totalContributions += (last.monthlyDCA / 30.44) * daysToNow;
     const totalGrowth = netWorth - first.netWorth;
     const interestGrowth = totalGrowth - totalContributions;
     const positiveTotal = Math.max(totalContributions, 0) + Math.max(interestGrowth, 0);
@@ -471,7 +525,7 @@ export default function NetWorth() {
       returnPct: positiveTotal > 0 ? Math.round((Math.max(interestGrowth, 0) / positiveTotal) * 100) : 0,
       sinceDate: first.date,
     };
-  }, [history, netWorth, monthlyDCA, recurringItems]);
+  }, [history, netWorth]);
 
   const monthlyReport = useMemo(() => {
     const now = new Date();
@@ -916,10 +970,41 @@ export default function NetWorth() {
               <h2>{t('nw.tab.holdings')}</h2>
               <a href="/networth-template.csv" download className="nw-template-link">{t('nw.csvTemplate')}</a>
             </div>
-            <button className="nw-btn nw-btn--primary" onClick={() => { setShowForm(!showForm); setEditingId(null); }}>
-              {t('nw.addItem')}
-            </button>
+            <div className="nw-tab-toolbar-actions">
+              <button className="nw-btn" onClick={() => setShowCategoryManager(s => !s)}>
+                {t('nw.manageCategories')}
+              </button>
+              <button className="nw-btn nw-btn--primary" onClick={() => { setShowForm(!showForm); setEditingId(null); }}>
+                {t('nw.addItem')}
+              </button>
+            </div>
           </div>
+
+      {showCategoryManager && (
+        <div className="item-form">
+          <h3>{t('nw.manageCategories')}</h3>
+          <p className="field-hint" style={{marginBottom: '0.75rem'}}>{t('nw.categoriesHint')}</p>
+          {categories.length > 0 && (
+            <div className="nw-category-chips">
+              {categories.map(cat => (
+                <span key={cat} className="nw-category-chip">
+                  {cat}
+                  <button type="button" onClick={() => removeCategory(cat)} aria-label={t('nw.removeCategory')}>×</button>
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="nw-category-add">
+            <input
+              placeholder={t('nw.newCategoryPh')}
+              value={newCategoryName}
+              onChange={e => setNewCategoryName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCategory())}
+            />
+            <button type="button" className="nw-btn" onClick={addCategory}>{t('nw.addCategory')}</button>
+          </div>
+        </div>
+      )}
 
       {showForm && !editingId && (
         <div className="item-form" ref={formRef}>
@@ -948,13 +1033,17 @@ export default function NetWorth() {
                     : (formData.value || '')}
                   readOnly={!!(formData.shares && formData.pricePerShare)}
                   onChange={e => setFormData({...formData, value: +e.target.value})}
+                  onFocus={e => e.target.select()}
                   style={formData.shares && formData.pricePerShare ? {opacity: 0.7, cursor: 'default'} : {}}
                 />
               </label>
 
               <label className="form-field form-field--wide">
                 <span>{t('nw.tags')} <span className="field-hint">{t('nw.tagsHint')}</span></span>
-                <input placeholder={t('nw.tagsPh')} value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+                <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})}>
+                  <option value="">{t('nw.selectCategoryPh')}</option>
+                  {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                </select>
               </label>
 
               {formData.type === 'asset' && (
@@ -965,11 +1054,11 @@ export default function NetWorth() {
                   </label>
                   <label className="form-field">
                     <span>{t('nw.shares')} <span className="field-hint">{t('nw.optional')}</span></span>
-                    <input type="number" step="0.001" placeholder={t('nw.sharesPh')} value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} />
+                    <input type="number" step="0.001" placeholder={t('nw.sharesPh')} value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} onFocus={e => e.target.select()} />
                   </label>
                   <label className="form-field">
                     <span>{t('nw.pricePerShare')} <span className="field-hint">{t('nw.optional')}</span></span>
-                    <input type="number" step="0.01" placeholder={t('nw.pricePh')} value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
+                    <input type="number" step="0.01" placeholder={t('nw.pricePh')} value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} onFocus={e => e.target.select()} />
                   </label>
                 </>
               )}
@@ -977,28 +1066,6 @@ export default function NetWorth() {
             <div className="form-actions">
               <button type="submit">{t('nw.saveBtn')}</button>
               <button type="button" onClick={resetForm}>{t('nw.cancel')}</button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {showRecurringForm && (
-        <div className="item-form">
-          <h3>{t('nw.recurringTitle')}</h3>
-          <form onSubmit={saveRecurringItem}>
-            <select value={recurringFormData.assetName} onChange={e => setRecurringFormData({...recurringFormData, assetName: e.target.value})} required>
-              <option value="">{t('nw.selectAsset')}</option>
-              {assetNames.map(name => (
-                <option key={name} value={name}>{name}</option>
-              ))}
-            </select>
-            <input type="number" placeholder={t('nw.amount')} value={recurringFormData.amount || ''} onChange={e => setRecurringFormData({...recurringFormData, amount: +e.target.value})} required />
-            <input type="number" min="1" max="28" placeholder={t('nw.dayOfMonthPh')} value={recurringFormData.dayOfMonth} onChange={e => setRecurringFormData({...recurringFormData, dayOfMonth: +e.target.value})} required />
-            <input placeholder={t('nw.tagsPh2')} value={recurringFormData.tags} onChange={e => setRecurringFormData({...recurringFormData, tags: e.target.value})} />
-
-            <div className="form-actions">
-              <button type="submit">{t('nw.saveBtn')}</button>
-              <button type="button" onClick={resetRecurringForm}>{t('nw.cancel')}</button>
             </div>
           </form>
         </div>
@@ -1084,12 +1151,16 @@ export default function NetWorth() {
                           : (formData.value || '')}
                         readOnly={!!(formData.shares && formData.pricePerShare)}
                         onChange={e => setFormData({...formData, value: +e.target.value})}
+                        onFocus={e => e.target.select()}
                         style={formData.shares && formData.pricePerShare ? {opacity: 0.7, cursor: 'default'} : {}}
                       />
                     </label>
                     <label className="form-field form-field--wide">
                       <span>{t('nw.tags')} <span className="field-hint">{t('nw.optional')}</span></span>
-                      <input placeholder={t('nw.tagsEditPh')} value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+                      <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})}>
+                        <option value="">{t('nw.selectCategoryPh')}</option>
+                        {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                      </select>
                     </label>
                     {formData.type === 'asset' && (
                       <>
@@ -1099,11 +1170,11 @@ export default function NetWorth() {
                         </label>
                         <label className="form-field">
                           <span>{t('nw.shares')}</span>
-                          <input type="number" step="0.001" placeholder={t('nw.sharesPh')} value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} />
+                          <input type="number" step="0.001" placeholder={t('nw.sharesPh')} value={formData.shares || ''} onChange={e => setFormData({...formData, shares: e.target.value})} onFocus={e => e.target.select()} />
                         </label>
                         <label className="form-field">
                           <span>{t('nw.pricePerShare')}</span>
-                          <input type="number" step="0.0001" placeholder={t('nw.pricePh')} value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} />
+                          <input type="number" step="0.0001" placeholder={t('nw.pricePh')} value={formData.pricePerShare || ''} onChange={e => setFormData({...formData, pricePerShare: e.target.value})} onFocus={e => e.target.select()} />
                         </label>
                       </>
                     )}
@@ -1155,11 +1226,14 @@ export default function NetWorth() {
                     </label>
                     <label className="form-field">
                       <span>{t('nw.value')} ({currency})</span>
-                      <input type="number" step="0.01" value={formData.value || ''} onChange={e => setFormData({...formData, value: +e.target.value})} required />
+                      <input type="number" step="0.01" value={formData.value || ''} onChange={e => setFormData({...formData, value: +e.target.value})} onFocus={e => e.target.select()} required />
                     </label>
                     <label className="form-field form-field--wide">
                       <span>{t('nw.tags')} <span className="field-hint">{t('nw.optional')}</span></span>
-                      <input placeholder={t('nw.mortgagePh')} value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+                      <select value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})}>
+                        <option value="">{t('nw.selectCategoryPh')}</option>
+                        {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                      </select>
                     </label>
                   </div>
                   <div className="form-actions">
@@ -1190,12 +1264,24 @@ export default function NetWorth() {
                   <label className="form-field form-field--wide">
                     <span>{t('nw.linkedAsset')}</span>
                     <select
-                      value={recurringFormData.assetName}
-                      onChange={e => setRecurringFormData({...recurringFormData, assetName: e.target.value})}
+                      value={recurringFormData.assetItemId || (recurringFormData.assetName === '__custom' ? '__custom' : '')}
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val === '__custom') {
+                          setRecurringFormData({...recurringFormData, assetItemId: '', assetName: '__custom'});
+                        } else {
+                          const chosen = assetOptions.find(i => i.itemId === val);
+                          setRecurringFormData({...recurringFormData, assetItemId: val, assetName: chosen ? chosen.name : ''});
+                        }
+                      }}
                       required
                     >
                       <option value="">{t('nw.selectAnAsset')}</option>
-                      {assetNames.map(name => <option key={name} value={name}>{name}</option>)}
+                      {assetOptions.map(i => (
+                        <option key={i.itemId} value={i.itemId}>
+                          {i.name} ({currency}{Number(i.value).toLocaleString('es-ES', {maximumFractionDigits: 0})})
+                        </option>
+                      ))}
                       <option value="__custom">{t('nw.customName')}</option>
                     </select>
                   </label>
@@ -1213,12 +1299,12 @@ export default function NetWorth() {
 
                   <label className="form-field">
                     <span>{t('nw.monthlyAmt')} ({currency})</span>
-                    <input type="number" step="0.01" placeholder="0.00" value={recurringFormData.amount || ''} onChange={e => setRecurringFormData({...recurringFormData, amount: +e.target.value})} required />
+                    <input type="number" step="0.01" placeholder="0.00" value={recurringFormData.amount || ''} onChange={e => setRecurringFormData({...recurringFormData, amount: +e.target.value})} onFocus={e => e.target.select()} required />
                   </label>
 
                   <label className="form-field">
                     <span>{t('nw.dayOfMonth')} <span className="field-hint">{t('nw.dayHint')}</span></span>
-                    <input type="number" min="1" max="28" value={recurringFormData.dayOfMonth} onChange={e => setRecurringFormData({...recurringFormData, dayOfMonth: +e.target.value})} required />
+                    <input type="number" min="1" max="28" value={recurringFormData.dayOfMonth || ''} onChange={e => setRecurringFormData({...recurringFormData, dayOfMonth: +e.target.value})} onFocus={e => e.target.select()} required />
                   </label>
 
                   <label className="form-field form-field--wide">

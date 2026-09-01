@@ -343,7 +343,7 @@ export default function Budget() {
               </label>
               <label className="bud-field">
                 <span>{t('bud.monthlyIncome')} ({currency})</span>
-                <input type="number" step="0.01" placeholder="0.00" value={incomeFormData.amount || ''} onChange={e => setIncomeFormData({ ...incomeFormData, amount: e.target.value })} required />
+                <input type="number" step="0.01" placeholder="0.00" value={incomeFormData.amount || ''} onChange={e => setIncomeFormData({ ...incomeFormData, amount: e.target.value })} onFocus={e => e.target.select()} required />
               </label>
             </div>
             <div className="bud-form-actions">
@@ -391,7 +391,7 @@ export default function Budget() {
               </label>
               <label className="bud-field">
                 <span>{t('bud.monthlyBudget')} ({currency})</span>
-                <input type="number" step="0.01" placeholder="0.00" value={categoryFormData.budgetedAmount || ''} onChange={e => setCategoryFormData({ ...categoryFormData, budgetedAmount: e.target.value })} required />
+                <input type="number" step="0.01" placeholder="0.00" value={categoryFormData.budgetedAmount || ''} onChange={e => setCategoryFormData({ ...categoryFormData, budgetedAmount: e.target.value })} onFocus={e => e.target.select()} required />
               </label>
             </div>
             <div className="bud-form-actions">
@@ -457,7 +457,7 @@ export default function Budget() {
               </label>
               <label className="bud-field">
                 <span>{t('bud.amount')} ({currency})</span>
-                <input type="number" step="0.01" placeholder="0.00" value={expenseFormData.amount || ''} onChange={e => setExpenseFormData({ ...expenseFormData, amount: e.target.value })} required />
+                <input type="number" step="0.01" placeholder="0.00" value={expenseFormData.amount || ''} onChange={e => setExpenseFormData({ ...expenseFormData, amount: e.target.value })} onFocus={e => e.target.select()} required />
               </label>
               <label className="bud-field">
                 <span>{t('bud.date')}</span>

@@ -464,6 +464,49 @@
   gap: 1rem;
 }
 
+.nw-tab-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.nw-category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.nw-category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.75rem;
+  background: var(--nw-accent-soft);
+  color: var(--nw-accent);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.nw-category-chip button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.7;
+}
+.nw-category-chip button:hover { opacity: 1; }
+
+.nw-category-add {
+  display: flex;
+  gap: 0.5rem;
+}
+.nw-category-add input { flex: 1; }
+
 .nw-tab-toolbar h2 {
   margin: 0;
   font-size: 1.1rem;
