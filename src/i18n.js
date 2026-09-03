@@ -310,7 +310,7 @@ export const T = {
   'nw.ga.contributed':   { es: 'Aportado', en: 'Contributed' },
   'nw.ga.returns':       { es: 'Rentabilidad', en: 'Market returns' },
   'nw.ga.contributions': { es: 'Aportaciones', en: 'Contributions' },
-  'nw.ga.disclaimer':    { es: 'Calculado con tu tasa de aportación recurrente real registrada cada día (ahora {n}/mes). Las aportaciones manuales no se incluyen.', en: 'Calculated from your actual recurring contribution rate recorded each day (currently {n}/mo). Manual contributions are not included.' },
+  'nw.ga.disclaimer':    { es: 'Desde que registramos tu tasa recurrente día a día (ahora {n}/mes), la calculamos con datos reales. Antes de eso, todo el crecimiento se cuenta como rentabilidad, así que en periodos antiguos puede estar sobrestimada.', en: "Once we started tracking your recurring rate day by day (currently {n}/mo), this uses real data. Before that, all growth counts as market return, so older periods may overstate it." },
   'nw.ga.noRecurring':   { es: 'Sin aportaciones recurrentes configuradas. Añade inversiones recurrentes para ver cómo contribuyen a tu crecimiento.', en: 'No recurring contributions set up. Add recurring investments to see how they contribute to your growth.' },
 
   // ── Budget ─────────────────────────────────────────────────────

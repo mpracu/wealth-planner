@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { post as apiPost, get as apiGet, put as apiPut, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, Brush, ReferenceLine } from 'recharts';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, ReferenceLine } from 'recharts';
 import { useLanguage } from '../LanguageContext';
 import './NetWorth.css';
 
@@ -484,6 +484,27 @@ export default function NetWorth() {
     return { change, changePct: start ? (change / Math.abs(start)) * 100 : 0 };
   }, [filteredHistory]);
 
+  const renderHistoryTooltip = ({ active, payload, label }) => {
+    if (!active || !payload || !payload.length) return null;
+    const value = payload[0].value;
+    const idx = filteredHistory.findIndex(h => h.date === label);
+    const prev = idx > 0 ? filteredHistory[idx - 1].netWorth : null;
+    const delta = prev !== null ? value - prev : null;
+    return (
+      <div className="nw-history-tooltip">
+        <div className="nw-history-tooltip-date">
+          {new Date(label).toLocaleDateString('es-ES', {day: 'numeric', month: 'short', year: 'numeric'})}
+        </div>
+        <div className="nw-history-tooltip-value">{currency}{value.toLocaleString('es-ES', {minimumFractionDigits: 2})}</div>
+        {delta !== null && Math.abs(delta) >= 0.005 && (
+          <div className={`nw-history-tooltip-delta ${delta >= 0 ? 'nw-history-tooltip-delta--up' : 'nw-history-tooltip-delta--down'}`}>
+            {delta >= 0 ? '▲' : '▼'} {currency}{Math.abs(delta).toLocaleString('es-ES', {maximumFractionDigits: 2})}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const monthlyDCA = recurringItems.reduce((s, r) => s + r.amount, 0);
   const forecastDCA = forecastDCAOverride !== null ? forecastDCAOverride : monthlyDCA;
 
@@ -532,24 +553,29 @@ export default function NetWorth() {
 
   const growthAttribution = useMemo(() => {
     const sorted = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
+    if (sorted.length < 2) return null;
 
-    // Only use points where we actually recorded that day's recurring rate.
-    // Extrapolating today's rate backward over months that had a different
-    // rate (e.g. after lowering your monthly contribution) misattributes
-    // past contributions as investment return, so we don't guess anymore:
-    // each historical point carries the rate that was really in effect then.
-    const tracked = sorted.filter(h => h.monthlyDCA !== undefined && h.monthlyDCA !== null);
-    if (tracked.length < 2) return null;
-
-    const first = tracked[0];
+    // Sum contributions day by day using the rate actually recorded for that
+    // day. Days before we started tracking the recurring rate (no monthlyDCA
+    // on the point) count as 0 contribution for that gap — we genuinely don't
+    // know what it was — so their growth falls into "Rentabilidad" instead.
+    // That can overstate returns for old, untracked periods, but it beats
+    // extrapolating today's rate backward, which misattributes real past
+    // contributions as investment return whenever the rate has changed.
+    const first = sorted[0];
     let totalContributions = 0;
-    for (let i = 1; i < tracked.length; i++) {
-      const daysElapsed = (new Date(tracked[i].date) - new Date(tracked[i - 1].date)) / (1000 * 60 * 60 * 24);
-      totalContributions += (tracked[i - 1].monthlyDCA / 30.44) * daysElapsed;
+    for (let i = 1; i < sorted.length; i++) {
+      const daysElapsed = (new Date(sorted[i].date) - new Date(sorted[i - 1].date)) / (1000 * 60 * 60 * 24);
+      const rate = sorted[i - 1].monthlyDCA;
+      if (rate !== undefined && rate !== null) {
+        totalContributions += (rate / 30.44) * daysElapsed;
+      }
     }
-    const last = tracked[tracked.length - 1];
+    const last = sorted[sorted.length - 1];
     const daysToNow = (Date.now() - new Date(last.date).getTime()) / (1000 * 60 * 60 * 24);
-    totalContributions += (last.monthlyDCA / 30.44) * daysToNow;
+    if (last.monthlyDCA !== undefined && last.monthlyDCA !== null) {
+      totalContributions += (last.monthlyDCA / 30.44) * daysToNow;
+    }
     const totalGrowth = netWorth - first.netWorth;
     const interestGrowth = totalGrowth - totalContributions;
     const positiveTotal = Math.max(totalContributions, 0) + Math.max(interestGrowth, 0);
@@ -1453,30 +1479,55 @@ export default function NetWorth() {
               <p>{t('nw.noHistory')}</p>
             </div>
           ) : (
-            <div className="nw-card">
-              {rangeChange && (
-                <div className={`nw-range-change ${rangeChange.change >= 0 ? 'nw-range-change--up' : 'nw-range-change--down'}`}>
-                  {rangeChange.change >= 0 ? '▲' : '▼'} {currency}{Math.abs(rangeChange.change).toLocaleString('es-ES', {maximumFractionDigits: 0})}
-                  {' '}({rangeChange.changePct >= 0 ? '+' : ''}{rangeChange.changePct.toFixed(1)}%) {t(`nw.range.${historyRange}`)}
-                </div>
-              )}
-              <ResponsiveContainer width="100%" height={480}>
-                <AreaChart data={filteredHistory} margin={{top:16,right:16,left:0,bottom:8}}>
+            <div className="nw-card nw-history-card">
+              <div className="nw-history-headline">
+                <span className="nw-history-headline-value">{currency}{netWorth.toLocaleString('es-ES', {minimumFractionDigits: 2})}</span>
+                {rangeChange && (
+                  <span className={`nw-range-change ${rangeChange.change >= 0 ? 'nw-range-change--up' : 'nw-range-change--down'}`}>
+                    {rangeChange.change >= 0 ? '▲' : '▼'} {currency}{Math.abs(rangeChange.change).toLocaleString('es-ES', {maximumFractionDigits: 0})}
+                    {' '}({rangeChange.changePct >= 0 ? '+' : ''}{rangeChange.changePct.toFixed(1)}%) · {t(`nw.range.${historyRange}`)}
+                  </span>
+                )}
+              </div>
+              <ResponsiveContainer width="100%" height={420}>
+                <AreaChart data={filteredHistory} margin={{top:16,right:8,left:0,bottom:0}}>
                   <defs>
                     <linearGradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.25}/>
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                      <stop offset="0%" stopColor="#6366f1" stopOpacity={0.35}/>
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
-                  <XAxis dataKey="date" stroke={themeColors.axis} tick={{fontSize:11}} />
-                  <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={60} domain={['auto', 'auto']} />
-                  <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text}} formatter={v => [`${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`, t('nw.netWorth')]} />
+                  <CartesianGrid vertical={false} strokeDasharray="0" stroke={themeColors.grid} strokeOpacity={0.5} />
+                  <XAxis
+                    dataKey="date"
+                    stroke={themeColors.axis}
+                    tick={{fontSize: 11}}
+                    tickLine={false}
+                    axisLine={false}
+                    minTickGap={40}
+                  />
+                  <YAxis
+                    stroke={themeColors.axis}
+                    tick={{fontSize: 11}}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`}
+                    width={54}
+                    domain={['auto', 'auto']}
+                  />
+                  <Tooltip content={renderHistoryTooltip} cursor={{stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 4'}} />
                   {filteredHistory.length > 0 && (
-                    <ReferenceLine y={filteredHistory[0].netWorth} stroke={themeColors.axis} strokeDasharray="4 4" ifOverflow="extendDomain" />
+                    <ReferenceLine y={filteredHistory[0].netWorth} stroke={themeColors.axis} strokeOpacity={0.5} strokeDasharray="4 4" ifOverflow="extendDomain" />
                   )}
-                  <Area type="monotone" dataKey="netWorth" stroke="#6366f1" strokeWidth={2.5} fill="url(#histGrad)" dot={false} activeDot={{r:5, fill:'#6366f1'}} />
-                  <Brush dataKey="date" height={26} stroke="#6366f1" fill={themeColors.bg} travellerWidth={8} />
+                  <Area
+                    type="monotone"
+                    dataKey="netWorth"
+                    stroke="#6366f1"
+                    strokeWidth={2.5}
+                    fill="url(#histGrad)"
+                    dot={false}
+                    activeDot={{r: 5, fill: '#6366f1', stroke: themeColors.bg, strokeWidth: 2}}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
               <div className="nw-history-table">
