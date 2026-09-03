@@ -115,7 +115,7 @@ export default function Budget() {
 
   const categoryName = (categoryId) => categories.find(c => c.categoryId === categoryId)?.name || '';
 
-  const topCategories = useMemo(() => {
+  const spendingByCategory = useMemo(() => {
     return categories
       .map(cat => {
         const spent = spentByCategory[cat.categoryId] || 0;
@@ -123,9 +123,12 @@ export default function Budget() {
         return { id: cat.categoryId, name: cat.name, spent, budgeted, pct: budgeted > 0 ? (spent / budgeted) * 100 : 0 };
       })
       .filter(c => c.spent > 0)
-      .sort((a, b) => b.spent - a.spent)
-      .slice(0, 3);
+      .sort((a, b) => b.spent - a.spent);
   }, [categories, spentByCategory]);
+
+  const topCategories = spendingByCategory.slice(0, 5);
+  const restCategoriesTotal = spendingByCategory.slice(5).reduce((sum, c) => sum + c.spent, 0);
+  const restCategoriesCount = Math.max(0, spendingByCategory.length - 5);
 
   // ── Income ─────────────────────────────────────────────────
   const resetIncomeForm = () => {
@@ -349,13 +352,19 @@ export default function Budget() {
 
             {topCategories.length > 0 && (
               <div className="bud-share-categories">
-                <h4>{t('bud.share.topCategories')}</h4>
+                <h4>{t('bud.share.topCategories').replace('{n}', topCategories.length)}</h4>
                 {topCategories.map(c => (
                   <div key={c.id} className="bud-share-cat-row">
                     <span className="bud-share-cat-name">{c.name}</span>
                     <span className="bud-share-cat-amount">{currency}{c.spent.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
                   </div>
                 ))}
+                {restCategoriesCount > 0 && (
+                  <div className="bud-share-cat-row bud-share-cat-row--rest">
+                    <span className="bud-share-cat-name">{t('bud.share.restCategories').replace('{n}', restCategoriesCount)}</span>
+                    <span className="bud-share-cat-amount">{currency}{restCategoriesTotal.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+                  </div>
+                )}
               </div>
             )}
 

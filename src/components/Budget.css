@@ -492,6 +492,8 @@
 .bud-share-cat-row:last-child { border-bottom: none; }
 .bud-share-cat-name { color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bud-share-cat-amount { font-weight: 700; color: var(--text-primary); flex-shrink: 0; }
+.bud-share-cat-row--rest .bud-share-cat-name,
+.bud-share-cat-row--rest .bud-share-cat-amount { color: var(--text-secondary); font-weight: 500; font-style: italic; }
 
 .bud-share-footer {
   margin-top: 1.75rem;
