@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { post as apiPost, get as apiGet, put as apiPut, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, Brush, ReferenceLine } from 'recharts';
 import { useLanguage } from '../LanguageContext';
 import './NetWorth.css';
 
@@ -19,6 +19,7 @@ export default function NetWorth() {
   const [recurringItems, setRecurringItems] = useState([]);
   const [history, setHistory] = useState([]);
   const [itemHistory, setItemHistory] = useState([]);
+  const [historyRange, setHistoryRange] = useState('1Y');
   const [categories, setCategories] = useState([]);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
@@ -461,6 +462,27 @@ export default function NetWorth() {
       netWorth: h.netWorth
     }));
   }, [history]);
+
+  const RANGE_DAYS = { '1M': 30, '3M': 91, '6M': 182, '1Y': 365, 'ALL': Infinity };
+
+  const filteredHistory = useMemo(() => {
+    const sorted = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const days = RANGE_DAYS[historyRange];
+    if (!isFinite(days)) return sorted;
+    const cutoff = Date.now() - days * 86_400_000;
+    const inRange = sorted.filter(h => new Date(h.date).getTime() >= cutoff);
+    // Keep one point just before the cutoff so the line doesn't start mid-air.
+    const before = sorted.filter(h => new Date(h.date).getTime() < cutoff);
+    return before.length > 0 ? [before[before.length - 1], ...inRange] : inRange;
+  }, [history, historyRange]);
+
+  const rangeChange = useMemo(() => {
+    if (filteredHistory.length < 2) return null;
+    const start = filteredHistory[0].netWorth;
+    const end = filteredHistory[filteredHistory.length - 1].netWorth;
+    const change = end - start;
+    return { change, changePct: start ? (change / Math.abs(start)) * 100 : 0 };
+  }, [filteredHistory]);
 
   const monthlyDCA = recurringItems.reduce((s, r) => s + r.amount, 0);
   const forecastDCA = forecastDCAOverride !== null ? forecastDCAOverride : monthlyDCA;
@@ -1370,6 +1392,19 @@ export default function NetWorth() {
         <>
           <div className="nw-tab-toolbar">
             <div className="nw-tab-toolbar-left"><h2>{t('nw.historyTab')}</h2></div>
+            {history.length > 0 && (
+              <div className="nw-range-picker">
+                {Object.keys(RANGE_DAYS).map(r => (
+                  <button
+                    key={r}
+                    className={`nw-range-btn ${historyRange === r ? 'nw-range-btn--active' : ''}`}
+                    onClick={() => setHistoryRange(r)}
+                  >
+                    {t(`nw.range.${r}`)}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           {history.length === 0 ? (
             <div className="nw-empty">
@@ -1377,20 +1412,30 @@ export default function NetWorth() {
             </div>
           ) : (
             <div className="nw-card">
+              {rangeChange && (
+                <div className={`nw-range-change ${rangeChange.change >= 0 ? 'nw-range-change--up' : 'nw-range-change--down'}`}>
+                  {rangeChange.change >= 0 ? '▲' : '▼'} {currency}{Math.abs(rangeChange.change).toLocaleString('es-ES', {maximumFractionDigits: 0})}
+                  {' '}({rangeChange.changePct >= 0 ? '+' : ''}{rangeChange.changePct.toFixed(1)}%) {t(`nw.range.${historyRange}`)}
+                </div>
+              )}
               <ResponsiveContainer width="100%" height={480}>
-                <LineChart data={history} margin={{top:16,right:16,left:0,bottom:8}}>
+                <AreaChart data={filteredHistory} margin={{top:16,right:16,left:0,bottom:8}}>
                   <defs>
                     <linearGradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2}/>
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.25}/>
                       <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
                   <XAxis dataKey="date" stroke={themeColors.axis} tick={{fontSize:11}} />
-                  <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={60} />
+                  <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={60} domain={['auto', 'auto']} />
                   <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text}} formatter={v => [`${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`, t('nw.netWorth')]} />
-                  <Line type="monotone" dataKey="netWorth" stroke="#6366f1" strokeWidth={2.5} dot={false} activeDot={{r:5, fill:'#6366f1'}} />
-                </LineChart>
+                  {filteredHistory.length > 0 && (
+                    <ReferenceLine y={filteredHistory[0].netWorth} stroke={themeColors.axis} strokeDasharray="4 4" ifOverflow="extendDomain" />
+                  )}
+                  <Area type="monotone" dataKey="netWorth" stroke="#6366f1" strokeWidth={2.5} fill="url(#histGrad)" dot={false} activeDot={{r:5, fill:'#6366f1'}} />
+                  <Brush dataKey="date" height={26} stroke="#6366f1" fill={themeColors.bg} travellerWidth={8} />
+                </AreaChart>
               </ResponsiveContainer>
               <div className="nw-history-table">
                 {[...history].reverse().slice(0,12).map(h => (

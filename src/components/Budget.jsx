@@ -14,6 +14,7 @@ export default function Budget() {
   const [categories, setCategories] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [monthOffset, setMonthOffset] = useState(0);
+  const [showShareCard, setShowShareCard] = useState(false);
 
   const [showIncomeForm, setShowIncomeForm] = useState(false);
   const [editingIncomeId, setEditingIncomeId] = useState(null);
@@ -113,6 +114,18 @@ export default function Budget() {
   const savingsPct = totalIncome > 0 ? Math.round((savings / totalIncome) * 100) : null;
 
   const categoryName = (categoryId) => categories.find(c => c.categoryId === categoryId)?.name || '';
+
+  const topCategories = useMemo(() => {
+    return categories
+      .map(cat => {
+        const spent = spentByCategory[cat.categoryId] || 0;
+        const budgeted = parseFloat(cat.budgetedAmount || 0);
+        return { id: cat.categoryId, name: cat.name, spent, budgeted, pct: budgeted > 0 ? (spent / budgeted) * 100 : 0 };
+      })
+      .filter(c => c.spent > 0)
+      .sort((a, b) => b.spent - a.spent)
+      .slice(0, 3);
+  }, [categories, spentByCategory]);
 
   // ── Income ─────────────────────────────────────────────────
   const resetIncomeForm = () => {
@@ -296,7 +309,60 @@ export default function Budget() {
           <span className="bud-month-label">{monthLabel}</span>
           <button className="bud-month-btn" onClick={() => setMonthOffset(o => o + 1)} aria-label={t('bud.nextMonth')}>›</button>
         </div>
+        <button className="bud-btn" onClick={() => setShowShareCard(s => !s)}>{t('bud.shareBtn')}</button>
       </div>
+
+      {showShareCard && (
+        <div className="bud-share-wrap">
+          <p className="bud-share-hint">{t('bud.shareHint')}</p>
+          <div className="bud-share-card">
+            <div className="bud-share-brand">
+              <img src="/logo-symbol.png" alt="" className="bud-share-logo" />
+              <span>Caudal</span>
+            </div>
+            <div className="bud-share-month">{monthLabel}</div>
+
+            {totalIncome > 0 ? (
+              <div className="bud-share-headline">
+                <span className="bud-share-headline-value">{savingsPct !== null ? `${savingsPct}%` : '—'}</span>
+                <span className="bud-share-headline-label">
+                  {savings < 0 ? t('bud.share.overspentHeadline') : t('bud.share.savedHeadline')}
+                </span>
+              </div>
+            ) : (
+              <div className="bud-share-headline">
+                <span className="bud-share-headline-value">{currency}{totalSpent.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+                <span className="bud-share-headline-label">{t('bud.share.spentHeadline')}</span>
+              </div>
+            )}
+
+            <div className="bud-share-stats">
+              <div className="bud-share-stat">
+                <span>{t('bud.totalIncome')}</span>
+                <strong>{currency}{totalIncome.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
+              </div>
+              <div className="bud-share-stat">
+                <span>{t('bud.totalSpent')}</span>
+                <strong>{currency}{totalSpent.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
+              </div>
+            </div>
+
+            {topCategories.length > 0 && (
+              <div className="bud-share-categories">
+                <h4>{t('bud.share.topCategories')}</h4>
+                {topCategories.map(c => (
+                  <div key={c.id} className="bud-share-cat-row">
+                    <span className="bud-share-cat-name">{c.name}</span>
+                    <span className="bud-share-cat-amount">{currency}{c.spent.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="bud-share-footer">caudalfinanzas.com</div>
+          </div>
+        </div>
+      )}
 
       <div className="bud-summary">
         <div className="bud-stat">

@@ -470,6 +470,40 @@
   gap: 0.6rem;
 }
 
+.nw-range-picker {
+  display: flex;
+  gap: 0.3rem;
+  background: var(--bg-tertiary);
+  padding: 0.25rem;
+  border-radius: var(--nw-radius-sm);
+}
+
+.nw-range-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--nw-transition);
+}
+.nw-range-btn:hover { color: var(--text-primary); }
+.nw-range-btn--active {
+  background: var(--nw-accent);
+  color: #fff;
+}
+.nw-range-btn--active:hover { color: #fff; }
+
+.nw-range-change {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.nw-range-change--up   { color: var(--nw-green); }
+.nw-range-change--down { color: var(--nw-red);   }
+
 .nw-category-chips {
   display: flex;
   flex-wrap: wrap;
