@@ -60,24 +60,9 @@ function Landing({ onNavigate, isAuthenticated }) {
         </div>
       </section>
 
-      {/* ── Social proof ────────────────────────────────── */}
+      {/* ── Honest line ─────────────────────────────────── */}
       <div className="sp-band">
-        <div className="sp-inner">
-          <div className="sp-item">
-            <span className="sp-value">{t('land.sp.u.val')}</span>
-            <span className="sp-label">{t('land.sp.u.lbl')}</span>
-          </div>
-          <div className="sp-sep" />
-          <div className="sp-item">
-            <span className="sp-value">{t('land.sp.w.val')}</span>
-            <span className="sp-label">{t('land.sp.w.lbl')}</span>
-          </div>
-          <div className="sp-sep" />
-          <div className="sp-item">
-            <span className="sp-value">{t('land.sp.p.val')}</span>
-            <span className="sp-label">{t('land.sp.p.lbl')}</span>
-          </div>
-        </div>
+        <p className="sp-line">{t('land.sp.line')}</p>
       </div>
 
       <section className="features">

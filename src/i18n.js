@@ -39,12 +39,7 @@ export const T = {
   'land.f3.link':      { es: 'Configurar →', en: 'Set up →' },
 
   // ── Landing – Social proof ─────────────────────────────────────
-  'land.sp.u.val':   { es: 'Manual', en: 'Manual' },
-  'land.sp.u.lbl':   { es: 'tú decides qué añadir', en: 'you decide what to add' },
-  'land.sp.w.val':   { es: '100%', en: '100%' },
-  'land.sp.w.lbl':   { es: 'privado · sin conexión bancaria', en: 'private · no bank connection' },
-  'land.sp.p.val':   { es: 'España', en: 'Spain' },
-  'land.sp.p.lbl':   { es: 'pensado para el mercado español', en: 'built for the Spanish market' },
+  'land.sp.line':    { es: 'Sin conectar tu banco. Añades tus activos a mano, y ya está.', en: "No bank connections. You add your assets by hand, that's it." },
 
   // ── Landing – Security ─────────────────────────────────────────
   'land.sec.title':      { es: 'Tu privacidad, nuestra prioridad', en: 'Your privacy, our priority' },
