@@ -627,6 +627,48 @@ export default function NetWorth() {
     };
   }, [history, itemHistory, items, recurringItems, netWorth]);
 
+  // Month-by-month trend per asset (not just this-month-vs-last-month).
+  // Always overrides the current month with the item's live value so it's
+  // never behind the last time the daily snapshot job ran.
+  const perAssetEvolution = useMemo(() => {
+    const monthKey = new Date().toISOString().slice(0, 7);
+    const byItem = {};
+    itemHistory.forEach(row => {
+      if (!byItem[row.itemId]) byItem[row.itemId] = {};
+      byItem[row.itemId][row.month] = row.value;
+    });
+    return items
+      .filter(i => i.type === 'asset')
+      .map(item => {
+        const months = { ...(byItem[item.itemId] || {}) };
+        months[monthKey] = Number(item.value) || 0;
+        const series = Object.entries(months)
+          .sort((a, b) => a[0].localeCompare(b[0]))
+          .slice(-6)
+          .map(([month, value]) => ({ month, value }));
+        const first = series[0];
+        const last = series[series.length - 1];
+        const change = series.length > 1 ? last.value - first.value : null;
+        const changePct = series.length > 1 && first.value ? (change / Math.abs(first.value)) * 100 : null;
+        return { id: item.itemId, name: item.name, series, change, changePct };
+      })
+      .sort((a, b) => b.series[b.series.length - 1].value - a.series[a.series.length - 1].value);
+  }, [itemHistory, items]);
+
+  const sparklinePath = (series) => {
+    if (series.length < 2) return null;
+    const values = series.map(s => s.value);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+    const points = series.map((s, i) => {
+      const x = (i / (series.length - 1)) * 100;
+      const y = 32 - ((s.value - min) / range) * 28 - 2;
+      return `${x},${y}`;
+    });
+    return `M${points.join(' L')}`;
+  };
+
   const dismissOnboarding = (openForm = false) => {
     localStorage.setItem('caudal_onboarded', '1');
     setShowOnboarding(false);
@@ -1520,6 +1562,43 @@ export default function NetWorth() {
             )}
 
             <div className="nw-report-footer">caudalfinanzas.com</div>
+          </div>
+
+          <div className="nw-card nw-evo-card">
+            <div className="nw-card-header"><h3>{t('nw.evo.title')}</h3></div>
+            {perAssetEvolution.length === 0 ? (
+              <p className="nw-report-movers-empty">{t('nw.report.noGainers')}</p>
+            ) : (
+              <div className="nw-evo-list">
+                {perAssetEvolution.map(a => {
+                  const path = sparklinePath(a.series);
+                  const latest = a.series[a.series.length - 1].value;
+                  return (
+                    <div key={a.id} className="nw-evo-row">
+                      <span className="nw-evo-name">{a.name}</span>
+                      <svg className="nw-evo-spark" viewBox="0 0 100 32" preserveAspectRatio="none">
+                        {path && (
+                          <path
+                            d={path}
+                            stroke={a.change === null ? 'var(--text-secondary)' : a.change >= 0 ? 'var(--nw-green)' : 'var(--nw-red)'}
+                            strokeWidth="2"
+                            fill="none"
+                          />
+                        )}
+                      </svg>
+                      <span className="nw-evo-value">{currency}{latest.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
+                      {a.changePct !== null ? (
+                        <span className={`nw-evo-change ${a.change >= 0 ? 'nw-evo-change--up' : 'nw-evo-change--down'}`}>
+                          {a.change >= 0 ? '+' : ''}{a.changePct.toFixed(1)}%
+                        </span>
+                      ) : (
+                        <span className="nw-evo-change nw-evo-change--muted">{t('nw.evo.firstMonth')}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </>
       )}

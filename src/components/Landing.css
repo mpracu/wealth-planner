@@ -61,6 +61,23 @@
   color: var(--accent);
 }
 
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+  padding: 0.6rem 1.25rem;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
 /* ── Hero card ────────────────────────────────────────── */
 .hero-card {
   background: var(--card-bg);
@@ -71,10 +88,24 @@
 }
 
 .hero-card-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   font-size: 0.75rem;
   color: var(--text-secondary);
   margin-bottom: 0.5rem;
   letter-spacing: 0.04em;
+}
+
+.hero-card-example {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  letter-spacing: 0;
 }
 
 .hero-card-value {

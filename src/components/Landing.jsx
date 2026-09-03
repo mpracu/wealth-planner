@@ -21,7 +21,7 @@ function Landing({ onNavigate, isAuthenticated }) {
           </h1>
           <p>{t('land.hero.sub')}</p>
           <div className="hero-buttons">
-            <button className="btn-outline" onClick={() => onNavigate('simulator')}>
+            <button className="btn-primary" onClick={() => onNavigate('simulator')}>
               {t('land.hero.sim')}
             </button>
             <button className="btn-outline" onClick={() => onNavigate(isAuthenticated ? 'networth' : 'login')}>
@@ -31,7 +31,10 @@ function Landing({ onNavigate, isAuthenticated }) {
         </div>
 
         <div className="hero-card">
-          <div className="hero-card-label">{t('land.card.label')}</div>
+          <div className="hero-card-label">
+            <span>{t('land.card.label')}</span>
+            <span className="hero-card-example">{t('land.card.example')}</span>
+          </div>
           <div className="hero-card-value">€284.500</div>
           <div className="hero-card-badge">{t('land.card.badge')}</div>
           <svg className="hero-sparkline" viewBox="0 0 220 64" fill="none" preserveAspectRatio="none">

@@ -1363,3 +1363,66 @@
   .nw-report-card { padding: 1.5rem 1.25rem 1.25rem; border-radius: 16px; }
   .nw-report-total-value { font-size: 1.9rem; }
 }
+
+/* ── Per-asset monthly evolution ─────────────────────────── */
+.nw-evo-card { margin-top: 1.25rem; }
+
+.nw-evo-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.nw-evo-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(70px, 1fr) auto auto;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.nw-evo-row:last-child { border-bottom: none; }
+
+.nw-evo-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nw-evo-spark {
+  width: 100%;
+  height: 32px;
+  display: block;
+}
+
+.nw-evo-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.nw-evo-change {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: right;
+  min-width: 56px;
+  white-space: nowrap;
+}
+.nw-evo-change--up     { color: var(--nw-green); }
+.nw-evo-change--down   { color: var(--nw-red); }
+.nw-evo-change--muted  { color: var(--text-secondary); font-weight: 500; }
+
+@media (max-width: 640px) {
+  .nw-evo-row {
+    grid-template-columns: minmax(0, 1fr) 60px auto;
+    grid-template-areas: "name value change" "spark spark spark";
+  }
+  .nw-evo-name   { grid-area: name; }
+  .nw-evo-value  { grid-area: value; }
+  .nw-evo-change { grid-area: change; }
+  .nw-evo-spark  { grid-area: spark; height: 24px; margin-top: 0.3rem; }
+}
