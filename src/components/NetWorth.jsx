@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { post as apiPost, get as apiGet, put as apiPut, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, ReferenceLine } from 'recharts';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, ReferenceLine, ReferenceDot, ReferenceArea } from 'recharts';
 import { useLanguage } from '../LanguageContext';
 import './NetWorth.css';
 
@@ -20,6 +20,8 @@ export default function NetWorth() {
   const [history, setHistory] = useState([]);
   const [itemHistory, setItemHistory] = useState([]);
   const [historyRange, setHistoryRange] = useState('1Y');
+  const [compareA, setCompareA] = useState(null);
+  const [compareB, setCompareB] = useState(null);
   const [categories, setCategories] = useState([]);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
@@ -463,6 +465,15 @@ export default function NetWorth() {
     }));
   }, [history]);
 
+  const miniChartChange = useMemo(() => {
+    if (history.length < 2) return null;
+    const sorted = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const start = sorted[0].netWorth;
+    const end = sorted[sorted.length - 1].netWorth;
+    const change = end - start;
+    return { change, changePct: start ? (change / Math.abs(start)) * 100 : 0 };
+  }, [history]);
+
   const RANGE_DAYS = { '1M': 30, '3M': 91, '6M': 182, '1Y': 365, 'ALL': Infinity };
 
   const filteredHistory = useMemo(() => {
@@ -483,6 +494,33 @@ export default function NetWorth() {
     const change = end - start;
     return { change, changePct: start ? (change / Math.abs(start)) * 100 : 0 };
   }, [filteredHistory]);
+
+  useEffect(() => {
+    setCompareA(null);
+    setCompareB(null);
+  }, [historyRange]);
+
+  const handleHistoryChartClick = (state) => {
+    const clickedDate = state?.activeLabel;
+    if (!clickedDate) return;
+    if (!compareA || compareB) {
+      setCompareA(clickedDate);
+      setCompareB(null);
+    } else if (clickedDate !== compareA) {
+      setCompareB(clickedDate);
+    }
+  };
+
+  const compareResult = useMemo(() => {
+    if (!compareA || !compareB) return null;
+    const pointA = filteredHistory.find(h => h.date === compareA);
+    const pointB = filteredHistory.find(h => h.date === compareB);
+    if (!pointA || !pointB) return null;
+    const [from, to] = new Date(pointA.date) <= new Date(pointB.date) ? [pointA, pointB] : [pointB, pointA];
+    const change = to.netWorth - from.netWorth;
+    const changePct = from.netWorth ? (change / Math.abs(from.netWorth)) * 100 : 0;
+    return { from, to, change, changePct };
+  }, [compareA, compareB, filteredHistory]);
 
   const renderHistoryTooltip = ({ active, payload, label }) => {
     if (!active || !payload || !payload.length) return null;
@@ -839,21 +877,32 @@ export default function NetWorth() {
           <div className="nw-charts-grid">
             {chartData.length > 0 && (
               <div className="nw-card">
-                <div className="nw-card-header"><h3>{t('nw.nwHistory')}</h3></div>
+                <div className="nw-card-header">
+                  <h3>{t('nw.nwHistory')}</h3>
+                  {miniChartChange && (
+                    <span className={`nw-range-change nw-range-change--sm ${miniChartChange.change >= 0 ? 'nw-range-change--up' : 'nw-range-change--down'}`}>
+                      {miniChartChange.change >= 0 ? '▲' : '▼'} {miniChartChange.changePct >= 0 ? '+' : ''}{miniChartChange.changePct.toFixed(1)}%
+                    </span>
+                  )}
+                </div>
                 <ResponsiveContainer width="100%" height={260}>
-                  <LineChart data={chartData} margin={{top:8,right:8,left:0,bottom:0}}>
+                  <AreaChart data={chartData} margin={{top:8,right:8,left:0,bottom:0}}>
                     <defs>
-                      <linearGradient id="gwGreen" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.15}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      <linearGradient id="miniHistGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity={0.3}/>
+                        <stop offset="100%" stopColor="#10b981" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
-                    <XAxis dataKey="date" stroke={themeColors.axis} tick={{fontSize:11}} />
-                    <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={56} />
-                    <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => [`${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`, t('nw.netWorth')]} />
-                    <Line type="monotone" dataKey="netWorth" stroke="#10b981" strokeWidth={2.5} dot={false} activeDot={{r:4, fill:'#10b981'}} />
-                  </LineChart>
+                    <CartesianGrid vertical={false} stroke={themeColors.grid} strokeOpacity={0.5} />
+                    <XAxis dataKey="date" stroke={themeColors.axis} tick={{fontSize:10}} tickLine={false} axisLine={false} minTickGap={30} />
+                    <YAxis stroke={themeColors.axis} tick={{fontSize:10}} tickLine={false} axisLine={false} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={48} domain={['auto', 'auto']} />
+                    <Tooltip
+                      contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'10px', color:themeColors.text, fontSize:'0.82rem', boxShadow:'0 8px 24px rgba(0,0,0,0.15)'}}
+                      cursor={{stroke:'#10b981', strokeWidth:1, strokeDasharray:'4 4'}}
+                      formatter={v => [`${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`, t('nw.netWorth')]}
+                    />
+                    <Area type="monotone" dataKey="netWorth" stroke="#10b981" strokeWidth={2.5} fill="url(#miniHistGrad)" dot={false} activeDot={{r:4, fill:'#10b981', stroke: themeColors.bg, strokeWidth: 2}} />
+                  </AreaChart>
                 </ResponsiveContainer>
               </div>
             )}
@@ -1489,8 +1538,30 @@ export default function NetWorth() {
                   </span>
                 )}
               </div>
+
+              {compareResult ? (
+                <div className="nw-compare-banner">
+                  <div className="nw-compare-dates">
+                    {new Date(compareResult.from.date).toLocaleDateString('es-ES', {day: 'numeric', month: 'short', year: 'numeric'})}
+                    <span className="nw-compare-arrow">→</span>
+                    {new Date(compareResult.to.date).toLocaleDateString('es-ES', {day: 'numeric', month: 'short', year: 'numeric'})}
+                  </div>
+                  <span className={`nw-range-change ${compareResult.change >= 0 ? 'nw-range-change--up' : 'nw-range-change--down'}`}>
+                    {compareResult.change >= 0 ? '▲' : '▼'} {currency}{Math.abs(compareResult.change).toLocaleString('es-ES', {maximumFractionDigits: 0})}
+                    {' '}({compareResult.changePct >= 0 ? '+' : ''}{compareResult.changePct.toFixed(1)}%)
+                  </span>
+                  <button className="nw-compare-clear" onClick={() => { setCompareA(null); setCompareB(null); }}>
+                    {t('nw.compare.clear')}
+                  </button>
+                </div>
+              ) : (
+                <p className="nw-compare-hint">
+                  {compareA ? t('nw.compare.hintSecond') : t('nw.compare.hintFirst')}
+                </p>
+              )}
+
               <ResponsiveContainer width="100%" height={420}>
-                <AreaChart data={filteredHistory} margin={{top:16,right:8,left:0,bottom:0}}>
+                <AreaChart data={filteredHistory} margin={{top:16,right:8,left:0,bottom:0}} onClick={handleHistoryChartClick} className="nw-history-chart">
                   <defs>
                     <linearGradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#6366f1" stopOpacity={0.35}/>
@@ -1519,6 +1590,9 @@ export default function NetWorth() {
                   {filteredHistory.length > 0 && (
                     <ReferenceLine y={filteredHistory[0].netWorth} stroke={themeColors.axis} strokeOpacity={0.5} strokeDasharray="4 4" ifOverflow="extendDomain" />
                   )}
+                  {compareA && compareB && (
+                    <ReferenceArea x1={compareResult ? compareResult.from.date : compareA} x2={compareResult ? compareResult.to.date : compareB} fill="#6366f1" fillOpacity={0.08} />
+                  )}
                   <Area
                     type="monotone"
                     dataKey="netWorth"
@@ -1528,6 +1602,22 @@ export default function NetWorth() {
                     dot={false}
                     activeDot={{r: 5, fill: '#6366f1', stroke: themeColors.bg, strokeWidth: 2}}
                   />
+                  {compareResult && (
+                    <>
+                      <ReferenceDot x={compareResult.from.date} y={compareResult.from.netWorth} r={5} fill="#6366f1" stroke={themeColors.bg} strokeWidth={2} />
+                      <ReferenceDot x={compareResult.to.date} y={compareResult.to.netWorth} r={5} fill="#6366f1" stroke={themeColors.bg} strokeWidth={2} />
+                    </>
+                  )}
+                  {compareA && !compareB && (
+                    <ReferenceDot
+                      x={compareA}
+                      y={filteredHistory.find(h => h.date === compareA)?.netWorth}
+                      r={5}
+                      fill="#6366f1"
+                      stroke={themeColors.bg}
+                      strokeWidth={2}
+                    />
+                  )}
                 </AreaChart>
               </ResponsiveContainer>
               <div className="nw-history-table">
