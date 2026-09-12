@@ -1,0 +1,41 @@
+.coast-progress-track {
+  margin-top: 0.6rem;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-tertiary);
+  overflow: hidden;
+}
+
+.coast-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent-green);
+  transition: width 0.3s ease;
+}
+
+.coast-explainer p {
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.coast-explainer p:last-of-type { margin-bottom: 1.5rem; }
+
+.coast-glossary {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1rem;
+}
+
+.coast-glossary dt {
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.coast-glossary dd {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}

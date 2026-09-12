@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import ReactGA from './reactGA.js';
-import { BarChart2, Wallet, PiggyBank, BookOpen, Sun, Moon, LogOut, LogIn, Menu, X } from 'lucide-react';
+import { BarChart2, Wallet, PiggyBank, BookOpen, Sailboat, Sun, Moon, LogOut, LogIn, Menu, X } from 'lucide-react';
 import Auth from './components/Auth';
 import Simulator from './components/Simulator';
+import CoastFire from './components/CoastFire';
 import NetWorth from './components/NetWorth';
 import Budget from './components/Budget';
 import Landing from './components/Landing';
@@ -82,6 +83,13 @@ function App() {
             <BarChart2 size={15} />
             {t('nav.simulator')}
           </button>
+          <button
+            className={view === 'coastfire' ? 'active' : ''}
+            onClick={() => navigate('coastfire')}
+          >
+            <Sailboat size={15} />
+            {t('nav.coastfire')}
+          </button>
           {user ? (
             <>
               <button
@@ -154,6 +162,8 @@ function App() {
             <Brand />
           ) : view === 'simulator' ? (
             <Simulator />
+          ) : view === 'coastfire' ? (
+            <CoastFire />
           ) : view === 'networth' && user ? (
             <NetWorth />
           ) : view === 'budget' && user ? (
