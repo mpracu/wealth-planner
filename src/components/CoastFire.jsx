@@ -215,7 +215,7 @@ export default function CoastFire() {
           <h3 className="section-title">{t('coast.chartTitle')}</h3>
         </div>
         <ResponsiveContainer width="100%" height={380}>
-          <LineChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 10 }}>
+          <LineChart data={chartData} margin={{ top: 24, right: 20, left: 10, bottom: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
             <XAxis
               dataKey="age"
@@ -247,20 +247,20 @@ export default function CoastFire() {
               y={fireNumber}
               stroke="#22c55e"
               strokeDasharray="4 4"
-              label={{ value: fmt(fireNumber), fill: '#22c55e', fontSize: 11, position: 'right' }}
+              label={{ value: fmt(fireNumber), fill: '#22c55e', fontSize: 11, position: 'insideBottomRight' }}
             />
             <ReferenceLine
               x={retirementAge}
               stroke={themeColors.axis}
               strokeDasharray="4 4"
-              label={{ value: t('coast.retirementLine'), fill: themeColors.axis, fontSize: 11, position: 'top' }}
+              label={{ value: t('coast.retirementLine'), fill: themeColors.axis, fontSize: 11, position: 'insideTopLeft' }}
             />
             {coastAge != null && coastAge !== retirementAge && (
               <ReferenceLine
                 x={coastAge}
                 stroke="#3b82f6"
                 strokeDasharray="4 4"
-                label={{ value: t('coast.coastLine'), fill: '#3b82f6', fontSize: 11, position: 'top' }}
+                label={{ value: t('coast.coastLine'), fill: '#3b82f6', fontSize: 11, position: 'insideTopRight' }}
               />
             )}
             <Line type="monotone" dataKey="real" stroke="#22c55e" name={t('coast.yourPath')} strokeWidth={2} dot={false} />
