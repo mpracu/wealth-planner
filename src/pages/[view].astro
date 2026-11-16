@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AppIsland from '../AppIsland.jsx';
+import '../index.css';
+import { ROUTES } from '../routes.js';
+
+export function getStaticPaths() {
+  return Object.entries(ROUTES)
+    .filter(([name]) => name !== 'landing')
+    .map(([, route]) => ({
+      params: { view: route.path.replace(/\//g, '') },
+      props: { route },
+    }));
+}
+
+const { route } = Astro.props;
+---
+
+<Layout
+  title={route.title}
+  description={route.description}
+  canonical={`https://caudalfinanzas.com${route.path}`}
+  robots={route.private ? 'noindex, follow' : 'index, follow'}
+>
+  <div id="root">
+    <AppIsland client:only="react" />
+  </div>
+</Layout>

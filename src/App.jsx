@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
-import ReactGA from './reactGA.js';
 import { BarChart2, Wallet, PiggyBank, BookOpen, Sailboat, Sun, Moon, LogOut, LogIn, Menu, X } from 'lucide-react';
 import Auth from './components/Auth';
 import Simulator from './components/Simulator';
@@ -13,6 +12,8 @@ import About from './components/About';
 import { useLanguage } from './LanguageContext';
 import { installGlobalErrorHandlers } from './errorReporter';
 import FeedbackWidget from './components/FeedbackWidget';
+import { ROUTES, viewFromLocation, pathFor } from './routes.js';
+import { usePortfolio } from './lib/usePortfolio.js';
 import './aws-config';
 import './App.css';
 
@@ -20,12 +21,7 @@ function App() {
   const { t, lang, toggleLang } = useLanguage();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('sim')) return 'simulator';
-    if (params.has('brand')) return 'brand';
-    return 'landing';
-  });
+  const [view, setView] = useState(() => viewFromLocation(window.location));
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
 
@@ -36,7 +32,6 @@ function App() {
 
   useEffect(() => {
     checkUser();
-    ReactGA.send({ hitType: 'pageview', page: window.location.pathname });
     installGlobalErrorHandlers(() => user?.username);
   }, []);
 
@@ -53,13 +48,43 @@ function App() {
   const handleSignOut = async () => {
     await signOut();
     setUser(null);
-    setView('landing');
+    navigate('landing');
   };
 
-  const navigate = (newView) => {
+  const portfolio = usePortfolio(!!user);
+
+  // Each view has its own URL: keep the address bar, the back button and the
+  // tab title in step with what is on screen.
+  const navigate = (newView, search = '') => {
+    const url = pathFor(newView) + search;
+    if (url !== window.location.pathname + window.location.search) {
+      window.history.pushState({}, '', url);
+    }
     setView(newView);
     setMenuOpen(false);
+    window.scrollTo(0, 0);
   };
+
+  useEffect(() => {
+    const onPop = () => setView(viewFromLocation(window.location));
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  useEffect(() => {
+    document.title = ROUTES[view]?.title || 'Caudal - Haz fluir tu patrimonio';
+  }, [view]);
+
+  // Real links (so they can be opened in a new tab and crawled) that still
+  // switch view without a page reload on a plain click.
+  const linkTo = (target) => ({
+    href: pathFor(target),
+    onClick: (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      navigate(target);
+    },
+  });
 
   if (loading) {
     return <div className="loading">{t('loading')}</div>;
@@ -68,44 +93,32 @@ function App() {
   return (
     <div className="app">
       <nav className="navbar">
-        <h1 className="navbar-logo" onClick={() => navigate('landing')}>
+        <a className="navbar-logo" {...linkTo('landing')}>
           <img src="/logo-symbol.png" alt="" className="navbar-logo-icon" />
           Caudal
-        </h1>
+        </a>
         <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label={t('nav.toggleMenu')}>
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
         <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
-          <button
-            className={view === 'simulator' ? 'active' : ''}
-            onClick={() => navigate('simulator')}
-          >
+          <a className={view === 'simulator' ? 'active' : ''} {...linkTo('simulator')}>
             <BarChart2 size={15} />
             {t('nav.simulator')}
-          </button>
-          <button
-            className={view === 'coastfire' ? 'active' : ''}
-            onClick={() => navigate('coastfire')}
-          >
+          </a>
+          <a className={view === 'coastfire' ? 'active' : ''} {...linkTo('coastfire')}>
             <Sailboat size={15} />
             {t('nav.coastfire')}
-          </button>
+          </a>
           {user ? (
             <>
-              <button
-                className={view === 'networth' ? 'active' : ''}
-                onClick={() => navigate('networth')}
-              >
+              <a className={view === 'networth' ? 'active' : ''} {...linkTo('networth')}>
                 <Wallet size={15} />
                 {t('nav.networth')}
-              </button>
-              <button
-                className={view === 'budget' ? 'active' : ''}
-                onClick={() => navigate('budget')}
-              >
+              </a>
+              <a className={view === 'budget' ? 'active' : ''} {...linkTo('budget')}>
                 <PiggyBank size={15} />
                 {t('nav.budget')}
-              </button>
+              </a>
               <a href="/blog/">
                 <BookOpen size={15} />
                 {t('nav.blog')}
@@ -151,19 +164,19 @@ function App() {
       </nav>
 
       {view === 'landing' ? (
-        <Landing onNavigate={navigate} isAuthenticated={!!user} />
+        <Landing onNavigate={navigate} isAuthenticated={!!user} portfolio={portfolio} />
       ) : (
         <div className="container">
           {view === 'login' && !user ? (
-            <Auth onAuthSuccess={() => { checkUser(); setView('networth'); }} />
+            <Auth onAuthSuccess={() => { checkUser(); navigate('networth'); }} />
           ) : view === 'about' ? (
             <About onNavigate={navigate} />
           ) : view === 'brand' ? (
             <Brand />
           ) : view === 'simulator' ? (
-            <Simulator />
+            <Simulator portfolio={portfolio} />
           ) : view === 'coastfire' ? (
-            <CoastFire />
+            <CoastFire portfolio={portfolio} />
           ) : view === 'networth' && user ? (
             <NetWorth />
           ) : view === 'budget' && user ? (
@@ -172,7 +185,7 @@ function App() {
             <div className="auth-required">
               <h2>{t('auth.req.title')}</h2>
               <p>{t('auth.req.text')}</p>
-              <button onClick={() => setView('login')}>{t('auth.req.btn')}</button>
+              <button onClick={() => navigate('login')}>{t('auth.req.btn')}</button>
             </div>
           )}
         </div>

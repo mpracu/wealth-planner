@@ -2,14 +2,16 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { post as apiPost, get as apiGet, put as apiPut, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, ReferenceLine, ReferenceDot, ReferenceArea } from 'recharts';
+import { Pencil, Trash2 } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
+import { useFormat } from '../lib/format';
 import './NetWorth.css';
 
 const getThemeColors = () => {
   const theme = document.documentElement.getAttribute('data-theme') || 'dark';
   return theme === 'dark' 
-    ? { bg: '#1a1a1a', border: '#333', text: '#fff', grid: '#333', axis: '#888' }
-    : { bg: '#ffffff', border: '#ddd', text: '#1a1a1a', grid: '#ddd', axis: '#666' };
+    ? { bg: '#121a24', border: '#26313f', text: '#e8edf3', grid: '#1b2430', axis: '#8693a4' }
+    : { bg: '#ffffff', border: '#dde3ea', text: '#14202e', grid: '#eef1f5', axis: '#5d6b7c' };
 };
 
 export default function NetWorth() {
@@ -44,6 +46,8 @@ export default function NetWorth() {
     tags: ''
   });
   const [currency, setCurrency] = useState('€');
+  const f = useFormat();
+  const M = (v, decimals = 0) => f.money(v, { decimals, symbol: currency });
   const [activeTab, setActiveTab] = useState('overview');
   const [refreshing, setRefreshing] = useState(false);
   const [forecastYears, setForecastYears] = useState(10);
@@ -460,10 +464,10 @@ export default function NetWorth() {
 
   const chartData = useMemo(() => {
     return history.map(h => ({
-      date: new Date(h.date).toLocaleDateString(),
+      date: f.date(h.date, { day: 'numeric', month: 'short', year: '2-digit' }),
       netWorth: h.netWorth
     }));
-  }, [history]);
+  }, [history, f]);
 
   const miniChartChange = useMemo(() => {
     if (history.length < 2) return null;
@@ -531,12 +535,12 @@ export default function NetWorth() {
     return (
       <div className="nw-history-tooltip">
         <div className="nw-history-tooltip-date">
-          {new Date(label).toLocaleDateString('es-ES', {day: 'numeric', month: 'short', year: 'numeric'})}
+          {new Date(label).toLocaleDateString(f.locale, {day: 'numeric', month: 'short', year: 'numeric'})}
         </div>
-        <div className="nw-history-tooltip-value">{currency}{value.toLocaleString('es-ES', {minimumFractionDigits: 2})}</div>
+        <div className="nw-history-tooltip-value">{M(value, 2)}</div>
         {delta !== null && Math.abs(delta) >= 0.005 && (
           <div className={`nw-history-tooltip-delta ${delta >= 0 ? 'nw-history-tooltip-delta--up' : 'nw-history-tooltip-delta--down'}`}>
-            {delta >= 0 ? '▲' : '▼'} {currency}{Math.abs(delta).toLocaleString('es-ES', {maximumFractionDigits: 2})}
+            {delta >= 0 ? '▲' : '▼'} {M(Math.abs(delta), 'auto')}
           </div>
         )}
       </div>
@@ -568,7 +572,7 @@ export default function NetWorth() {
     return data;
   }, [netWorth, forecastDCA, forecastYears, forecastReturn, forecastInflation]);
 
-  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+  const COLORS = ['#3d4fd6', '#0f9f7a', '#e0a019', '#8a93c9', '#d4614b', '#5bb8a4', '#b9a36a', '#6b7280'];
 
   const lastSnapshot = history.length > 0 ? history[history.length - 1] : null;
   const netWorthChange = lastSnapshot ? netWorth - lastSnapshot.netWorth : null;
@@ -807,14 +811,15 @@ export default function NetWorth() {
         <div className="nw-hero-left">
           <p className="nw-hero-label">{t('nw.totalNW')}</p>
           <h1 className="nw-hero-amount">
-            <span className="nw-hero-currency">{currency}</span>
-            {Math.abs(netWorth).toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+            {lang === 'en' && <span className="nw-hero-currency">{currency}</span>}
+            {netWorth < 0 ? '-' : ''}{f.number(Math.abs(netWorth), 2)}
+            {lang !== 'en' && <span className="nw-hero-currency nw-hero-currency--after">{currency}</span>}
           </h1>
           {netWorthChange !== null && (
             <div className={`nw-hero-badge ${netWorthChange >= 0 ? 'nw-hero-badge--up' : 'nw-hero-badge--down'}`}>
               <span>{netWorthChange >= 0 ? '▲' : '▼'}</span>
-              <span>{currency}{Math.abs(netWorthChange).toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-              {netWorthChangePct !== null && <span className="nw-hero-badge-pct">({netWorthChangePct >= 0 ? '+' : ''}{netWorthChangePct.toFixed(2)}%)</span>}
+              <span>{M(Math.abs(netWorthChange), 2)}</span>
+              {netWorthChangePct !== null && <span className="nw-hero-badge-pct">({f.percent(netWorthChangePct, 2, { signed: true })})</span>}
               <span className="nw-hero-badge-sub">{t('nw.sinceSnapshot')}</span>
             </div>
           )}
@@ -837,17 +842,17 @@ export default function NetWorth() {
       <div className="nw-stats-bar">
         <div className="nw-stat">
           <span className="nw-stat-label">{t('nw.assets')}</span>
-          <span className="nw-stat-value nw-stat-value--up">{currency}{totalAssets.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
+          <span className="nw-stat-value nw-stat-value--up">{M(totalAssets, 0)}</span>
         </div>
         <div className="nw-stat-sep" />
         <div className="nw-stat">
           <span className="nw-stat-label">{t('nw.liabilities')}</span>
-          <span className="nw-stat-value nw-stat-value--down">{currency}{totalLiabilities.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
+          <span className="nw-stat-value nw-stat-value--down">{M(totalLiabilities, 0)}</span>
         </div>
         <div className="nw-stat-sep" />
         <div className="nw-stat">
           <span className="nw-stat-label">{t('nw.monthlyDCA')}</span>
-          <span className="nw-stat-value">{currency}{monthlyDCA.toLocaleString('es-ES', {maximumFractionDigits: 0})}<span className="nw-stat-sub">{t('nw.perMo')}</span></span>
+          <span className="nw-stat-value">{M(monthlyDCA, 0)}<span className="nw-stat-sub">{t('nw.perMo')}</span></span>
         </div>
         <div className="nw-stat-sep" />
         <div className="nw-stat">
@@ -881,7 +886,7 @@ export default function NetWorth() {
                   <h3>{t('nw.nwHistory')}</h3>
                   {miniChartChange && (
                     <span className={`nw-range-change nw-range-change--sm ${miniChartChange.change >= 0 ? 'nw-range-change--up' : 'nw-range-change--down'}`}>
-                      {miniChartChange.change >= 0 ? '▲' : '▼'} {miniChartChange.changePct >= 0 ? '+' : ''}{miniChartChange.changePct.toFixed(1)}%
+                      {miniChartChange.change >= 0 ? '▲' : '▼'} {f.percent(miniChartChange.changePct, 1, { signed: true })}
                     </span>
                   )}
                 </div>
@@ -895,11 +900,11 @@ export default function NetWorth() {
                     </defs>
                     <CartesianGrid vertical={false} stroke={themeColors.grid} strokeOpacity={0.5} />
                     <XAxis dataKey="date" stroke={themeColors.axis} tick={{fontSize:10}} tickLine={false} axisLine={false} minTickGap={30} />
-                    <YAxis stroke={themeColors.axis} tick={{fontSize:10}} tickLine={false} axisLine={false} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={48} domain={['auto', 'auto']} />
+                    <YAxis stroke={themeColors.axis} tick={{fontSize:10}} tickLine={false} axisLine={false} tickFormatter={v => f.compact(v, { symbol: currency })} width={48} domain={['auto', 'auto']} />
                     <Tooltip
                       contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'10px', color:themeColors.text, fontSize:'0.82rem', boxShadow:'0 8px 24px rgba(0,0,0,0.15)'}}
                       cursor={{stroke:'#10b981', strokeWidth:1, strokeDasharray:'4 4'}}
-                      formatter={v => [`${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`, t('nw.netWorth')]}
+                      formatter={v => [`${M(v, 2)}`, t('nw.netWorth')]}
                     />
                     <Area type="monotone" dataKey="netWorth" stroke="#10b981" strokeWidth={2.5} fill="url(#miniHistGrad)" dot={false} activeDot={{r:4, fill:'#10b981', stroke: themeColors.bg, strokeWidth: 2}} />
                   </AreaChart>
@@ -915,7 +920,7 @@ export default function NetWorth() {
                     <Pie data={allocationData} cx="50%" cy="50%" innerRadius={55} outerRadius={95} paddingAngle={3} dataKey="value">
                       {allocationData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                     </Pie>
-                    <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => `${currency}${v.toLocaleString('es-ES',{minimumFractionDigits:2})}`} />
+                    <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => `${M(v, 2)}`} />
                     <Legend iconType="circle" iconSize={8} wrapperStyle={{fontSize:'0.78rem'}} />
                   </PieChart>
                 </ResponsiveContainer>
@@ -926,20 +931,20 @@ export default function NetWorth() {
           {/* Allocation bars */}
           {allocationData.length > 0 && (
             <div className="nw-card" style={{marginBottom:'1.25rem'}}>
-              <div className="nw-card-header"><h3>{t('nw.breakdown')}</h3><span className="nw-card-sub">{items.filter(i=>i.type==='asset').length} {t('nw.assets_word')} · {currency}{totalAssets.toLocaleString('es-ES',{maximumFractionDigits:0})}</span></div>
+              <div className="nw-card-header"><h3>{t('nw.breakdown')}</h3><span className="nw-card-sub">{items.filter(i=>i.type==='asset').length} {t('nw.assets_word')} · {M(totalAssets, 0)}</span></div>
               <div className="nw-alloc-list">
                 {allocationData.map((cat, i) => (
                   <div key={cat.name} className="nw-alloc-row">
                     <div className="nw-alloc-dot" style={{background: COLORS[i % COLORS.length]}} />
                     <div className="nw-alloc-info">
-                      <div className="nw-alloc-name">{cat.name}</div>
+                      <div className="nw-alloc-name">{cat.name.charAt(0).toUpperCase() + cat.name.slice(1)}</div>
                       <div className="nw-alloc-bar-track">
                         <div className="nw-alloc-bar-fill" style={{width:`${cat.percentage}%`, background: COLORS[i % COLORS.length]}} />
                       </div>
                     </div>
                     <div className="nw-alloc-numbers">
-                      <span className="nw-alloc-value">{currency}{cat.value.toLocaleString('es-ES',{maximumFractionDigits:0})}</span>
-                      <span className="nw-alloc-pct">{cat.percentage}%</span>
+                      <span className="nw-alloc-value">{M(cat.value, 0)}</span>
+                      <span className="nw-alloc-pct">{f.percent(cat.percentage, 2)}</span>
                     </div>
                   </div>
                 ))}
@@ -954,7 +959,7 @@ export default function NetWorth() {
                 <div>
                   <h3>{t('nw.ga.title')}</h3>
                   <span className="nw-card-sub">
-                    {t('nw.ga.sub').replace('{date}', new Date(growthAttribution.sinceDate).toLocaleDateString(undefined, {month:'short', year:'numeric'}))}
+                    {t('nw.ga.sub').replace('{date}', new Date(growthAttribution.sinceDate).toLocaleDateString(f.locale, {month:'short', year:'numeric'}))}
                   </span>
                 </div>
               </div>
@@ -983,24 +988,24 @@ export default function NetWorth() {
                   <div className="nw-forecast-summary">
                     <div className="nw-fc-stat">
                       <span>{t('nw.ga.initial')}</span>
-                      <strong>{currency}{growthAttribution.startNetWorth.toLocaleString('es-ES',{maximumFractionDigits:0})}</strong>
+                      <strong>{M(growthAttribution.startNetWorth, 0)}</strong>
                     </div>
                     <div className="nw-fc-arrow">→</div>
                     <div className="nw-fc-stat nw-fc-stat--highlight">
                       <span>{t('nw.ga.contributed')}</span>
-                      <strong>+{currency}{growthAttribution.totalContributions.toLocaleString('es-ES',{maximumFractionDigits:0})}</strong>
+                      <strong>+{M(growthAttribution.totalContributions, 0)}</strong>
                     </div>
                     <div className="nw-fc-sep" />
                     <div className="nw-fc-stat">
                       <span>{t('nw.ga.returns')}</span>
                       <strong style={{color: growthAttribution.interestGrowth >= 0 ? 'var(--nw-green)' : 'var(--nw-red)'}}>
-                        {growthAttribution.interestGrowth >= 0 ? '+' : ''}{currency}{growthAttribution.interestGrowth.toLocaleString('es-ES',{maximumFractionDigits:0})}
+                        {growthAttribution.interestGrowth >= 0 ? '+' : ''}{M(growthAttribution.interestGrowth, 0)}
                       </strong>
                     </div>
                   </div>
 
                   <p className="nw-ga-disclaimer">
-                    {t('nw.ga.disclaimer').replace('{n}', `${currency}${monthlyDCA.toLocaleString('es-ES')}`)}
+                    {t('nw.ga.disclaimer').replace('{n}', `${M(monthlyDCA, 'auto')}`)}
                   </p>
                 </>
               )}
@@ -1022,15 +1027,15 @@ export default function NetWorth() {
                     <input
                       type="text"
                       inputMode="decimal"
-                      value={fcDrafts[id] !== undefined ? fcDrafts[id] : value.toLocaleString('en-US')}
+                      value={fcDrafts[id] !== undefined ? fcDrafts[id] : f.number(value, Number.isInteger(value) ? 0 : 1)}
                       onChange={e => {
                         setFcDrafts(d => ({ ...d, [id]: e.target.value }));
-                        const num = parseFloat(e.target.value.replace(/,/g, ''));
+                        const num = f.parse(e.target.value);
                         if (!isNaN(num)) set(num);
                       }}
                       onFocus={e => e.target.select()}
                       onBlur={() => {
-                        const num = parseFloat((fcDrafts[id] ?? String(value)).replace(/,/g, ''));
+                        const num = (fcDrafts[id] !== undefined ? f.parse(fcDrafts[id]) : value);
                         set(isNaN(num) ? value : Math.min(max, Math.max(min, num)));
                         setFcDrafts(d => { const nd = { ...d }; delete nd[id]; return nd; });
                       }}
@@ -1044,15 +1049,15 @@ export default function NetWorth() {
                       type="text"
                       inputMode="decimal"
                       className="nw-fc-dca-input"
-                      value={fcDrafts.dca !== undefined ? fcDrafts.dca : forecastDCA.toLocaleString('en-US')}
+                      value={fcDrafts.dca !== undefined ? fcDrafts.dca : f.number(forecastDCA)}
                       onChange={e => {
                         setFcDrafts(d => ({ ...d, dca: e.target.value }));
-                        const num = parseFloat(e.target.value.replace(/,/g, ''));
+                        const num = f.parse(e.target.value);
                         if (!isNaN(num)) setForecastDCAOverride(num);
                       }}
                       onFocus={e => e.target.select()}
                       onBlur={() => {
-                        const num = parseFloat((fcDrafts.dca ?? String(forecastDCA)).replace(/,/g, ''));
+                        const num = (fcDrafts.dca !== undefined ? f.parse(fcDrafts.dca) : forecastDCA);
                         const clamped = isNaN(num) ? forecastDCA : Math.max(0, num);
                         setForecastDCAOverride(clamped === monthlyDCA ? null : clamped);
                         setFcDrafts(d => { const nd = { ...d }; delete nd.dca; return nd; });
@@ -1067,7 +1072,7 @@ export default function NetWorth() {
             </div>
             {forecastDCAOverride !== null && (
               <div className="nw-forecast-dca-note nw-forecast-dca-note--scenario">
-                {t('nw.forecastScenario').replace('{n}', `${currency}${monthlyDCA.toLocaleString('es-ES')}`)}
+                {t('nw.forecastScenario').replace('{n}', `${M(monthlyDCA, 'auto')}`)}
                 <button className="nw-fc-reset-link" onClick={() => setForecastDCAOverride(null)}>{t('nw.forecastResetDCA')}</button>
               </div>
             )}
@@ -1079,23 +1084,23 @@ export default function NetWorth() {
             <div className="nw-forecast-summary">
               <div className="nw-fc-stat">
                 <span>{t('nw.today')}</span>
-                <strong>{currency}{netWorth.toLocaleString('es-ES',{maximumFractionDigits:0})}</strong>
+                <strong>{M(netWorth, 0)}</strong>
               </div>
               <div className="nw-fc-arrow">→</div>
               <div className="nw-fc-stat nw-fc-stat--highlight">
                 <span>{t('nw.inYears').replace('{n}', forecastYears)}</span>
-                <strong>{currency}{forecastData[forecastYears]?.nominal.toLocaleString('es-ES')}</strong>
+                <strong>{M(forecastData[forecastYears]?.nominal, 'auto')}</strong>
               </div>
               <div className="nw-fc-stat">
                 <span>{t('nw.realAdj')}</span>
-                <strong>{currency}{forecastData[forecastYears]?.real.toLocaleString('es-ES')}</strong>
+                <strong>{M(forecastData[forecastYears]?.real, 'auto')}</strong>
               </div>
               {forecastDCA > 0 && (
                 <>
                   <div className="nw-fc-sep" />
                   <div className="nw-fc-stat nw-fc-stat--boost">
                     <span>{t('nw.dcaBoost')}</span>
-                    <strong>+{currency}{dcaBoost.toLocaleString('es-ES',{maximumFractionDigits:0})}</strong>
+                    <strong>+{M(dcaBoost, 0)}</strong>
                   </div>
                 </>
               )}
@@ -1104,9 +1109,9 @@ export default function NetWorth() {
               <LineChart data={forecastData} margin={{top:8,right:8,left:0,bottom:8}}>
                 <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
                 <XAxis dataKey="year" stroke={themeColors.axis} tick={{fontSize:11}} label={{value:t('nw.yearsFromNow'), position:'insideBottom', offset:-4, fill:themeColors.axis, fontSize:11}} />
-                <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`} width={56} />
-                <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => `${currency}${v.toLocaleString('es-ES')}`} />
-                <Line type="monotone" dataKey="nominal" stroke="#6366f1" strokeWidth={2} name={t('sim.nominal')} dot={false} />
+                <YAxis stroke={themeColors.axis} tick={{fontSize:11}} tickFormatter={v => f.compact(v, { symbol: currency })} width={56} />
+                <Tooltip contentStyle={{background:themeColors.bg, border:`1px solid ${themeColors.border}`, borderRadius:'8px', color:themeColors.text, fontSize:'0.85rem'}} formatter={v => `${M(v, 'auto')}`} />
+                <Line type="monotone" dataKey="nominal" stroke="#3d4fd6" strokeWidth={2} name={t('sim.nominal')} dot={false} />
                 <Line type="monotone" dataKey="real" stroke="#10b981" strokeWidth={2} name={t('nw.realAdj')} dot={false} strokeDasharray="5 3" />
                 <Line type="monotone" dataKey="noDCA" stroke="#94a3b8" strokeWidth={1.5} name={t('nw.noDCA')} dot={false} strokeDasharray="3 3" hide={forecastDCA === 0} />
                 <Legend iconType="plainline" wrapperStyle={{fontSize:'0.8rem', paddingTop:'8px'}} />
@@ -1250,7 +1255,7 @@ export default function NetWorth() {
       <div className="items-list">
         <div className="items-section-header">
           <h3>{t('nw.assetsSection')}</h3>
-          <span className="items-count">{items.filter(i => i.type === 'asset').length} {t('nw.items')} · {currency}{totalAssets.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
+          <span className="items-count">{items.filter(i => i.type === 'asset').length} {t('nw.items')} · {M(totalAssets, 0)}</span>
         </div>
         {items.filter(i => i.type === 'asset').length === 0 && (
           <div className="empty-state-small">{t('nw.noAssets')}</div>
@@ -1264,17 +1269,17 @@ export default function NetWorth() {
                   {item.isin && <span className="isin-badge">{item.isin}</span>}
                   {item.currency && item.currency !== 'EUR' && <span className="currency-badge" title={t('nw.convertedFromCurrency').replace('{currency}', item.currency)}>{item.currency}→EUR</span>}
                   {item.shares && item.pricePerShare && (
-                    <span className="shares-detail">{parseFloat(item.shares).toLocaleString('es-ES', {maximumFractionDigits: 3})} shares · {currency}{parseFloat(item.pricePerShare).toFixed(2)}</span>
+                    <span className="shares-detail">{t('nw.sharesAt').replace('{n}', f.number(parseFloat(item.shares), 'auto')).replace('{price}', M(parseFloat(item.pricePerShare), 2))}</span>
                   )}
                   {isStale(item) && <span className="stale-badge">⏰ {staleDaysLabel(item)}</span>}
                   {item.tags && item.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => <span key={t} className="tag">{t}</span>)}
                 </div>
               </div>
               <div className="item-row-right">
-                <span className="item-row-value">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                <span className="item-row-value">{M(item.value, 2)}</span>
                 <div className="item-actions">
-                  <button className="btn-icon" onClick={() => editItem(item)} title="Edit">✏️</button>
-                  <button className="btn-icon btn-icon--danger" onClick={() => deleteItem(item.itemId)} title="Delete">🗑️</button>
+                  <button className="btn-icon" onClick={() => editItem(item)} title={t('common.edit')} aria-label={t('common.edit')}><Pencil size={14} /></button>
+                  <button className="btn-icon btn-icon--danger" onClick={() => deleteItem(item.itemId)} title={t('common.delete')} aria-label={t('common.delete')}><Trash2 size={14} /></button>
                 </div>
               </div>
             </div>
@@ -1344,7 +1349,7 @@ export default function NetWorth() {
 
         <div className="items-section-header" style={{marginTop: '1.5rem'}}>
           <h3>{t('nw.liabSection')}</h3>
-          <span className="items-count">{items.filter(i => i.type === 'liability').length} {t('nw.items')} · {currency}{totalLiabilities.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
+          <span className="items-count">{items.filter(i => i.type === 'liability').length} {t('nw.items')} · {M(totalLiabilities, 0)}</span>
         </div>
         {items.filter(i => i.type === 'liability').length === 0 && (
           <div className="empty-state-small">{t('nw.noLiab')}</div>
@@ -1361,10 +1366,10 @@ export default function NetWorth() {
                 )}
               </div>
               <div className="item-row-right">
-                <span className="item-row-value negative">{currency}{item.value.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                <span className="item-row-value negative">{M(item.value, 2)}</span>
                 <div className="item-actions">
-                  <button className="btn-icon" onClick={() => editItem(item)} title="Edit">✏️</button>
-                  <button className="btn-icon btn-icon--danger" onClick={() => deleteItem(item.itemId)} title="Delete">🗑️</button>
+                  <button className="btn-icon" onClick={() => editItem(item)} title={t('common.edit')} aria-label={t('common.edit')}><Pencil size={14} /></button>
+                  <button className="btn-icon btn-icon--danger" onClick={() => deleteItem(item.itemId)} title={t('common.delete')} aria-label={t('common.delete')}><Trash2 size={14} /></button>
                 </div>
               </div>
             </div>
@@ -1432,7 +1437,7 @@ export default function NetWorth() {
                       <option value="">{t('nw.selectAnAsset')}</option>
                       {assetOptions.map(i => (
                         <option key={i.itemId} value={i.itemId}>
-                          {i.name} ({currency}{Number(i.value).toLocaleString('es-ES', {maximumFractionDigits: 0})})
+                          {i.name} ({M(Number(i.value), 0)})
                         </option>
                       ))}
                       <option value="__custom">{t('nw.customName')}</option>
@@ -1488,17 +1493,17 @@ export default function NetWorth() {
                   </div>
                 </div>
                 <div className="item-row-right">
-                  <span className="item-row-value">{currency}{item.amount.toLocaleString('es-ES', {minimumFractionDigits: 2})}<span className="item-row-sub-value">{t('nw.perMo')}</span></span>
+                  <span className="item-row-value">{M(item.amount, 2)}<span className="item-row-sub-value">{t('nw.perMo')}</span></span>
                   <div className="item-actions">
-                    <button className="btn-icon" onClick={() => { editRecurringItem(item); setShowRecurringForm(true); }} title="Edit">✏️</button>
-                    <button className="btn-icon btn-icon--danger" onClick={() => deleteRecurringItem(item.itemId)} title="Delete">🗑️</button>
+                    <button className="btn-icon" onClick={() => { editRecurringItem(item); setShowRecurringForm(true); }} title={t('common.edit')} aria-label={t('common.edit')}><Pencil size={14} /></button>
+                    <button className="btn-icon btn-icon--danger" onClick={() => deleteRecurringItem(item.itemId)} title={t('common.delete')} aria-label={t('common.delete')}><Trash2 size={14} /></button>
                   </div>
                 </div>
               </div>
             ))}
             {recurringItems.length > 0 && (
               <div className="recurring-total">
-                {t('nw.totalMonthly')}<strong>{currency}{recurringItems.reduce((s,r) => s + r.amount, 0).toLocaleString('es-ES', {minimumFractionDigits: 2})}</strong>
+                {t('nw.totalMonthly')}<strong>{M(recurringItems.reduce((s,r) => s + r.amount, 0), 2)}</strong>
               </div>
             )}
           </div>
@@ -1530,11 +1535,11 @@ export default function NetWorth() {
           ) : (
             <div className="nw-card nw-history-card">
               <div className="nw-history-headline">
-                <span className="nw-history-headline-value">{currency}{netWorth.toLocaleString('es-ES', {minimumFractionDigits: 2})}</span>
+                <span className="nw-history-headline-value">{M(netWorth, 2)}</span>
                 {rangeChange && (
                   <span className={`nw-range-change ${rangeChange.change >= 0 ? 'nw-range-change--up' : 'nw-range-change--down'}`}>
-                    {rangeChange.change >= 0 ? '▲' : '▼'} {currency}{Math.abs(rangeChange.change).toLocaleString('es-ES', {maximumFractionDigits: 0})}
-                    {' '}({rangeChange.changePct >= 0 ? '+' : ''}{rangeChange.changePct.toFixed(1)}%) · {t(`nw.range.${historyRange}`)}
+                    {rangeChange.change >= 0 ? '▲' : '▼'} {M(Math.abs(rangeChange.change), 0)}
+                    {' '}({f.percent(rangeChange.changePct, 1, { signed: true })}) · {t(`nw.range.${historyRange}`)}
                   </span>
                 )}
               </div>
@@ -1542,13 +1547,13 @@ export default function NetWorth() {
               {compareResult ? (
                 <div className="nw-compare-banner">
                   <div className="nw-compare-dates">
-                    {new Date(compareResult.from.date).toLocaleDateString('es-ES', {day: 'numeric', month: 'short', year: 'numeric'})}
+                    {new Date(compareResult.from.date).toLocaleDateString(f.locale, {day: 'numeric', month: 'short', year: 'numeric'})}
                     <span className="nw-compare-arrow">→</span>
-                    {new Date(compareResult.to.date).toLocaleDateString('es-ES', {day: 'numeric', month: 'short', year: 'numeric'})}
+                    {new Date(compareResult.to.date).toLocaleDateString(f.locale, {day: 'numeric', month: 'short', year: 'numeric'})}
                   </div>
                   <span className={`nw-range-change ${compareResult.change >= 0 ? 'nw-range-change--up' : 'nw-range-change--down'}`}>
-                    {compareResult.change >= 0 ? '▲' : '▼'} {currency}{Math.abs(compareResult.change).toLocaleString('es-ES', {maximumFractionDigits: 0})}
-                    {' '}({compareResult.changePct >= 0 ? '+' : ''}{compareResult.changePct.toFixed(1)}%)
+                    {compareResult.change >= 0 ? '▲' : '▼'} {M(Math.abs(compareResult.change), 0)}
+                    {' '}({f.percent(compareResult.changePct, 1, { signed: true })})
                   </span>
                   <button className="nw-compare-clear" onClick={() => { setCompareA(null); setCompareB(null); }}>
                     {t('nw.compare.clear')}
@@ -1564,8 +1569,8 @@ export default function NetWorth() {
                 <AreaChart data={filteredHistory} margin={{top:16,right:8,left:0,bottom:0}} onClick={handleHistoryChartClick} className="nw-history-chart">
                   <defs>
                     <linearGradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#6366f1" stopOpacity={0.35}/>
-                      <stop offset="100%" stopColor="#6366f1" stopOpacity={0}/>
+                      <stop offset="0%" stopColor="#3d4fd6" stopOpacity={0.35}/>
+                      <stop offset="100%" stopColor="#3d4fd6" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid vertical={false} strokeDasharray="0" stroke={themeColors.grid} strokeOpacity={0.5} />
@@ -1582,30 +1587,30 @@ export default function NetWorth() {
                     tick={{fontSize: 11}}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={v => `${currency}${(v/1000).toFixed(0)}k`}
+                    tickFormatter={v => f.compact(v, { symbol: currency })}
                     width={54}
                     domain={['auto', 'auto']}
                   />
-                  <Tooltip content={renderHistoryTooltip} cursor={{stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 4'}} />
+                  <Tooltip content={renderHistoryTooltip} cursor={{stroke: '#3d4fd6', strokeWidth: 1, strokeDasharray: '4 4'}} />
                   {filteredHistory.length > 0 && (
                     <ReferenceLine y={filteredHistory[0].netWorth} stroke={themeColors.axis} strokeOpacity={0.5} strokeDasharray="4 4" ifOverflow="extendDomain" />
                   )}
                   {compareA && compareB && (
-                    <ReferenceArea x1={compareResult ? compareResult.from.date : compareA} x2={compareResult ? compareResult.to.date : compareB} fill="#6366f1" fillOpacity={0.08} />
+                    <ReferenceArea x1={compareResult ? compareResult.from.date : compareA} x2={compareResult ? compareResult.to.date : compareB} fill="#3d4fd6" fillOpacity={0.08} />
                   )}
                   <Area
                     type="monotone"
                     dataKey="netWorth"
-                    stroke="#6366f1"
+                    stroke="#3d4fd6"
                     strokeWidth={2.5}
                     fill="url(#histGrad)"
                     dot={false}
-                    activeDot={{r: 5, fill: '#6366f1', stroke: themeColors.bg, strokeWidth: 2}}
+                    activeDot={{r: 5, fill: '#3d4fd6', stroke: themeColors.bg, strokeWidth: 2}}
                   />
                   {compareResult && (
                     <>
-                      <ReferenceDot x={compareResult.from.date} y={compareResult.from.netWorth} r={5} fill="#6366f1" stroke={themeColors.bg} strokeWidth={2} />
-                      <ReferenceDot x={compareResult.to.date} y={compareResult.to.netWorth} r={5} fill="#6366f1" stroke={themeColors.bg} strokeWidth={2} />
+                      <ReferenceDot x={compareResult.from.date} y={compareResult.from.netWorth} r={5} fill="#3d4fd6" stroke={themeColors.bg} strokeWidth={2} />
+                      <ReferenceDot x={compareResult.to.date} y={compareResult.to.netWorth} r={5} fill="#3d4fd6" stroke={themeColors.bg} strokeWidth={2} />
                     </>
                   )}
                   {compareA && !compareB && (
@@ -1613,7 +1618,7 @@ export default function NetWorth() {
                       x={compareA}
                       y={filteredHistory.find(h => h.date === compareA)?.netWorth}
                       r={5}
-                      fill="#6366f1"
+                      fill="#3d4fd6"
                       stroke={themeColors.bg}
                       strokeWidth={2}
                     />
@@ -1623,8 +1628,8 @@ export default function NetWorth() {
               <div className="nw-history-table">
                 {[...history].reverse().slice(0,12).map(h => (
                   <div key={h.date} className="nw-history-row">
-                    <span className="nw-history-date">{new Date(h.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span>
-                    <span className="nw-history-val">{currency}{h.netWorth.toLocaleString('es-ES',{minimumFractionDigits:2})}</span>
+                    <span className="nw-history-date">{new Date(h.date).toLocaleDateString(f.locale,{day:'numeric',month:'short',year:'numeric'})}</span>
+                    <span className="nw-history-val">{M(h.netWorth, 2)}</span>
                   </div>
                 ))}
               </div>
@@ -1647,28 +1652,28 @@ export default function NetWorth() {
             </div>
             <div className="nw-report-month">
               {(() => {
-                const label = new Date().toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { month: 'long', year: 'numeric' });
+                const label = new Date().toLocaleDateString(f.locale, { month: 'long', year: 'numeric' });
                 return label.charAt(0).toUpperCase() + label.slice(1);
               })()}
             </div>
 
             <div className="nw-report-total">
               <span className="nw-report-total-label">{t('nw.report.total')}</span>
-              <span className="nw-report-total-value">{currency}{netWorth.toLocaleString('es-ES', {minimumFractionDigits: 2})}</span>
+              <span className="nw-report-total-value">{M(netWorth, 2)}</span>
               <span className={`nw-report-chip ${monthlyReport.netWorthChange >= 0 ? 'nw-report-chip--up' : 'nw-report-chip--down'}`}>
-                {monthlyReport.netWorthChange >= 0 ? '▲' : '▼'} {currency}{Math.abs(monthlyReport.netWorthChange).toLocaleString('es-ES', {minimumFractionDigits: 2})} ({monthlyReport.netWorthChangePct >= 0 ? '+' : ''}{monthlyReport.netWorthChangePct.toFixed(1)}%)
+                {monthlyReport.netWorthChange >= 0 ? '▲' : '▼'} {M(Math.abs(monthlyReport.netWorthChange), 2)} ({f.percent(monthlyReport.netWorthChangePct, 1, { signed: true })})
               </span>
             </div>
 
             <div className="nw-report-stats">
               <div className="nw-report-stat">
                 <span className="nw-report-stat-label">{t('nw.report.contributed')}</span>
-                <span className="nw-report-stat-value">{currency}{monthlyReport.contributions.toLocaleString('es-ES', {minimumFractionDigits: 2})}</span>
+                <span className="nw-report-stat-value">{M(monthlyReport.contributions, 2)}</span>
               </div>
               <div className="nw-report-stat">
                 <span className="nw-report-stat-label">{t('nw.report.marketGrowth')}</span>
                 <span className={`nw-report-stat-value ${monthlyReport.marketGrowth >= 0 ? 'nw-report-stat-value--up' : 'nw-report-stat-value--down'}`}>
-                  {monthlyReport.marketGrowth >= 0 ? '+' : ''}{currency}{monthlyReport.marketGrowth.toLocaleString('es-ES', {minimumFractionDigits: 2})}
+                  {monthlyReport.marketGrowth >= 0 ? '+' : ''}{M(monthlyReport.marketGrowth, 2)}
                 </span>
               </div>
             </div>
@@ -1682,7 +1687,7 @@ export default function NetWorth() {
                   ) : monthlyReport.gainers.map(m => (
                     <div key={m.id} className="nw-report-mover">
                       <span className="nw-report-mover-name">{m.name}</span>
-                      <span className="nw-report-mover-pct nw-report-mover-pct--up">+{m.deltaPct.toFixed(1)}%</span>
+                      <span className="nw-report-mover-pct nw-report-mover-pct--up">{f.percent(m.deltaPct, 1, { signed: true })}</span>
                     </div>
                   ))}
                 </div>
@@ -1693,7 +1698,7 @@ export default function NetWorth() {
                   ) : monthlyReport.losers.map(m => (
                     <div key={m.id} className="nw-report-mover">
                       <span className="nw-report-mover-name">{m.name}</span>
-                      <span className="nw-report-mover-pct nw-report-mover-pct--down">{m.deltaPct.toFixed(1)}%</span>
+                      <span className="nw-report-mover-pct nw-report-mover-pct--down">{f.percent(m.deltaPct, 1)}</span>
                     </div>
                   ))}
                 </div>
@@ -1727,10 +1732,10 @@ export default function NetWorth() {
                           />
                         )}
                       </svg>
-                      <span className="nw-evo-value">{currency}{latest.toLocaleString('es-ES', {maximumFractionDigits: 0})}</span>
+                      <span className="nw-evo-value">{M(latest, 0)}</span>
                       {a.changePct !== null ? (
                         <span className={`nw-evo-change ${a.change >= 0 ? 'nw-evo-change--up' : 'nw-evo-change--down'}`}>
-                          {a.change >= 0 ? '+' : ''}{a.changePct.toFixed(1)}%
+                          {f.percent(a.changePct, 1, { signed: true })}
                         </span>
                       ) : (
                         <span className="nw-evo-change nw-evo-change--muted">{t('nw.evo.firstMonth')}</span>
