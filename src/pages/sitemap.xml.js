@@ -1,7 +1,7 @@
 export async function GET() {
   const apiBase = import.meta.env.VITE_API_ENDPOINT;
-  const res = await fetch(`${apiBase}/blog-posts`);
-  const posts = (await res.json()).filter((post) => post.slug);
+  const res = apiBase ? await fetch(`${apiBase}/blog-posts`) : null;
+  const posts = (res ? await res.json() : []).filter((post) => post.slug);
 
   const today = new Date().toISOString().split('T')[0];
   const latestPost = posts.length
@@ -10,6 +10,9 @@ export async function GET() {
 
   const urls = [
     { loc: 'https://caudalfinanzas.com/', lastmod: today, changefreq: 'weekly', priority: '1.0' },
+    { loc: 'https://caudalfinanzas.com/simulador/', lastmod: today, changefreq: 'monthly', priority: '0.9' },
+    { loc: 'https://caudalfinanzas.com/coast-fire/', lastmod: today, changefreq: 'monthly', priority: '0.9' },
+    { loc: 'https://caudalfinanzas.com/que-es-caudal/', lastmod: today, changefreq: 'monthly', priority: '0.5' },
     {
       loc: 'https://caudalfinanzas.com/blog/',
       lastmod: latestPost ? latestPost.publishedDate.split('T')[0] : today,

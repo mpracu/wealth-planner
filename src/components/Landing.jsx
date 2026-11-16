@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { BarChart2, Wallet, RefreshCw, PenLine, TrendingUp, Landmark, Flame, Check, ShieldCheck, Lock, Globe, EyeOff } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import Legal from './Legal';
+import HeroSimulator from './HeroSimulator';
+import HomeSummary from './HomeSummary';
 import './Landing.css';
 
-function Landing({ onNavigate, isAuthenticated }) {
+function Landing({ onNavigate, isAuthenticated, portfolio }) {
   const { t } = useLanguage();
   const year = new Date().getFullYear();
   const [legal, setLegal] = useState(null);
@@ -12,53 +14,26 @@ function Landing({ onNavigate, isAuthenticated }) {
   return (
     <div className="landing">
       {legal && <Legal type={legal} onClose={() => setLegal(null)} />}
-      <section className="hero">
-        <div className="hero-content">
-          <h1>
-            {t('land.hero.line1')}<br />
-            <span className="hero-accent">{t('land.hero.accent')}</span><br />
-            {t('land.hero.line3')}
-          </h1>
-          <p>{t('land.hero.sub')}</p>
-          <div className="hero-buttons">
-            <button className="btn-primary" onClick={() => onNavigate('simulator')}>
-              {t('land.hero.sim')}
-            </button>
-            <button className="btn-outline" onClick={() => onNavigate(isAuthenticated ? 'networth' : 'login')}>
-              {t('land.hero.nw')}
-            </button>
+      {isAuthenticated && portfolio ? (
+        <HomeSummary portfolio={portfolio} onNavigate={onNavigate} />
+      ) : (
+        <section className="hero">
+          <div className="hero-content">
+            <h1>{t('land.hero.line1')} {t('land.hero.accent')} {t('land.hero.line3')}</h1>
+            <p>{t('land.hero.sub')}</p>
+            <div className="hero-buttons">
+              <button className="btn-primary" onClick={() => onNavigate(isAuthenticated ? 'networth' : 'login')}>
+                {t(isAuthenticated ? 'land.hero.nw' : 'land.hero.start')}
+              </button>
+              <button className="btn-outline" onClick={() => onNavigate('simulator')}>
+                {t('land.hero.sim')}
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div className="hero-card">
-          <div className="hero-card-label">
-            <span>{t('land.card.label')}</span>
-            <span className="hero-card-example">{t('land.card.example')}</span>
-          </div>
-          <div className="hero-card-value">€284.500</div>
-          <div className="hero-card-badge">{t('land.card.badge')}</div>
-          <svg className="hero-sparkline" viewBox="0 0 220 64" fill="none" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#22c55e" stopOpacity="0.18" />
-                <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M0 58 C20 54 40 50 60 44 C80 38 100 32 120 26 C140 20 160 14 180 8 L220 2 L220 64 L0 64 Z"
-              fill="url(#sparkFill)"
-            />
-            <path
-              d="M0 58 C20 54 40 50 60 44 C80 38 100 32 120 26 C140 20 160 14 180 8 L220 2"
-              stroke="#22c55e"
-              strokeWidth="2"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-      </section>
+          <HeroSimulator onOpen={(search) => onNavigate('simulator', search)} />
+        </section>
+      )}
 
       {/* ── Honest line ─────────────────────────────────── */}
       <div className="sp-band">
@@ -218,7 +193,7 @@ function Landing({ onNavigate, isAuthenticated }) {
                 </>
               )}
               {isAuthenticated && (
-                <li><button onClick={() => onNavigate('networth')}>{t('land.ft.nw')}</button></li>
+                <li><button onClick={() => onNavigate('budget')}>{t('nav.budget')}</button></li>
               )}
             </ul>
           </div>

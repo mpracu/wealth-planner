@@ -7,8 +7,8 @@ import '../../components/Blog.css';
 import { extractTags, cleanExcerpt } from '../../lib/renderPost.js';
 
 const apiBase = import.meta.env.VITE_API_ENDPOINT;
-const res = await fetch(`${apiBase}/blog-posts`);
-const rawPosts = await res.json();
+const res = apiBase ? await fetch(`${apiBase}/blog-posts`) : null;
+const rawPosts = res ? await res.json() : [];
 
 const posts = rawPosts
   .filter((post) => post.slug)

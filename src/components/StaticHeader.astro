@@ -11,7 +11,8 @@ const { active = '' } = Astro.props;
   </a>
   <div class="static-nav-links">
     <a href="/" class={active === 'home' ? 'active' : ''}>Inicio</a>
-    <a href="/?sim=1">Simulador</a>
+    <a href="/simulador/">Simulador</a>
+    <a href="/coast-fire/">Coast FIRE</a>
     <a href="/blog/" class={active === 'blog' ? 'active' : ''}>Blog</a>
   </div>
 </nav>
@@ -44,7 +45,7 @@ const { active = '' } = Astro.props;
     color: var(--text-primary);
   }
   .static-nav-links a.active {
-    background: rgba(59, 130, 246, 0.12);
+    background: var(--accent-soft);
     color: var(--accent);
   }
 </style>

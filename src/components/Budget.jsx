@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { post as apiPost, get as apiGet, put as apiPut, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { Pencil, Trash2 } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
+import { useFormat } from '../lib/format';
 import './Budget.css';
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
@@ -9,6 +11,8 @@ const todayISO = () => new Date().toISOString().slice(0, 10);
 export default function Budget() {
   const { t, lang } = useLanguage();
   const currency = '€';
+  const f = useFormat();
+  const M = (v, decimals = 0) => f.money(v, { decimals, symbol: currency });
 
   const [incomeSources, setIncomeSources] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -90,7 +94,7 @@ export default function Budget() {
   }, [monthOffset]);
 
   const monthKey = `${viewedDate.getFullYear()}-${String(viewedDate.getMonth() + 1).padStart(2, '0')}`;
-  const monthName = viewedDate.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { month: 'long' });
+  const monthName = viewedDate.toLocaleDateString(f.locale, { month: 'long' });
   const monthLabel = `${monthName.charAt(0).toUpperCase()}${monthName.slice(1)} ${viewedDate.getFullYear()}`;
 
   const expensesThisMonth = useMemo(
@@ -327,14 +331,14 @@ export default function Budget() {
 
             {totalIncome > 0 ? (
               <div className="bud-share-headline">
-                <span className="bud-share-headline-value">{savingsPct !== null ? `${savingsPct}%` : '—'}</span>
+                <span className="bud-share-headline-value">{savingsPct !== null ? f.percent(savingsPct, 0) : '—'}</span>
                 <span className="bud-share-headline-label">
                   {savings < 0 ? t('bud.share.overspentHeadline') : t('bud.share.savedHeadline')}
                 </span>
               </div>
             ) : (
               <div className="bud-share-headline">
-                <span className="bud-share-headline-value">{currency}{totalSpent.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+                <span className="bud-share-headline-value">{M(totalSpent, 0)}</span>
                 <span className="bud-share-headline-label">{t('bud.share.spentHeadline')}</span>
               </div>
             )}
@@ -342,11 +346,11 @@ export default function Budget() {
             <div className="bud-share-stats">
               <div className="bud-share-stat">
                 <span>{t('bud.totalIncome')}</span>
-                <strong>{currency}{totalIncome.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
+                <strong>{M(totalIncome, 0)}</strong>
               </div>
               <div className="bud-share-stat">
                 <span>{t('bud.totalSpent')}</span>
-                <strong>{currency}{totalSpent.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
+                <strong>{M(totalSpent, 0)}</strong>
               </div>
             </div>
 
@@ -356,13 +360,13 @@ export default function Budget() {
                 {topCategories.map(c => (
                   <div key={c.id} className="bud-share-cat-row">
                     <span className="bud-share-cat-name">{c.name}</span>
-                    <span className="bud-share-cat-amount">{currency}{c.spent.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+                    <span className="bud-share-cat-amount">{M(c.spent, 0)}</span>
                   </div>
                 ))}
                 {restCategoriesCount > 0 && (
                   <div className="bud-share-cat-row bud-share-cat-row--rest">
                     <span className="bud-share-cat-name">{t('bud.share.restCategories').replace('{n}', restCategoriesCount)}</span>
-                    <span className="bud-share-cat-amount">{currency}{restCategoriesTotal.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+                    <span className="bud-share-cat-amount">{M(restCategoriesTotal, 0)}</span>
                   </div>
                 )}
               </div>
@@ -376,26 +380,28 @@ export default function Budget() {
       <div className="bud-summary">
         <div className="bud-stat">
           <span>{t('bud.totalIncome')}</span>
-          <strong>{currency}{totalIncome.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
+          <strong>{M(totalIncome, 0)}</strong>
         </div>
         <div className="bud-stat">
           <span>{t('bud.totalBudgeted')}</span>
-          <strong>{currency}{totalBudgeted.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
+          <strong>{M(totalBudgeted, 0)}</strong>
         </div>
         <div className="bud-stat">
           <span>{t('bud.totalSpent')}</span>
-          <strong>{currency}{totalSpent.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
+          <strong>{M(totalSpent, 0)}</strong>
         </div>
         {totalIncome > 0 ? (
           <div className={`bud-stat ${savings < 0 ? 'bud-stat--negative' : 'bud-stat--positive'}`}>
             <span>{savings < 0 ? t('bud.negativeSavings') : t('bud.savings')}</span>
-            <strong>{currency}{savings.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>
-            {savingsPct !== null && <span className="bud-stat-sub">{t('bud.savingsPct').replace('{pct}', savingsPct)}</span>}
+            <strong>{M(savings, 0)}</strong>
+            {totalSpent === 0
+              ? <span className="bud-stat-sub">{t('bud.noSpendYet')}</span>
+              : savingsPct !== null && <span className="bud-stat-sub">{t('bud.savingsPct').replace('{pct}%', f.percent(savingsPct, 0))}</span>}
           </div>
         ) : (
           <div className={`bud-stat ${remaining < 0 ? 'bud-stat--negative' : 'bud-stat--positive'}`}>
-            <span>{remaining < 0 ? t('bud.overBy').replace('{amount}', `${currency}${Math.abs(remaining).toLocaleString('es-ES', { maximumFractionDigits: 0 })}`) : t('bud.remaining')}</span>
-            {remaining >= 0 && <strong>{currency}{remaining.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</strong>}
+            <span>{remaining < 0 ? t('bud.overBy').replace('{amount}', `${M(Math.abs(remaining), 0)}`) : t('bud.remaining')}</span>
+            {remaining >= 0 && <strong>{M(remaining, 0)}</strong>}
           </div>
         )}
       </div>
@@ -436,13 +442,13 @@ export default function Budget() {
             <div className="bud-cat-info">
               <div className="bud-cat-name">{inc.name}</div>
               <div className="bud-cat-amounts">
-                <span className="bud-cat-spent">{currency}{parseFloat(inc.amount || 0).toLocaleString('es-ES', { maximumFractionDigits: 2 })}</span>
+                <span className="bud-cat-spent">{M(parseFloat(inc.amount || 0), 'auto')}</span>
                 <span className="bud-cat-sep"> {t('bud.perMonth')}</span>
               </div>
             </div>
             <div className="bud-cat-actions">
-              <button className="bud-btn-icon" onClick={() => editIncome(inc)} title="Edit">✏️</button>
-              <button className="bud-btn-icon bud-btn-icon--danger" onClick={() => deleteIncome(inc.incomeId)} title="Delete">🗑️</button>
+              <button className="bud-btn-icon" onClick={() => editIncome(inc)} title={t('common.edit')} aria-label={t('common.edit')}><Pencil size={14} /></button>
+              <button className="bud-btn-icon bud-btn-icon--danger" onClick={() => deleteIncome(inc.incomeId)} title={t('common.delete')} aria-label={t('common.delete')}><Trash2 size={14} /></button>
             </div>
           </div>
         ))}
@@ -489,17 +495,17 @@ export default function Budget() {
               <div className="bud-cat-info">
                 <div className="bud-cat-name">{cat.name}</div>
                 <div className="bud-cat-amounts">
-                  <span className={over ? 'bud-cat-spent--over' : 'bud-cat-spent'}>{currency}{spent.toLocaleString('es-ES', { maximumFractionDigits: 2 })}</span>
+                  <span className={over ? 'bud-cat-spent--over' : 'bud-cat-spent'}>{M(spent, 'auto')}</span>
                   <span className="bud-cat-sep"> / </span>
-                  <span className="bud-cat-budgeted">{currency}{budgeted.toLocaleString('es-ES', { maximumFractionDigits: 2 })}</span>
+                  <span className="bud-cat-budgeted">{M(budgeted, 'auto')}</span>
                 </div>
                 <div className="bud-progress-track">
                   <div className={`bud-progress-fill ${over ? 'bud-progress-fill--over' : ''}`} style={{ width: `${pct}%` }} />
                 </div>
               </div>
               <div className="bud-cat-actions">
-                <button className="bud-btn-icon" onClick={() => editCategory(cat)} title="Edit">✏️</button>
-                <button className="bud-btn-icon bud-btn-icon--danger" onClick={() => deleteCategory(cat.categoryId)} title="Delete">🗑️</button>
+                <button className="bud-btn-icon" onClick={() => editCategory(cat)} title={t('common.edit')} aria-label={t('common.edit')}><Pencil size={14} /></button>
+                <button className="bud-btn-icon bud-btn-icon--danger" onClick={() => deleteCategory(cat.categoryId)} title={t('common.delete')} aria-label={t('common.delete')}><Trash2 size={14} /></button>
               </div>
             </div>
           );
@@ -566,10 +572,10 @@ export default function Budget() {
                 </div>
               </div>
               <div className="bud-exp-right">
-                <span className="bud-exp-amount">{currency}{parseFloat(exp.amount).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                <span className="bud-exp-amount">{M(parseFloat(exp.amount), 2)}</span>
                 <div className="bud-cat-actions">
-                  <button className="bud-btn-icon" onClick={() => editExpense(exp)} title="Edit">✏️</button>
-                  <button className="bud-btn-icon bud-btn-icon--danger" onClick={() => deleteExpense(exp.expenseId)} title="Delete">🗑️</button>
+                  <button className="bud-btn-icon" onClick={() => editExpense(exp)} title={t('common.edit')} aria-label={t('common.edit')}><Pencil size={14} /></button>
+                  <button className="bud-btn-icon bud-btn-icon--danger" onClick={() => deleteExpense(exp.expenseId)} title={t('common.delete')} aria-label={t('common.delete')}><Trash2 size={14} /></button>
                 </div>
               </div>
             </div>

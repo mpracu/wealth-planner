@@ -3,14 +3,14 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  --bud-accent:      #6366f1;
-  --bud-accent-soft: rgba(99, 102, 241, 0.12);
-  --bud-accent-glow: rgba(99, 102, 241, 0.18);
-  --bud-green:       #10b981;
-  --bud-green-soft:  rgba(16, 185, 129, 0.12);
-  --bud-red:         #ef4444;
-  --bud-red-soft:    rgba(239, 68, 68, 0.12);
-  --bud-amber:       #f59e0b;
+  --bud-accent:      var(--accent);
+  --bud-accent-soft: var(--accent-soft);
+  --bud-accent-glow: var(--accent-soft);
+  --bud-green:       var(--accent-green);
+  --bud-green-soft:  var(--accent-green-soft);
+  --bud-red:         var(--accent-danger);
+  --bud-red-soft:    var(--bg-tertiary);
+  --bud-amber:       var(--accent-warn);
   --bud-radius:      12px;
   --bud-radius-sm:   8px;
   --bud-transition:  all 0.18s ease;
@@ -171,9 +171,9 @@
 .bud-btn--primary {
   background: var(--bud-accent);
   border-color: var(--bud-accent);
-  color: #fff;
+  color: var(--accent-ink);
 }
-.bud-btn--primary:hover { background: #4f52d3; border-color: #4f52d3; color: #fff; }
+.bud-btn--primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--accent-ink); }
 .bud-btn--primary:disabled { background: var(--bud-accent); }
 
 /* ── Forms ──────────────────────────────────────────────── */
@@ -255,7 +255,7 @@
 .bud-form-actions button[type="submit"] {
   background: var(--bud-accent);
   border-color: var(--bud-accent);
-  color: #fff;
+  color: var(--accent-ink);
 }
 .bud-form-actions button[type="submit"]:hover { background: #4f52d3; }
 .bud-form-actions button[type="button"]:hover { border-color: var(--bud-red); color: var(--bud-red); }

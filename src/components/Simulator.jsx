@@ -1,24 +1,21 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Trash2, Link } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, ReferenceDot } from 'recharts';
 import { post as apiPost, get as apiGet, del as apiDel } from 'aws-amplify/api';
 import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
 import ReactGA from '../reactGA.js';
 import { useLanguage } from '../LanguageContext';
+import { useFormat } from '../lib/format';
+import { pathFor } from '../routes.js';
+import ParamControls from './ParamControls';
 
-const COMPARE_COLORS = ['#f59e0b', '#ef4444', '#a855f7', '#ec4899', '#14b8a6'];
+const COMPARE_COLORS = ['#e0a019', '#d4614b', '#5bb8a4', '#8a93c9', '#b9a36a'];
 
 const getThemeColors = () => {
   const theme = document.documentElement.getAttribute('data-theme') || 'dark';
   return theme === 'dark'
-    ? { bg: '#161b22', border: '#30363d', text: '#e6edf3', grid: '#21262d', axis: '#8b949e' }
-    : { bg: '#ffffff', border: '#e5e7eb', text: '#1f2937', grid: '#f3f4f6', axis: '#6b7280' };
-};
-
-const fmt = (v) => {
-  if (v >= 1000000) return `€${(v / 1000000).toFixed(1)}M`;
-  if (v >= 1000) return `€${Math.round(v / 1000)}k`;
-  return `€${v}`;
+    ? { bg: '#121a24', border: '#26313f', text: '#e8edf3', grid: '#1b2430', axis: '#8693a4', accent: '#7d8cff', green: '#34c79c' }
+    : { bg: '#ffffff', border: '#dde3ea', text: '#14202e', grid: '#eef1f5', axis: '#5d6b7c', accent: '#3d4fd6', green: '#0f9f7a' };
 };
 
 const computeData = (age, capital, monthly, annualReturn, inflation) => {
@@ -34,8 +31,10 @@ const computeData = (age, capital, monthly, annualReturn, inflation) => {
   return rows;
 };
 
-export default function Simulator({ preset }) {
+export default function Simulator({ preset, portfolio }) {
   const { t } = useLanguage();
+  const f = useFormat();
+  const fmt = f.compact;
   const [themeColors, setThemeColors] = useState(getThemeColors());
 
   useEffect(() => {
@@ -68,12 +67,34 @@ export default function Simulator({ preset }) {
     if (preset?.annualReturn != null) setAnnualReturn(preset.annualReturn);
   }, [preset]);
 
+  // Signed-in users start from their tracked net worth and recurring
+  // contribution instead of the generic example, unless they opened a shared
+  // link. A note says so and offers the way back.
+  const [usingPortfolio, setUsingPortfolio] = useState(false);
+  const [portfolioDismissed, setPortfolioDismissed] = useState(
+    () => new URLSearchParams(window.location.search).has('sim')
+  );
+  useEffect(() => {
+    if (!portfolio || portfolioDismissed || usingPortfolio) return;
+    if (!(portfolio.netWorth > 0)) return;
+    setCurrentCapital(Math.round(portfolio.netWorth));
+    if (portfolio.monthlyContribution > 0) setMonthlyInvestment(Math.round(portfolio.monthlyContribution));
+    setUsingPortfolio(true);
+  }, [portfolio, portfolioDismissed, usingPortfolio]);
+
+  const backToExample = () => {
+    setPortfolioDismissed(true);
+    setUsingPortfolio(false);
+    setCurrentCapital(50000);
+    setMonthlyInvestment(1000);
+  };
+
   const getShareUrl = () => {
     const p = new URLSearchParams({
       sim: '1', a: age, c: currentCapital, m: monthlyInvestment,
       r: annualReturn, i: inflation, g: targetAmount,
     });
-    return `${window.location.origin}${window.location.pathname}?${p}`;
+    return `${window.location.origin}${pathFor('simulator')}?${p}`;
   };
 
   const copyShareLink = async () => {
@@ -82,7 +103,6 @@ export default function Simulator({ preset }) {
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const [drafts, setDrafts] = useState({});
   const [scenarios, setScenarios] = useState([]);
   const [pinnedScenarios, setPinnedScenarios] = useState([]);
   const [scenarioName, setScenarioName] = useState('');
@@ -196,11 +216,11 @@ export default function Simulator({ preset }) {
 
   const controls = [
     { label: t('sim.currentAge'), id: 'age', value: age, set: setAge, min: 0, max: 100, step: 1, suffix: t('sim.yrs') },
-    { label: t('sim.startCap'), id: 'currentCapital', value: currentCapital, set: setCurrentCapital, min: 0, max: 500000, step: 1000, prefix: '€' },
-    { label: t('sim.monthlyInv'), id: 'monthlyInvestment', value: monthlyInvestment, set: setMonthlyInvestment, min: 0, max: 10000, step: 100, prefix: '€' },
+    { label: t('sim.startCap'), id: 'currentCapital', value: currentCapital, set: setCurrentCapital, min: 0, max: 500000, step: 1000, suffix: '€', open: true },
+    { label: t('sim.monthlyInv'), id: 'monthlyInvestment', value: monthlyInvestment, set: setMonthlyInvestment, min: 0, max: 10000, step: 100, suffix: '€', open: true },
     { label: t('sim.annualReturn'), id: 'annualReturn', value: annualReturn, set: setAnnualReturn, min: 0, max: 15, step: 0.5, suffix: '%' },
     { label: t('sim.inflation'), id: 'inflation', value: inflation, set: setInflation, min: 0, max: 10, step: 0.5, suffix: '%' },
-    { label: t('sim.goalAmount'), id: 'targetAmount', value: targetAmount, set: setTargetAmount, min: 0, max: 5000000, step: 10000, prefix: '€' },
+    { label: t('sim.goalAmount'), id: 'targetAmount', value: targetAmount, set: setTargetAmount, min: 0, max: 5000000, step: 10000, suffix: '€', open: true },
   ];
 
   const goalBanner = goalData
@@ -210,9 +230,21 @@ export default function Simulator({ preset }) {
         .replace('{year}', goalData.year)
     : t('sim.goalMissed');
 
-  const yAxisMin = currentCapital > 1000
-    ? Math.floor(currentCapital * 0.88 / 1000) * 1000
-    : 0;
+  // Scale the chart to the inflation-adjusted path and the goal, which are
+  // what matter for planning. The nominal line may run off the top.
+  const yAxisMax = useMemo(() => {
+    const peak = Math.max(
+      targetAmount,
+      ...data.map(d => d.real),
+      ...pinnedScenarios.map(ps => Math.max(...ps.scenData.map(r => r.real))),
+    );
+    // Four evenly spaced, round ticks (1, 2, 2.5 or 5 times a power of ten).
+    const raw = (peak * 1.1) / 4;
+    const mag = Math.pow(10, Math.floor(Math.log10(Math.max(raw, 1))));
+    const nice = [1, 2, 2.5, 5, 10].find(n => n * mag >= raw) * mag;
+    return nice * 4;
+  }, [data, targetAmount, pinnedScenarios]);
+  const yTicks = [0, 1, 2, 3, 4].map(i => (yAxisMax / 4) * i);
 
   return (
     <div className="simulator">
@@ -221,13 +253,13 @@ export default function Simulator({ preset }) {
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-label">{t('sim.startCap')}</div>
-          <div className="stat-value">€{currentCapital.toLocaleString('en-US')}</div>
+          <div className="stat-value">{f.money(currentCapital)}</div>
         </div>
         <div className={`stat-card ${goalData ? 'stat-card--success' : 'stat-card--warn'}`}>
           <div className="stat-label">{t('sim.goal')}</div>
           <div className="stat-value">{fmt(targetAmount)}</div>
           <div className="stat-sub">
-            {goalData ? `${t('sim.ageLabel')} ${goalData.age} · ${goalData.year}y` : t('sim.notReached')}
+            {goalData ? t('sim.goalAtAge').replace('{age}', goalData.age).replace('{years}', goalData.year) : t('sim.notReached')}
           </div>
         </div>
         <div className="stat-card">
@@ -237,8 +269,8 @@ export default function Simulator({ preset }) {
         </div>
         <div className="stat-card">
           <div className="stat-label">{t('sim.monthlyContrib')}</div>
-          <div className="stat-value">€{monthlyInvestment.toLocaleString('en-US')}</div>
-          <div className="stat-sub">{annualReturn}{t('sim.expectedRet')}</div>
+          <div className="stat-value">{f.money(monthlyInvestment)}</div>
+          <div className="stat-sub">{t('sim.expectedRet').replace('{pct}', f.percent(annualReturn, Number.isInteger(annualReturn) ? 0 : 1))}</div>
         </div>
       </div>
 
@@ -251,7 +283,7 @@ export default function Simulator({ preset }) {
           <h3 className="section-title">{t('sim.params')}</h3>
           <div className="sim-share-btns">
             <a
-              href={`https://wa.me/?text=${encodeURIComponent(t('sim.shareText').replace('{capital}', currentCapital.toLocaleString('en-US')).replace('{monthly}', monthlyInvestment.toLocaleString('en-US')).replace('{return}', annualReturn) + '\n' + getShareUrl())}`}
+              href={`https://wa.me/?text=${encodeURIComponent(t('sim.shareText').replace('{capital}', f.money(currentCapital)).replace('{monthly}', f.money(monthlyInvestment)).replace('{return}', f.percent(annualReturn, Number.isInteger(annualReturn) ? 0 : 1)) + '\n' + getShareUrl())}`}
               target="_blank" rel="noopener noreferrer"
               className="share-btn share-btn--whatsapp share-btn--sm"
             >
@@ -264,48 +296,13 @@ export default function Simulator({ preset }) {
             </button>
           </div>
         </div>
-        <div className="controls-grid">
-          {controls.map(({ label, id, value, set, min, max, step, prefix, suffix }) => (
-            <div key={id} className="control">
-              <div className="control-header">
-                <label htmlFor={`input-${id}`}>{label}</label>
-                <div className="control-input-wrap">
-                  {prefix && <span className="control-affix">{prefix}</span>}
-                  <input
-                    id={`input-${id}`}
-                    type="text"
-                    inputMode="decimal"
-                    className="control-number"
-                    value={drafts[id] !== undefined ? drafts[id] : value.toLocaleString('en-US')}
-                    onChange={e => {
-                      setDrafts(d => ({ ...d, [id]: e.target.value }));
-                      const num = parseFloat(e.target.value.replace(/,/g, ''));
-                      if (!isNaN(num)) set(num);
-                    }}
-                    onFocus={e => e.target.select()}
-                    onBlur={() => {
-                      const raw = drafts[id] ?? String(value);
-                      const num = parseFloat(raw.replace(/,/g, ''));
-                      const clamped = isNaN(num) ? value : Math.min(max, Math.max(min, num));
-                      set(clamped);
-                      setDrafts(d => { const nd = { ...d }; delete nd[id]; return nd; });
-                      track(label, clamped);
-                    }}
-                  />
-                  {suffix && <span className="control-affix">{suffix}</span>}
-                </div>
-              </div>
-              <input
-                type="range"
-                min={min}
-                max={max}
-                step={step}
-                value={value}
-                onChange={e => { set(+e.target.value); track(label, +e.target.value); }}
-              />
-            </div>
-          ))}
-        </div>
+        {usingPortfolio && (
+          <p className="portfolio-note">
+            {t('sim.fromPortfolio')}
+            <button type="button" className="link-btn" onClick={backToExample}>{t('sim.useExample')}</button>
+          </p>
+        )}
+        <ParamControls controls={controls} idPrefix="input" onCommit={track} />
       </div>
 
       {/* Chart */}
@@ -324,7 +321,7 @@ export default function Simulator({ preset }) {
           )}
         </div>
         <ResponsiveContainer width="100%" height={420}>
-          <LineChart data={data} margin={{ top: 10, right: 20, left: 10, bottom: 10 }}>
+          <LineChart data={data} margin={{ top: 16, right: 24, left: 10, bottom: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={themeColors.grid} />
             <XAxis
               dataKey="age"
@@ -333,11 +330,13 @@ export default function Simulator({ preset }) {
               label={{ value: t('sim.age'), position: 'insideBottomRight', offset: -10, fill: themeColors.axis, fontSize: 12 }}
             />
             <YAxis
-              domain={[yAxisMin, 'auto']}
+              domain={[0, yAxisMax]}
+              ticks={yTicks}
+              allowDataOverflow
               stroke={themeColors.axis}
               tick={{ fill: themeColors.axis, fontSize: 12 }}
               tickFormatter={fmt}
-              width={72}
+              width={84}
             />
             <Tooltip
               contentStyle={{
@@ -350,17 +349,30 @@ export default function Simulator({ preset }) {
               labelStyle={{ color: themeColors.text, fontWeight: 600, marginBottom: 4 }}
               itemStyle={{ color: themeColors.text }}
               labelFormatter={v => `${t('sim.ageLabel')} ${v}`}
-              formatter={(v, name) => [`€${Number(v).toLocaleString('en-US')}`, name]}
+              formatter={(v, name) => [f.money(v), name]}
             />
             <Legend wrapperStyle={{ paddingTop: 16, fontSize: 13 }} />
             <ReferenceLine
               y={targetAmount}
-              stroke="#22c55e"
+              stroke={themeColors.green}
               strokeDasharray="4 4"
-              label={{ value: fmt(targetAmount), fill: '#22c55e', fontSize: 11, position: 'right' }}
+              label={{ value: `${t('sim.goalAmount')} ${fmt(targetAmount)}`, fill: themeColors.green, fontSize: 12, fontWeight: 600, position: 'insideBottomLeft' }}
             />
-            <Line type="monotone" dataKey="nominal" stroke="#3b82f6" name={t('sim.nominal')} strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="real" stroke="#22c55e" name={t('sim.real')} strokeWidth={2} dot={false} />
+            {/* The inflation-adjusted line is the one to plan with, so it leads;
+                the nominal line stays as quiet context. */}
+            <Line type="monotone" dataKey="nominal" stroke={themeColors.axis} name={t('sim.nominal')} strokeWidth={1.5} strokeDasharray="5 4" dot={false} />
+            <Line type="monotone" dataKey="real" stroke={themeColors.accent} name={t('sim.real')} strokeWidth={3} dot={false} />
+            {goalData && (
+              <ReferenceDot
+                x={goalData.age}
+                y={data[goalData.year].real}
+                r={6}
+                fill={themeColors.green}
+                stroke={themeColors.bg}
+                strokeWidth={2}
+                label={{ value: `${t('sim.ageLabel')} ${goalData.age}`, fill: themeColors.text, fontSize: 12, fontWeight: 600, position: 'top', offset: 10 }}
+              />
+            )}
             {pinnedScenarios.map(ps => (
               <Line
                 key={ps.id}
@@ -412,7 +424,7 @@ export default function Simulator({ preset }) {
                   <div className="scenario-info">
                     <span className="scenario-name">{s.name}</span>
                     <span className="scenario-meta">
-                      {t('sim.ageLabel')} {s.data.age} · €{s.data.monthlyInvestment.toLocaleString('en-US')}{t('sim.perMonth')} · {s.data.annualReturn}{t('sim.return')}
+                      {t('sim.ageLabel')} {s.data.age}, {f.money(s.data.monthlyInvestment)}{t('sim.perMonth')}, {f.percent(s.data.annualReturn, Number.isInteger(s.data.annualReturn) ? 0 : 1)} {t('sim.return')}
                     </span>
                   </div>
                   <div className="scenario-actions">

@@ -1,11 +1,18 @@
-import * as ReactGAModule from 'react-ga4'
+// Thin wrapper over the gtag snippet that Layout.astro already loads.
+// The site used to initialise a second analytics client here with a
+// placeholder ID (G-XXXXXXXXXX), so input events never reached the real
+// property. Sending through the page's own gtag keeps one client, one ID.
+const gtag = (...args) => {
+  if (typeof window !== 'undefined' && typeof window.gtag === 'function') window.gtag(...args);
+};
 
-// Vite's CJS interop can wrap react-ga4's default export in an extra
-// `.default` layer depending on the bundler pass; drill down until we find
-// the actual instance (the one with an `initialize` method).
-let ReactGA = ReactGAModule
-while (ReactGA && typeof ReactGA.initialize !== 'function' && ReactGA.default) {
-  ReactGA = ReactGA.default
-}
+const ReactGA = {
+  event({ category, action, label, value }) {
+    gtag('event', action, { event_category: category, event_label: label, value });
+  },
+  pageview(path, title) {
+    gtag('event', 'page_view', { page_path: path, page_title: title, page_location: window.location.href });
+  },
+};
 
-export default ReactGA
+export default ReactGA;
